@@ -1,0 +1,2 @@
+# BAZAAR
+BAZAAR.UZ
