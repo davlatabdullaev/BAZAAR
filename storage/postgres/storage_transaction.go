@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -26,7 +27,9 @@ func (s storageTransactionRepo) Create(request models.CreateStorageTransaction) 
 
 	id := uuid.New()
 
-	query := `insert into storage_transaction (id, staff_id, product_id, storage_tranaction_type, price, quantity) values ($1, $2, $3, $4, $5, $6)`
+	updatedAt := time.Now()
+
+	query := `insert into storage_transaction (id, staff_id, product_id, storage_tranaction_type, price, quantity, updated_at) values ($1, $2, $3, $4, $5, $6, $7)`
 
 	res, err := s.db.Exec(query,
 		id,
@@ -35,6 +38,7 @@ func (s storageTransactionRepo) Create(request models.CreateStorageTransaction) 
 		request.StorageTransactionType,
 		request.Price,
 		request.Quantity,
+	    updatedAt,
 	)
 	if err != nil {
 		log.Println("error while inserting storage transaction data", err.Error())

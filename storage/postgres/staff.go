@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -26,10 +27,24 @@ func (s staffRepo) Create(request models.CreateStaff) (string, error) {
 
 	id := uuid.New()
 
-	query := `insert into staff (id, branch_id, tarif_id, type_staff, name, balance, birth_date, age, gender, login, password) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
+	updatedAt := time.Now()
 
-	res, err := s.db.Exec(query, id, request.BranchID, request.TarifID, request.TypeStaff, request.Name, request.Balance, request.BirthDate,
-		check.CalculateAge(request.BirthDate), request.Gender, request.Login, request.Password)
+	query := `insert into staff (id, branch_id, tarif_id, type_staff, name, balance, birth_date, age, gender, login, password, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
+
+	res, err := s.db.Exec(query,
+		id,
+		request.BranchID,
+		request.TarifID,
+		request.TypeStaff,
+		request.Name,
+		request.Balance,
+		request.BirthDate,
+		check.CalculateAge(request.BirthDate),
+		request.Gender,
+		request.Login,
+		request.Password,
+		updatedAt,
+	)
 	if err != nil {
 		log.Println("error while inserting staff data", err.Error())
 		return "", err
@@ -53,7 +68,7 @@ func (s staffRepo) Get(id models.PrimaryKey) (models.Staff, error) {
 
 	staff := models.Staff{}
 
-	query := `select id, branch_id, tarif_id, type_staff, name, birth_date, age, gender, login, password, created_at from staff where deleted_at is null and id = $1`
+	query := `select id, branch_id, tarif_id, type_staff, name, birth_date, age, gender, login, password, created_at, updated_at from staff where deleted_at is null and id = $1`
 
 	row := s.db.QueryRow(query, id.ID)
 
@@ -69,7 +84,7 @@ func (s staffRepo) Get(id models.PrimaryKey) (models.Staff, error) {
 		&staff.Login,
 		&staff.Password,
 		&staff.CreatedAt,
-		// &staff.UpdatedAt,
+		&staff.UpdatedAt,
 	)
 
 	if err != nil {

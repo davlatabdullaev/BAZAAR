@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -26,10 +27,12 @@ func (t transactionRepo) Create(request models.CreateTransaction) (string, error
 
 	id := uuid.New()
 
+	updatedAt := time.Now()
+
 	query := `insert into transaction (id, sale_id, staff_id, transaction_type,
-		source_type, amount, description) 
+		source_type, amount, description, updated_at) 
 	values 
-	($1, $2, $3, $4, $5, $6, $7)`
+	($1, $2, $3, $4, $5, $6, $7, $8)`
 
 	res, err := t.db.Exec(query,
 		id,
@@ -39,6 +42,7 @@ func (t transactionRepo) Create(request models.CreateTransaction) (string, error
 		request.SourceType,
 		request.Amount,
 		request.Description,
+		updatedAt,
 	)
 	if err != nil {
 		log.Println("error while inserting transaction data", err.Error())

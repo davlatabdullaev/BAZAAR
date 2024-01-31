@@ -9,6 +9,11 @@ type IStorage interface {
 	StorageTransaction() IStorageTransactionRepo
 	Tarif() ITarifRepo
 	Transaction() ITransactionRepo
+	Basket() IBasketRepo
+	Branch() IBranchRepo
+	Product() IProductRepo
+	Sale() ISaleRepo
+	Storage() IStorageRepo
 }
 
 type ICategoryRepo interface {
@@ -48,5 +53,45 @@ type ITransactionRepo interface {
 	Get(models.PrimaryKey) (models.Transaction, error)
 	GetList(models.GetListRequest) (models.TransactionsResponse, error)
 	Update(models.UpdateTransaction) (string, error)
+	Delete(string) error
+}
+
+type IBasketRepo interface {
+	Create(models.CreateBasket) (string, error)
+	Get(models.PrimaryKey) (models.Basket, error)
+	GetList(models.GetListRequest) (models.BasketsResponse, error)
+	Update(models.UpdateBasket) (string, error)
+	Delete(string) error
+}
+
+type IBranchRepo interface {
+	Create(models.CreateBranch) (string, error)
+	Get(models.PrimaryKey) (models.Branch, error)
+	GetList(models.GetListRequest) (models.BranchsResponse, error)
+	Update(models.UpdateBranch) (string, error)
+	Delete(string) error
+}
+
+type IProductRepo interface {
+	Create(models.CreateProduct) (string, error)
+	Get(models.PrimaryKey) (models.Product, error)
+	GetList(models.GetListRequest) (models.ProductsResponse, error)
+	Update(models.UpdateProduct) (string, error)
+	Delete(string) error
+}
+
+type ISaleRepo interface {
+	Create(models.CreateSale) (string, error)
+	Get(models.PrimaryKey) (models.Sale, error)
+	GetList(models.GetListRequest) (models.SalesResponse, error)
+	Update(models.UpdateSale) (string, error)
+	Delete(string) error
+}
+
+type IStorageRepo interface {
+	Create(models.CreateStorage) (string, error)
+	Get(models.PrimaryKey) (models.Storage, error)
+	GetList(models.GetListRequest) (models.StoragesResponse, error)
+	Update(models.UpdateStorage) (string, error)
 	Delete(string) error
 }

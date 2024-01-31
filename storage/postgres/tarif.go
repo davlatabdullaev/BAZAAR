@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -26,10 +27,12 @@ func (t tarifRepo) Create(request models.CreateTarif) (string, error) {
 
 	id := uuid.New()
 
+	updatedAt := time.Now()
+
 	query := `insert into tarif (id, name, tarif_type, amount_for_cash,
-		amount_for_card) 
+		amount_for_card, updated_at) 
 	values 
-	($1, $2, $3, $4, $5)`
+	($1, $2, $3, $4, $5, $6)`
 
 	res, err := t.db.Exec(query,
 		id,
@@ -37,6 +40,7 @@ func (t tarifRepo) Create(request models.CreateTarif) (string, error) {
 		request.TarifType,
 		request.AmountForCash,
 		request.AmountForCard,
+		updatedAt,
 	)
 	if err != nil {
 		log.Println("error while inserting tarif data", err.Error())

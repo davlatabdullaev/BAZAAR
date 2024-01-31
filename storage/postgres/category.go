@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -26,9 +27,16 @@ func (c categoryRepo) Create(category models.CreateCategory) (string, error) {
 
 	id := uuid.New()
 
-	query := `insert into category (id, name, parent_id) values ($1, $2, $3)`
+    updatedAt := time.Now()	
 
-	res, err := c.db.Exec(query, id, category.Name, category.ParentID)
+	query := `insert into category (id, name, parent_id, updated_at) values ($1, $2, $3, $4)`
+
+	res, err := c.db.Exec(query, 
+		id, 
+		category.Name, 
+		category.ParentID,
+		updatedAt,
+	)
 	if err != nil {
 		log.Println("error while inserting category", err.Error())
 		return "", err

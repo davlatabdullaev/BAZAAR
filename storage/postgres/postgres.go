@@ -12,17 +12,17 @@ type Store struct {
 }
 
 func New(cfg config.Config) (storage.IStorage, error) {
-	url := fmt.Sprintf(`host = %s port = %s user = %s password = %s database = %s sslmode=disable`, 
-     cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDB)
+	url := fmt.Sprintf(`host = %s port = %s user = %s password = %s database = %s sslmode=disable`,
+		cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDB)
 
-	 db, err := sql.Open("postgres", url)
-	 if err != nil {
+	db, err := sql.Open("postgres", url)
+	if err != nil {
 		return Store{}, err
-	 }
+	}
 
-	 return Store{
+	return Store{
 		db: db,
-	 }, nil
+	}, nil
 
 }
 
@@ -35,17 +35,38 @@ func (s Store) Category() storage.ICategoryRepo {
 }
 
 func (s Store) Staff() storage.IStaffRepo {
-	return  NewStaffRepo(s.db)
+	return NewStaffRepo(s.db)
 }
 
 func (s Store) StorageTransaction() storage.IStorageTransactionRepo {
 	return NewStorageTransactionRepo(s.db)
 }
 
-func (s Store) Tarif() storage.ITarifRepo{
+func (s Store) Tarif() storage.ITarifRepo {
 	return NewTarifRepo(s.db)
 }
 
 func (s Store) Transaction() storage.ITransactionRepo {
-   return NewTransactionRepo(s.db)
+	return NewTransactionRepo(s.db)
 }
+
+func (s Store) Basket() storage.IBasketRepo {
+	return NewBasketRepo(s.db)
+}
+
+func (s Store) Branch() storage.IBranchRepo {
+	return NewBranchRepo(s.db)
+}
+
+func (s Store) Product() storage.IProductRepo {
+	return NewProductRepo(s.db)
+}
+
+func (s Store) Sale() storage.ISaleRepo {
+	return NewSaleRepo(s.db)
+}
+
+func (s Store) Storage() storage.IStorageRepo {
+	return NewStorageRepo(s.db)
+ }
+ 
