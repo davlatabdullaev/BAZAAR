@@ -12,8 +12,10 @@ func (h Handler) Staff(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		h.CreateStaff(w, r)
 	case http.MethodGet:
+
 		values := r.URL.Query()
 		if _, ok := values["id"]; !ok {
+
 			h.GetStaffList(w)
 		} else {
 			h.GetStaffByID(w, r)
@@ -55,10 +57,12 @@ func (h Handler) CreateStaff(w http.ResponseWriter, r *http.Request) {
 
 func (h Handler) GetStaffByID(w http.ResponseWriter, r *http.Request) {
 	values := r.URL.Query()
+
 	if len(values["id"]) <= 0 {
 		handleResponse(w, http.StatusInternalServerError, errors.New("id is required"))
 		return
 	}
+
 	id := values["id"][0]
 	var err error
 
@@ -83,8 +87,8 @@ func (h Handler) GetStaffList(w http.ResponseWriter) {
 	)
 
 	response, err := h.storage.Staff().GetList(models.GetListRequest{
-		Page:  page,
-		Limit: limit,
+		Page:   page,
+		Limit:  limit,
 		Search: search,
 	})
 

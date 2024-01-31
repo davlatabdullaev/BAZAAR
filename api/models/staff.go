@@ -6,6 +6,7 @@ type Staff struct {
 	TarifID   string `json:"tarif_id"`
 	TypeStaff string `json:"type_staff"`
 	Name      string `json:"name"`
+	Balance   string `json:"balance"`
 	BirthDate string `json:"birth_date"`
 	Age       int    `json:"age"`
 	Gender    string `json:"gender"`
@@ -21,6 +22,7 @@ type CreateStaff struct {
 	TarifID   string `json:"tarif_id"`
 	TypeStaff string `json:"type_staff"`
 	Name      string `json:"name"`
+	Balance   string `json:"balance"`
 	BirthDate string `json:"birth_date"`
 	Gender    string `json:"gender"`
 	Login     string `json:"login"`
@@ -34,6 +36,7 @@ type UpdateStaff struct {
 	TarifID   string `json:"tarif_id"`
 	TypeStaff string `json:"type_staff"`
 	Name      string `json:"name"`
+	Balance   string `json:"balance"`
 	BirthDate string `json:"birth_date"`
 	Gender    string `json:"gender"`
 	Login     string `json:"login"`
