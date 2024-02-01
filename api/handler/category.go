@@ -41,7 +41,7 @@ func (h Handler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	car, err := h.storage.Category().Get(models.PrimaryKey{
+	category, err := h.storage.Category().Get(models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -49,7 +49,7 @@ func (h Handler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	handleResponse(w, http.StatusCreated, car)
+	handleResponse(w, http.StatusCreated, category)
 
 }
 

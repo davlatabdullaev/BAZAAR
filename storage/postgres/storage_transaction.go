@@ -65,7 +65,7 @@ func (s storageTransactionRepo) Get(id models.PrimaryKey) (models.StorageTransac
 
 	query := `select id, staff_id, product_id, storage_transaction_type, 
 	price, quantity, created_at, updated_at from storage_transaction
-	 where deleted_at = null and id = $1`
+	 where deleted_at is null and id = $1`
 
 	row := s.db.QueryRow(query, id)
 
@@ -112,7 +112,7 @@ func (s storageTransactionRepo) GetList(request models.GetListRequest) (models.S
 	query = `select id, staff_id, product_id, storafe_transaction_type, 
 	price, quantity, created_at, updated_at
 	from storage_transaction 
-	where deleted_at = null`
+	where deleted_at is null`
 
 	if search != "" {
 		query += fmt.Sprintf(` where storage_transaction_type ilike '%%%s%%'`, search)

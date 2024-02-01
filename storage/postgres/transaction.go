@@ -70,7 +70,7 @@ func (t transactionRepo) Get(id models.PrimaryKey) (models.Transaction, error) {
 	query := `select id, sale_id, staff_id, transaction_type,
 	source_type, amount, description, 
 	 created_at, updated_at from tarif
-	 where deleted_at = null and id = $1`
+	 where deleted_at is null and id = $1`
 
 	row := t.db.QueryRow(query, id)
 
@@ -120,7 +120,7 @@ func (t transactionRepo) GetList(request models.GetListRequest) (models.Transact
 	amount, description,
 	created_at, updated_at
 	from tarif 
-	where deleted_at = null`
+	where deleted_at is null`
 
 	if search != "" {
 		query += fmt.Sprintf(` where description ilike '%%%s%%'`, search)

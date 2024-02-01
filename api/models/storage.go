@@ -17,6 +17,7 @@ type CreateStorage struct {
 }
 
 type UpdateStorage struct {
+	ID        string `json:"id"`
 	ProductID string `json:"product_id"`
 	BranchID  string `json:"branch_id"`
 	Count     int    `json:"count"`

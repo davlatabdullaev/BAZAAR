@@ -115,7 +115,7 @@ func (s staffRepo) GetList(request models.GetListRequest) (models.StaffsResponse
 		return models.StaffsResponse{}, err
 	}
 
-	query = `select id, branch_id, tarif_id, type_staff, name, birth_date, age, gender, login, password, created_at, updated_at from staff where deleted_at = null`
+	query = `select id, branch_id, tarif_id, type_staff, name, birth_date, age, gender, login, password, created_at, updated_at from staff where deleted_at is null`
 
 	if search != "" {
 		query += fmt.Sprintf(` where name ilike '%%%s%%'`, search)

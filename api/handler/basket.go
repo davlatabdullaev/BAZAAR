@@ -41,7 +41,7 @@ func (h Handler) CreateBasket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	car, err := h.storage.Category().Get(models.PrimaryKey{
+	basket, err := h.storage.Basket().Get(models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -49,7 +49,7 @@ func (h Handler) CreateBasket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	handleResponse(w, http.StatusCreated, car)
+	handleResponse(w, http.StatusCreated, basket)
 
 }
 
@@ -62,7 +62,7 @@ func (h Handler) GetBasketByID(w http.ResponseWriter, r *http.Request) {
 	id := values["id"][0]
 	var err error
 
-	category, err := h.storage.Category().Get(models.PrimaryKey{
+	basket, err := h.storage.Basket().Get(models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -70,7 +70,7 @@ func (h Handler) GetBasketByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	handleResponse(w, http.StatusOK, category)
+	handleResponse(w, http.StatusOK, basket)
 
 }
 
@@ -82,7 +82,7 @@ func (h Handler) GetBasketList(w http.ResponseWriter) {
 		err         error
 	)
 
-	response, err := h.storage.Category().GetList(models.GetListRequest{
+	response, err := h.storage.Basket().GetList(models.GetListRequest{
 		Page:   page,
 		Limit:  limit,
 		Search: search,
@@ -98,20 +98,20 @@ func (h Handler) GetBasketList(w http.ResponseWriter) {
 }
 
 func (h Handler) UpdateBasket(w http.ResponseWriter, r *http.Request) {
-	updateCategory := models.UpdateCategory{}
+	updateBasket := models.UpdateBasket{}
 
-	if err := json.NewDecoder(r.Body).Decode(&updateCategory); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&updateBasket); err != nil {
 		handleResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := h.storage.Category().Update(updateCategory)
+	id, err := h.storage.Basket().Update(updateBasket)
 	if err != nil {
 		handleResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	category, err := h.storage.Category().Get(models.PrimaryKey{
+	basket, err := h.storage.Basket().Get(models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -119,7 +119,7 @@ func (h Handler) UpdateBasket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	handleResponse(w, http.StatusOK, category)
+	handleResponse(w, http.StatusOK, basket)
 
 }
 
@@ -132,7 +132,7 @@ func (h Handler) DeleteBasket(w http.ResponseWriter, r *http.Request) {
 
 	id := values["id"][0]
 
-	if err := h.storage.Category().Delete(id); err != nil {
+	if err := h.storage.Basket().Delete(id); err != nil {
 		handleResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}

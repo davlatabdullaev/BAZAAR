@@ -19,6 +19,7 @@ type CreateProduct struct {
 }
 
 type UpdateProduct struct {
+	ID         string `json:"id"`
 	Name       string `json:"name"`
 	Price      string `json:"price"`
 	Barcode    string `json:"barcode"`

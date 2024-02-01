@@ -19,6 +19,7 @@ type CreateBasket struct {
 }
 
 type UpdateBasket struct {
+	ID        string `json:"id"`
 	SaleID    string `json:"sale_id"`
 	ProductID string `json:"product_id"`
 	Quantity  int    `json:"quantity"`

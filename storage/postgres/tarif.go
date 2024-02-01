@@ -69,7 +69,7 @@ func (t tarifRepo) Get(id models.PrimaryKey) (models.Tarif, error) {
 	query := `select id, name, tarif_type, amount_for_cash,
 	amount_for_card, 
 	 created_at, updated_at from tarif
-	 where deleted_at = null and id = $1`
+	 where deleted_at is null and id = $1`
 
 	row := t.db.QueryRow(query, id)
 
@@ -117,7 +117,7 @@ func (t tarifRepo) GetList(request models.GetListRequest) (models.TarifsResponse
 	amount_for_cash, amount_for_card,
 	created_at, updated_at
 	from tarif 
-	where deleted_at = null`
+	where deleted_at is null`
 
 	if search != "" {
 		query += fmt.Sprintf(` where name ilike '%%%s%%'`, search)

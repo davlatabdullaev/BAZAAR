@@ -2,8 +2,14 @@ package postgres
 
 import (
 	"bazaar/api/models"
+	"bazaar/pkg/check"
 	"bazaar/storage"
 	"database/sql"
+	"errors"
+	"fmt"
+	"log"
+
+	"github.com/google/uuid"
 )
 
 type saleRepo struct {
@@ -16,27 +22,190 @@ func NewSaleRepo(db *sql.DB) storage.ISaleRepo {
 	}
 }
 
-func (s saleRepo) Create(product models.CreateSale) (string, error) {
+func (s saleRepo) Create(sale models.CreateSale) (string, error) {
 
-	return "", nil
+	id := uuid.New()
+
+	query := `insert into sale (id, branch_id, shop_assistent_id, chashier_id, payment_type, price, status, client_name, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+
+	res, err := s.db.Exec(query,
+		id,
+		sale.BranchID,
+		sale.ShopAssistantID,
+		sale.CashierID,
+		sale.PaymentType,
+		sale.Price,
+		sale.Status,
+		sale.ClientName,
+		check.TimeNow(),
+	)
+	if err != nil {
+		log.Println("error while inserting sale", err.Error())
+		return "", err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		log.Println("error getting rows affected", err.Error())
+		return "", err
+	}
+
+	if rowsAffected == 0 {
+		log.Println("no rows affected during insert")
+		return "", errors.New("no rows affected during insert")
+	}
+
+	return id.String(), nil
 }
 
 func (s saleRepo) Get(id models.PrimaryKey) (models.Sale, error) {
 
-	return models.Sale{}, nil
+	sale := models.Sale{}
+
+	row := s.db.QueryRow(`select id, branch_id, shop_assistent_id, cashier_id, payment_type, price, status, client_name, created_at, updated_at  from sale where deleted_at is null and id = $1`, id)
+
+	err := row.Scan(
+		&sale.ID,
+		&sale.BranchID,
+		&sale.ShopAssistantID,
+		&sale.CashierID,
+		&sale.PaymentType,
+		&sale.Price,
+		&sale.Status,
+		&sale.ClientName,
+		&sale.CreatedAt,
+		&sale.UpdatedAt,
+	)
+
+	if err != nil {
+		log.Println("error while selecting sale", err.Error())
+		return models.Sale{}, err
+	}
+
+	return sale, nil
 }
 
 func (s saleRepo) GetList(request models.GetListRequest) (models.SalesResponse, error) {
 
-	return models.SalesResponse{}, nil
+	var (
+		sales             = []models.Sale{}
+		count             = 0
+		query, countQuery string
+		page              = request.Page
+		offset            = (page - 1) * request.Limit
+		search            = request.Search
+	)
+
+	countQuery = `select count(1) from sale `
+
+	if search != "" {
+		countQuery += fmt.Sprintf(`where price ilike '%%%s%%'`, search)
+	}
+	if err := s.db.QueryRow(countQuery).Scan(&count); err != nil {
+		fmt.Println("error is while selecting count", err.Error())
+		return models.SalesResponse{}, err
+	}
+
+	query = `select id, branch_id, shop_assistent_id, cashier_id, payment_type, price, status, client_name, created_at, updated_at from sale where deleted_at is null`
+
+	if search != "" {
+		query += fmt.Sprintf(` where price ilike '%%%s%%'`, search)
+	}
+
+	query += `LIMIT $1 OFFSET $2`
+	rows, err := s.db.Query(query, request.Limit, offset)
+	if err != nil {
+		fmt.Println("error is while selecting product", err.Error())
+		return models.SalesResponse{}, err
+	}
+
+	for rows.Next() {
+		sale := models.Sale{}
+		if err = rows.Scan(
+			&sale.ID,
+			&sale.BranchID,
+			&sale.ShopAssistantID,
+			&sale.CashierID,
+			&sale.PaymentType,
+			&sale.Price,
+			&sale.Status,
+			&sale.ClientName,
+			&sale.CreatedAt,
+			&sale.UpdatedAt,
+		); err != nil {
+			fmt.Println("error is while scanning sale data", err.Error())
+			return models.SalesResponse{}, err
+		}
+
+		sales = append(sales, sale)
+
+	}
+
+	return models.SalesResponse{
+		Sales: sales,
+		Count: count,
+	}, nil
 }
 
 func (s saleRepo) Update(request models.UpdateSale) (string, error) {
+
+	query := `update sale set branch_id = $1, shop_assistent_id = $2,
+	 cashier_id = $3, payment_type = $4, price = $5, 
+	 status = $6, client_name = $7, updated_at = $8 
+	 where id = $9`
+
+	res, err := s.db.Exec(query,
+		request.BranchID,
+		request.ShopAssistantID,
+		request.CashierID,
+		request.PaymentType,
+		request.Price,
+		request.Status,
+		request.ClientName,
+		request.UpdatedAt,
+		request.ID,
+	)
+	if err != nil {
+		log.Println("error while updating sale data...", err.Error())
+		return "", err
+	}
+
+	rowaAffected, err := res.RowsAffected()
+	if err != nil {
+		log.Println("error while getting rows affected", err.Error())
+		return "", err
+	}
+
+	if rowaAffected == 0 {
+		log.Println("no rows affected during insert")
+		return "", errors.New("no rows affected during insert")
+	}
 
 	return "", nil
 }
 
 func (s saleRepo) Delete(id string) error {
+
+	query := `update sale 
+	set deleted_at = $1 
+	where id = $2`
+
+	res, err := s.db.Exec(query, check.TimeNow(), id)
+	if err != nil {
+		log.Println("error while deleting sale by id", err.Error())
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		log.Println("error getting rows affected", err.Error())
+		return err
+	}
+
+	if rowsAffected == 0 {
+		log.Println("no rows affected during insert")
+		return errors.New("no rows affected during insert")
+	}
 
 	return nil
 }

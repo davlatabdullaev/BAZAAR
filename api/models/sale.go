@@ -25,6 +25,7 @@ type CreateSale struct {
 }
 
 type UpdateSale struct {
+	ID              string `json:"id"`
 	BranchID        string `json:"branch_id"`
 	ShopAssistantID string `json:"shop_assistant_id"`
 	CashierID       string `json:"cashier_id"`

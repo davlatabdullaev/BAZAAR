@@ -60,7 +60,7 @@ func (c categoryRepo) Get(id models.PrimaryKey) (models.Category, error) {
 
 	category := models.Category{}
 
-	row := c.db.QueryRow(`select id, name, parent_id, created_at, updated_at from category where deleted_at = null and id = $1`, id)
+	row := c.db.QueryRow(`select id, name, parent_id, created_at, updated_at from category where deleted_at is null and id = $1`, id)
 
 	err := row.Scan(
 		&category.ID,
@@ -98,7 +98,7 @@ func (c categoryRepo) GetList(request models.GetListRequest) (models.CategoriesR
 		return models.CategoriesResponse{}, err
 	}
 
-	query = `select id, name, parent_id, created_at, updated_at from category where deleted_at = null`
+	query = `select id, name, parent_id, created_at, updated_at from category where deleted_at is null`
 
 	if search != "" {
 		query += fmt.Sprintf(` where name ilike '%%%s%%'`, search)
