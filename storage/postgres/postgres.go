@@ -4,7 +4,12 @@ import (
 	"bazaar/config"
 	"bazaar/storage"
 	"context"
+	
 	"fmt"
+	_ "github.com/golang-migrate/migrate/v4/database"          //database is needed for migration
+	_ "github.com/golang-migrate/migrate/v4/database/postgres" //postgres is used for database
+	_ "github.com/golang-migrate/migrate/v4/source/file"       //file is needed for migration url
+	
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
