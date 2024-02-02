@@ -2,42 +2,23 @@ package handler
 
 import (
 	"bazaar/api/models"
-	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
-func (h Handler) Category(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPost:
-		h.CreateCategory(w, r)
-	case http.MethodGet:
-		values := r.URL.Query()
-		if _, ok := values["id"]; !ok {
-			h.GetCategoryList(w)
-		} else {
-			h.GetCategoryByID(w, r)
-		}
-	case http.MethodPut:
-		{
-			h.UpdateCategory(w, r)
-		}
-	case http.MethodDelete:
-		h.DeleteCategory(w, r)
-	}
-}
-
-func (h Handler) CreateCategory(w http.ResponseWriter, r *http.Request) {
+func (h Handler) CreateCategory(c *gin.Context) {
 	createCategory := models.CreateCategory{}
 
-	if err := json.NewDecoder(r.Body).Decode(&createCategory); err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
-		return
+	if err := c.ShouldBindJSON(&createCategory); err != nil {
+		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
 	id, err := h.storage.Category().Create(createCategory)
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while creating category", http.StatusInternalServerError, err)
 		return
 	}
 
@@ -45,69 +26,89 @@ func (h Handler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while get category", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(w, http.StatusCreated, category)
+	handleResponse(c, "", http.StatusCreated, category)
 
 }
 
-func (h Handler) GetCategoryByID(w http.ResponseWriter, r *http.Request) {
-	values := r.URL.Query()
-	if len(values["id"]) <= 0 {
-		handleResponse(w, http.StatusInternalServerError, errors.New("id is required"))
-		return
-	}
-	id := values["id"][0]
+func (h Handler) GetCategoryByID(c *gin.Context) {
 	var err error
 
+	id := c.Param("id")
+
 	category, err := h.storage.Category().Get(models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while get category by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(w, http.StatusOK, category)
+	handleResponse(c, "", http.StatusOK, category)
 
 }
 
-func (h Handler) GetCategoryList(w http.ResponseWriter) {
+func (h Handler) GetCategoryList(c *gin.Context) {
 
 	var (
-		page, limit = 1, 50
+		page, limit int
 		search      string
 		err         error
 	)
 
+	pageStr := c.DefaultQuery("page", "1")
+	page, err = strconv.Atoi(pageStr)
+	if err != nil {
+		handleResponse(c, "error while parsing page ", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	limitStr := c.DefaultQuery("limit", "10")
+	limit, err = strconv.Atoi(limitStr)
+	if err != nil {
+		handleResponse(c, "error while parsing limit", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	search = c.Query("search")
+
 	response, err := h.storage.Category().GetList(models.GetListRequest{
-		Page:  page,
-		Limit: limit,
+		Page:   page,
+		Limit:  limit,
 		Search: search,
 	})
 
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while getting category", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(w, http.StatusOK, response)
+	handleResponse(c, "", http.StatusOK, response)
 
 }
 
-func (h Handler) UpdateCategory(w http.ResponseWriter, r *http.Request) {
+func (h Handler) UpdateCategory(c *gin.Context) {
 	updateCategory := models.UpdateCategory{}
 
-	if err := json.NewDecoder(r.Body).Decode(&updateCategory); err != nil {
-		handleResponse(w, http.StatusBadRequest, err.Error())
+	uid := c.Param("id")
+	if uid == "" {
+		handleResponse(c, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
+		return
+	}
+
+	updateCategory.ID = uid
+
+	if err := c.ShouldBindJSON(&updateCategory); err != nil {
+		handleResponse(c, "error while reading body", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	id, err := h.storage.Category().Update(updateCategory)
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err.Error())
+		handleResponse(c, "error while updating category", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -115,28 +116,23 @@ func (h Handler) UpdateCategory(w http.ResponseWriter, r *http.Request) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while get category by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(w, http.StatusOK, category)
+	handleResponse(c, "", http.StatusOK, category)
 
 }
 
-func (h Handler) DeleteCategory(w http.ResponseWriter, r *http.Request) {
-	values := r.URL.Query()
-	if len(values["id"]) <= 0 {
-		handleResponse(w, http.StatusBadRequest, errors.New("id is required"))
+func (h Handler) DeleteCategory(c *gin.Context) {
+
+	uid := c.Param("id")
+
+	if err := h.storage.Category().Delete(uid); err != nil {
+		handleResponse(c, "error while deleting category by id", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	id := values["id"][0]
-
-	if err := h.storage.Category().Delete(id); err != nil {
-		handleResponse(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	handleResponse(w, http.StatusOK, "data succesfully deleted")
+	handleResponse(c, "", http.StatusOK, "data succesfully deleted")
 
 }

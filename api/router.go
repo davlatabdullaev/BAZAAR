@@ -2,14 +2,33 @@ package api
 
 import (
 	"bazaar/api/handler"
-	"net/http"
+	"bazaar/storage"
+
+	"github.com/gin-gonic/gin"
 )
 
-func New(h handler.Handler) {
+func New(store storage.IStorage) *gin.Engine {
 
-	http.HandleFunc("/category", h.Category)
-	http.HandleFunc("/staff", h.Staff)
-	http.HandleFunc("/storageTransaction", h.StorageTransaction)
-	http.HandleFunc("/tarif", h.Tarif)
-	http.HandleFunc("/transaction", h.Transaction)
+	h := handler.New(store)
+
+	r := gin.New()
+
+	// BASKET
+
+	r.POST("basket", h.CreateBasket)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	return r
 }

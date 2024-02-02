@@ -2,44 +2,24 @@ package handler
 
 import (
 	"bazaar/api/models"
-	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
-func (h Handler) Staff(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPost:
-		h.CreateStaff(w, r)
-	case http.MethodGet:
-
-		values := r.URL.Query()
-		if _, ok := values["id"]; !ok {
-
-			h.GetStaffList(w)
-		} else {
-			h.GetStaffByID(w, r)
-		}
-	case http.MethodPut:
-		{
-			h.UpdateStaff(w, r)
-		}
-	case http.MethodDelete:
-		h.DeleteStaff(w, r)
-	}
-}
-
-func (h Handler) CreateStaff(w http.ResponseWriter, r *http.Request) {
+func (h Handler) CreateStaff(c *gin.Context) {
 	createStaff := models.CreateStaff{}
 
-	if err := json.NewDecoder(r.Body).Decode(&createStaff); err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
-		return
+	if err := c.ShouldBindJSON(&createStaff); err != nil {
+		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
 	id, err := h.storage.Staff().Create(createStaff)
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while creating staff", http.StatusInternalServerError, err)
 		return
 	}
 
@@ -47,44 +27,55 @@ func (h Handler) CreateStaff(w http.ResponseWriter, r *http.Request) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while get product", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(w, http.StatusCreated, staff)
+	handleResponse(c, "", http.StatusCreated, staff)
 
 }
 
-func (h Handler) GetStaffByID(w http.ResponseWriter, r *http.Request) {
-	values := r.URL.Query()
+func (h Handler) GetStaffByID(c *gin.Context) {
 
-	if len(values["id"]) <= 0 {
-		handleResponse(w, http.StatusInternalServerError, errors.New("id is required"))
-		return
-	}
-
-	id := values["id"][0]
 	var err error
 
+	id := c.Param("id")
+
 	staff, err := h.storage.Staff().Get(models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while get staff by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(w, http.StatusOK, staff)
+	handleResponse(c, "", http.StatusOK, staff)
 
 }
 
-func (h Handler) GetStaffList(w http.ResponseWriter) {
+func (h Handler) GetStaffList(c *gin.Context) {
 
 	var (
-		page, limit = 1, 50
+		page, limit int
 		search      string
 		err         error
 	)
+
+	pageStr := c.DefaultQuery("page", "1")
+	page, err = strconv.Atoi(pageStr)
+	if err != nil {
+		handleResponse(c, "error while parsing page ", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	limitStr := c.DefaultQuery("limit", "10")
+	limit, err = strconv.Atoi(limitStr)
+	if err != nil {
+		handleResponse(c, "error while parsing limit", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	search = c.Query("search")
 
 	response, err := h.storage.Staff().GetList(models.GetListRequest{
 		Page:   page,
@@ -93,25 +84,33 @@ func (h Handler) GetStaffList(w http.ResponseWriter) {
 	})
 
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while getting staff", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(w, http.StatusOK, response)
+	handleResponse(c, "", http.StatusOK, response)
 
 }
 
-func (h Handler) UpdateStaff(w http.ResponseWriter, r *http.Request) {
+func (h Handler) UpdateStaff(c *gin.Context) {
 	updateStaff := models.UpdateStaff{}
 
-	if err := json.NewDecoder(r.Body).Decode(&updateStaff); err != nil {
-		handleResponse(w, http.StatusBadRequest, err.Error())
+	uid := c.Param("id")
+	if uid == "" {
+		handleResponse(c, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
+		return
+	}
+
+	updateStaff.ID = uid
+
+	if err := c.ShouldBindJSON(&updateStaff); err != nil {
+		handleResponse(c, "error while reading body", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	id, err := h.storage.Staff().Update(updateStaff)
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err.Error())
+		handleResponse(c, "error while updating staff", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -119,27 +118,27 @@ func (h Handler) UpdateStaff(w http.ResponseWriter, r *http.Request) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while get staff by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(w, http.StatusOK, staff)
+	handleResponse(c, "", http.StatusOK, staff)
 }
 
-func (h Handler) DeleteStaff(w http.ResponseWriter, r *http.Request) {
-	values := r.URL.Query()
-	if len(values["id"]) <= 0 {
-		handleResponse(w, http.StatusBadRequest, errors.New("id is required"))
+func (h Handler) DeleteStaff(c *gin.Context) {
+
+	uid := c.Param("id")
+	id, err := uuid.Parse(uid)
+	if err != nil {
+		handleResponse(c, "uuid is not valid", http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id := values["id"][0]
-
-	if err := h.storage.Staff().Delete(id); err != nil {
-		handleResponse(w, http.StatusInternalServerError, err.Error())
+	if err := h.storage.Staff().Delete(id.String()); err != nil {
+		handleResponse(c, "error while deleting staff", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(w, http.StatusOK, "data succesfully deleted")
+	handleResponse(c, "", http.StatusOK, "data succesfully deleted")
 
 }

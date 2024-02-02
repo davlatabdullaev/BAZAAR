@@ -2,35 +2,28 @@ package main
 
 import (
 	"bazaar/api"
-	"bazaar/api/handler"
 	"bazaar/config"
 	"bazaar/storage/postgres"
-	"fmt"
 	"log"
-	"net/http"
 
-	_ "github.com/lib/pq"
 )
 
 func main() {
 
 	cfg := config.Load()
 
-	store, err := postgres.New(cfg)
+	pgStore, err := postgres.New(cfg)
 	if err != nil {
 		log.Fatalln("error while connecting to db err: ", err.Error())
 		return
 	}
-	defer store.CloseDB()
+	defer pgStore.CloseDB()
 
-	handler := handler.New(store)
+	server := api.New(pgStore)
 
-
-	api.New(handler)
-
-	fmt.Println("Server is running on port 8080")
-	if err = http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatalln("error while running server err:", err.Error())
+	if err = server.Run("localhost:8080"); err != nil {
+		log.Println("error while server run")
+		return
 	}
 
 }

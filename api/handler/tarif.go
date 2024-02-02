@@ -2,42 +2,24 @@ package handler
 
 import (
 	"bazaar/api/models"
-	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
-func (h Handler) Tarif(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPost:
-		h.CreateTarif(w, r)
-	case http.MethodGet:
-		values := r.URL.Query()
-		if _, ok := values["id"]; !ok {
-			h.GetTarifList(w)
-		} else {
-			h.GetTarifByID(w, r)
-		}
-	case http.MethodPut:
-		{
-			h.UpdateTarif(w, r)
-		}
-	case http.MethodDelete:
-		h.DeleteTarif(w, r)
-	}
-}
-
-func (h Handler) CreateTarif(w http.ResponseWriter, r *http.Request) {
+func (h Handler) CreateTarif(c *gin.Context) {
 	createTarif := models.CreateTarif{}
 
-	if err := json.NewDecoder(r.Body).Decode(&createTarif); err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
-		return
+	if err := c.ShouldBindJSON(&createTarif); err != nil {
+		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
 	id, err := h.storage.Tarif().Create(createTarif)
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while creating tarif", http.StatusInternalServerError, err)
 		return
 	}
 
@@ -45,36 +27,32 @@ func (h Handler) CreateTarif(w http.ResponseWriter, r *http.Request) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while get tarif", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(w, http.StatusCreated, tarif)
+	handleResponse(c, "", http.StatusCreated, tarif)
 
 }
 
-func (h Handler) GetTarifByID(w http.ResponseWriter, r *http.Request) {
-	values := r.URL.Query()
-	if len(values["id"]) <= 0 {
-		handleResponse(w, http.StatusInternalServerError, errors.New("id is required"))
-		return
-	}
-	id := values["id"][0]
+func (h Handler) GetTarifByID(c *gin.Context) {
 	var err error
 
-	storageTransaction, err := h.storage.Tarif().Get(models.PrimaryKey{
+	id := c.Param("id")
+
+	tarif, err := h.storage.Tarif().Get(models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while get tarif by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(w, http.StatusOK, storageTransaction)
+	handleResponse(c, "", http.StatusOK, tarif)
 
 }
 
-func (h Handler) GetTarifList(w http.ResponseWriter) {
+func (h Handler) GetTarifList(c *gin.Context) {
 
 	var (
 		page, limit = 1, 50
@@ -82,32 +60,56 @@ func (h Handler) GetTarifList(w http.ResponseWriter) {
 		err         error
 	)
 
+	pageStr := c.DefaultQuery("page", "1")
+	page, err = strconv.Atoi(pageStr)
+	if err != nil {
+		handleResponse(c, "error while parsing page ", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	limitStr := c.DefaultQuery("limit", "10")
+	limit, err = strconv.Atoi(limitStr)
+	if err != nil {
+		handleResponse(c, "error while parsing limit", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	search = c.Query("search")
+
 	response, err := h.storage.Tarif().GetList(models.GetListRequest{
-		Page:  page,
-		Limit: limit,
+		Page:   page,
+		Limit:  limit,
 		Search: search,
 	})
 
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while getting tarif", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(w, http.StatusOK, response)
+	handleResponse(c, "", http.StatusOK, response)
 
 }
 
-func (h Handler) UpdateTarif(w http.ResponseWriter, r *http.Request) {
+func (h Handler) UpdateTarif(c *gin.Context) {
 	updateTarif := models.UpdateTarif{}
 
-	if err := json.NewDecoder(r.Body).Decode(&updateTarif); err != nil {
-		handleResponse(w, http.StatusBadRequest, err.Error())
+	uid := c.Param("id")
+	if uid == "" {
+		handleResponse(c, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
+		return
+	}
+
+	updateTarif.ID = uid
+
+	if err := c.ShouldBindJSON(&updateTarif); err != nil {
+		handleResponse(c, "error while reading body", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	id, err := h.storage.Tarif().Update(updateTarif)
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err.Error())
+		handleResponse(c, "error while updating tarif", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -115,28 +117,28 @@ func (h Handler) UpdateTarif(w http.ResponseWriter, r *http.Request) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(w, http.StatusInternalServerError, err)
+		handleResponse(c, "error while get tarif by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(w, http.StatusOK, tarif)
+	handleResponse(c, "", http.StatusOK, tarif)
 
 }
 
-func (h Handler) DeleteTarif(w http.ResponseWriter, r *http.Request) {
-	values := r.URL.Query()
-	if len(values["id"]) <= 0 {
-		handleResponse(w, http.StatusBadRequest, errors.New("id is required"))
+func (h Handler) DeleteTarif(c *gin.Context) {
+
+	uid := c.Param("id")
+	id, err := uuid.Parse(uid)
+	if err != nil {
+		handleResponse(c, "uuid is not valid", http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id := values["id"][0]
-
-	if err := h.storage.Tarif().Delete(id); err != nil {
-		handleResponse(w, http.StatusInternalServerError, err.Error())
+	if err := h.storage.Tarif().Delete(id.String()); err != nil {
+		handleResponse(c, "error while deleting tarif by id", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(w, http.StatusOK, "data succesfully deleted")
+	handleResponse(c, "", http.StatusOK, "data succesfully deleted")
 
 }

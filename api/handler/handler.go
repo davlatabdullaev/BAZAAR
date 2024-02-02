@@ -3,9 +3,8 @@ package handler
 import (
 	"bazaar/api/models"
 	"bazaar/storage"
-	"encoding/json"
-	"fmt"
-	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -18,7 +17,7 @@ func New(store storage.IStorage) Handler {
 	}
 }
 
-func handleResponse(w http.ResponseWriter, statusCode int, data interface{}) {
+func handleResponse(c *gin.Context, msg string, statusCode int, data interface{}) {
 	response := models.Response{}
 
 	switch code := statusCode; {
@@ -34,13 +33,6 @@ func handleResponse(w http.ResponseWriter, statusCode int, data interface{}) {
 	response.StatusCode = statusCode
 	response.Data = data
 
-	js, err := json.Marshal(response)
-	if err != nil {
-		fmt.Println("error while marshalling json", err.Error())
-		return
-	}
-
-	w.WriteHeader(statusCode)
-	w.Write(js)
+	c.JSON(response.StatusCode, response)
 
 }
