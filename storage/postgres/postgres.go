@@ -4,12 +4,13 @@ import (
 	"bazaar/config"
 	"bazaar/storage"
 	"context"
-	
 	"fmt"
+	"strings"
+
+	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database"          //database is needed for migration
 	_ "github.com/golang-migrate/migrate/v4/database/postgres" //postgres is used for database
 	_ "github.com/golang-migrate/migrate/v4/source/file"       //file is needed for migration url
-	
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
@@ -41,6 +42,35 @@ func New(ctx context.Context, cfg config.Config) (storage.IStorage, error) {
 	if err != nil {
 		fmt.Println("error while connecting to db", err.Error())
 		return nil, err
+	}
+
+	// migration
+	m, err := migrate.New("file://migrations/postgres/", url)
+	if err != nil {
+		fmt.Println("error while migrating", err.Error())
+		return nil, err
+	}
+
+	if err = m.Up(); err != nil {
+		fmt.Println("here up")
+		if !strings.Contains(err.Error(), "no change") {
+			fmt.Println("in !strings")
+			version, dirty, err := m.Version()
+			if err != nil {
+				fmt.Println("err in checking version and dirty", err.Error())
+				return nil, err
+			}
+
+			if dirty {
+				version--
+				if err = m.Force(int(version)); err != nil {
+					fmt.Println("ERR in making force", err.Error())
+					return nil, err
+				}
+			}
+			fmt.Println("ERROR in migrating", err.Error())
+			return nil, err
+		}
 	}
 
 	return Store{
