@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bazaar/api/models"
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
@@ -16,13 +17,13 @@ func (h Handler) CreateCategory(c *gin.Context) {
 		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
-	id, err := h.storage.Category().Create(createCategory)
+	id, err := h.storage.Category().Create(context.Background(), createCategory)
 	if err != nil {
 		handleResponse(c, "error while creating category", http.StatusInternalServerError, err)
 		return
 	}
 
-	category, err := h.storage.Category().Get(models.PrimaryKey{
+	category, err := h.storage.Category().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -39,7 +40,7 @@ func (h Handler) GetCategoryByID(c *gin.Context) {
 
 	id := c.Param("id")
 
-	category, err := h.storage.Category().Get(models.PrimaryKey{
+	category, err := h.storage.Category().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -75,7 +76,7 @@ func (h Handler) GetCategoryList(c *gin.Context) {
 
 	search = c.Query("search")
 
-	response, err := h.storage.Category().GetList(models.GetListRequest{
+	response, err := h.storage.Category().GetList(context.Background(), models.GetListRequest{
 		Page:   page,
 		Limit:  limit,
 		Search: search,
@@ -106,13 +107,13 @@ func (h Handler) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	id, err := h.storage.Category().Update(updateCategory)
+	id, err := h.storage.Category().Update(context.Background(), updateCategory)
 	if err != nil {
 		handleResponse(c, "error while updating category", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	category, err := h.storage.Category().Get(models.PrimaryKey{
+	category, err := h.storage.Category().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -128,7 +129,7 @@ func (h Handler) DeleteCategory(c *gin.Context) {
 
 	uid := c.Param("id")
 
-	if err := h.storage.Category().Delete(uid); err != nil {
+	if err := h.storage.Category().Delete(context.Background(), uid); err != nil {
 		handleResponse(c, "error while deleting category by id", http.StatusInternalServerError, err.Error())
 		return
 	}

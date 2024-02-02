@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bazaar/api/models"
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
@@ -17,13 +18,13 @@ func (h Handler) CreateProduct(c *gin.Context) {
 		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
-	id, err := h.storage.Product().Create(createProduct)
+	id, err := h.storage.Product().Create(context.Background(), createProduct)
 	if err != nil {
 		handleResponse(c, "error while creating product", http.StatusInternalServerError, err)
 		return
 	}
 
-	product, err := h.storage.Branch().Get(models.PrimaryKey{
+	product, err := h.storage.Branch().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -40,7 +41,7 @@ func (h Handler) GetProductByID(c *gin.Context) {
 
 	id := c.Param("id")
 
-	product, err := h.storage.Product().Get(models.PrimaryKey{
+	product, err := h.storage.Product().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -76,7 +77,7 @@ func (h Handler) GetProductList(c *gin.Context) {
 
 	search = c.Query("search")
 
-	response, err := h.storage.Product().GetList(models.GetListRequest{
+	response, err := h.storage.Product().GetList(context.Background(), models.GetListRequest{
 		Page:   page,
 		Limit:  limit,
 		Search: search,
@@ -107,13 +108,13 @@ func (h Handler) UpdateProduct(c *gin.Context) {
 		return
 	}
 
-	id, err := h.storage.Product().Update(updateProduct)
+	id, err := h.storage.Product().Update(context.Background(), updateProduct)
 	if err != nil {
 		handleResponse(c, "error while updating product", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	product, err := h.storage.Product().Get(models.PrimaryKey{
+	product, err := h.storage.Product().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -134,7 +135,7 @@ func (h Handler) DeleteProduct(c *gin.Context) {
 		return
 	}
 
-	if err := h.storage.Product().Delete(id.String()); err != nil {
+	if err := h.storage.Product().Delete(context.Background(), id.String()); err != nil {
 		handleResponse(c, "error while deleting product", http.StatusInternalServerError, err.Error())
 		return
 	}

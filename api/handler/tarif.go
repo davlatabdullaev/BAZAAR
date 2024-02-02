@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bazaar/api/models"
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
@@ -17,13 +18,13 @@ func (h Handler) CreateTarif(c *gin.Context) {
 		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
-	id, err := h.storage.Tarif().Create(createTarif)
+	id, err := h.storage.Tarif().Create(context.Background(), createTarif)
 	if err != nil {
 		handleResponse(c, "error while creating tarif", http.StatusInternalServerError, err)
 		return
 	}
 
-	tarif, err := h.storage.Tarif().Get(models.PrimaryKey{
+	tarif, err := h.storage.Tarif().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -40,7 +41,7 @@ func (h Handler) GetTarifByID(c *gin.Context) {
 
 	id := c.Param("id")
 
-	tarif, err := h.storage.Tarif().Get(models.PrimaryKey{
+	tarif, err := h.storage.Tarif().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -76,7 +77,7 @@ func (h Handler) GetTarifList(c *gin.Context) {
 
 	search = c.Query("search")
 
-	response, err := h.storage.Tarif().GetList(models.GetListRequest{
+	response, err := h.storage.Tarif().GetList(context.Background(), models.GetListRequest{
 		Page:   page,
 		Limit:  limit,
 		Search: search,
@@ -107,13 +108,13 @@ func (h Handler) UpdateTarif(c *gin.Context) {
 		return
 	}
 
-	id, err := h.storage.Tarif().Update(updateTarif)
+	id, err := h.storage.Tarif().Update(context.Background(), updateTarif)
 	if err != nil {
 		handleResponse(c, "error while updating tarif", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	tarif, err := h.storage.Tarif().Get(models.PrimaryKey{
+	tarif, err := h.storage.Tarif().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -134,7 +135,7 @@ func (h Handler) DeleteTarif(c *gin.Context) {
 		return
 	}
 
-	if err := h.storage.Tarif().Delete(id.String()); err != nil {
+	if err := h.storage.Tarif().Delete(context.Background(), id.String()); err != nil {
 		handleResponse(c, "error while deleting tarif by id", http.StatusInternalServerError, err.Error())
 		return
 	}

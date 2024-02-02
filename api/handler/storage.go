@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bazaar/api/models"
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
@@ -17,13 +18,13 @@ func (h Handler) CreateStorage(c *gin.Context) {
 		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
-	id, err := h.storage.Storage().Create(createStorage)
+	id, err := h.storage.Storage().Create(context.Background(), createStorage)
 	if err != nil {
 		handleResponse(c, "error while creating storage", http.StatusInternalServerError, err)
 		return
 	}
 
-	storage, err := h.storage.Storage().Get(models.PrimaryKey{
+	storage, err := h.storage.Storage().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -40,7 +41,7 @@ func (h Handler) GetStorageByID(c *gin.Context) {
 
 	id := c.Param("id")
 
-	storage, err := h.storage.Storage().Get(models.PrimaryKey{
+	storage, err := h.storage.Storage().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -76,7 +77,7 @@ func (h Handler) GetStorageList(c *gin.Context) {
 
 	search = c.Query("search")
 
-	response, err := h.storage.Storage().GetList(models.GetListRequest{
+	response, err := h.storage.Storage().GetList(context.Background(), models.GetListRequest{
 		Page:   page,
 		Limit:  limit,
 		Search: search,
@@ -102,13 +103,13 @@ func (h Handler) UpdateStorage(c *gin.Context) {
 
 	updateStorage.ID = uid
 
-	id, err := h.storage.Storage().Update(updateStorage)
+	id, err := h.storage.Storage().Update(context.Background(), updateStorage)
 	if err != nil {
 		handleResponse(c, "error while reading body", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	storage, err := h.storage.Sale().Get(models.PrimaryKey{
+	storage, err := h.storage.Sale().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -129,7 +130,7 @@ func (h Handler) DeleteStorage(c *gin.Context) {
 		return
 	}
 
-	if err := h.storage.Storage().Delete(id.String()); err != nil {
+	if err := h.storage.Storage().Delete(context.Background(), id.String()); err != nil {
 		handleResponse(c, "error while deleting storage by id", http.StatusInternalServerError, err.Error())
 		return
 	}

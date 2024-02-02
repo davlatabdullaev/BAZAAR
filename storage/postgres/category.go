@@ -4,36 +4,36 @@ import (
 	"bazaar/api/models"
 	"bazaar/pkg/check"
 	"bazaar/storage"
-	"database/sql"
-	"errors"
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type categoryRepo struct {
-	db *sql.DB
+	pool *pgxpool.Pool
 }
 
-func NewCategoryRepo(db *sql.DB) storage.ICategoryRepo {
-	return categoryRepo{
-		db: db,
+func NewCategoryRepo(pool *pgxpool.Pool) storage.ICategoryRepo {
+	return &categoryRepo{
+		pool: pool,
 	}
 }
 
-func (c categoryRepo) Create(category models.CreateCategory) (string, error) {
+func (c *categoryRepo) Create(ctx context.Context, category models.CreateCategory) (string, error) {
 
 	id := uuid.New()
 
-    updatedAt := time.Now()	
+	updatedAt := time.Now()
 
 	query := `insert into category (id, name, parent_id, updated_at) values ($1, $2, $3, $4)`
 
-	res, err := c.db.Exec(query, 
-		id, 
-		category.Name, 
+	_, err := c.pool.Exec(ctx, query,
+		id,
+		category.Name,
 		category.ParentID,
 		updatedAt,
 	)
@@ -42,25 +42,14 @@ func (c categoryRepo) Create(category models.CreateCategory) (string, error) {
 		return "", err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return id.String(), nil
 }
 
-func (c categoryRepo) Get(id models.PrimaryKey) (models.Category, error) {
+func (c *categoryRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Category, error) {
 
 	category := models.Category{}
 
-	row := c.db.QueryRow(`select id, name, parent_id, created_at, updated_at from category where deleted_at is null and id = $1`, id)
+	row := c.pool.QueryRow(ctx, `select id, name, parent_id, created_at, updated_at from category where deleted_at is null and id = $1`, id)
 
 	err := row.Scan(
 		&category.ID,
@@ -78,7 +67,7 @@ func (c categoryRepo) Get(id models.PrimaryKey) (models.Category, error) {
 	return category, nil
 }
 
-func (c categoryRepo) GetList(request models.GetListRequest) (models.CategoriesResponse, error) {
+func (c *categoryRepo) GetList(ctx context.Context, request models.GetListRequest) (models.CategoriesResponse, error) {
 	var (
 		categories        = []models.Category{}
 		count             = 0
@@ -93,7 +82,7 @@ func (c categoryRepo) GetList(request models.GetListRequest) (models.CategoriesR
 	if search != "" {
 		countQuery += fmt.Sprintf(`where name ilike '%%%s%%'`, search)
 	}
-	if err := c.db.QueryRow(countQuery).Scan(&count); err != nil {
+	if err := c.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting count", err.Error())
 		return models.CategoriesResponse{}, err
 	}
@@ -105,7 +94,7 @@ func (c categoryRepo) GetList(request models.GetListRequest) (models.CategoriesR
 	}
 
 	query += `LIMIT $1 OFFSET $2`
-	rows, err := c.db.Query(query, request.Limit, offset)
+	rows, err := c.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
 		fmt.Println("error is while selecting category", err.Error())
 		return models.CategoriesResponse{}, err
@@ -127,34 +116,23 @@ func (c categoryRepo) GetList(request models.GetListRequest) (models.CategoriesR
 	}, nil
 }
 
-func (c categoryRepo) Update(request models.UpdateCategory) (string, error) {
+func (c *categoryRepo) Update(ctx context.Context, request models.UpdateCategory) (string, error) {
 
 	query := `update category
    set name = $1, parent_id = $2, updated_at = $3 
    where id = $4  
    `
 
-	res, err := c.db.Exec(query, request.Name, request.ParentID, check.TimeNow(), request.ID)
+	_, err := c.pool.Exec(ctx, query, request.Name, request.ParentID, check.TimeNow(), request.ID)
 	if err != nil {
 		log.Println("error while updating category data...", err.Error())
 		return "", err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return request.ID, nil
 }
 
-func (c categoryRepo) Delete(id string) error {
+func (c *categoryRepo) Delete(ctx context.Context, id string) error {
 
 	query := `
 	update category
@@ -162,22 +140,10 @@ func (c categoryRepo) Delete(id string) error {
 	  where id = $2
 	`
 
-	res, err := c.db.Exec(query, check.TimeNow(), id)
+	_, err := c.pool.Exec(ctx, query, check.TimeNow(), id)
 	if err != nil {
 		log.Println("error while deleting category by id", err.Error())
 		return err
 	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return errors.New("no rows affected during insert")
-	}
-
 	return nil
 }

@@ -4,31 +4,31 @@ import (
 	"bazaar/api/models"
 	"bazaar/pkg/check"
 	"bazaar/storage"
-	"database/sql"
-	"errors"
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type basketRepo struct {
-	db *sql.DB
+	pool *pgxpool.Pool
 }
 
-func NewBasketRepo(db *sql.DB) storage.IBasketRepo {
-	return basketRepo{
-		db: db,
+func NewBasketRepo(pool *pgxpool.Pool) storage.IBasketRepo {
+	return &basketRepo{
+		pool: pool,
 	}
 }
 
-func (b basketRepo) Create(basket models.CreateBasket) (string, error) {
+func (b *basketRepo) Create(ctx context.Context, basket models.CreateBasket) (string, error) {
 
 	id := uuid.New()
 
 	query := `insert into category (id, sale_id, product_id, quantity, price, updated_at) values ($1, $2, $3, $4, $5, $6)`
 
-	res, err := b.db.Exec(query,
+	_, err := b.pool.Exec(ctx, query,
 		id,
 		basket.SaleID,
 		basket.ProductID,
@@ -41,25 +41,14 @@ func (b basketRepo) Create(basket models.CreateBasket) (string, error) {
 		return "", err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return id.String(), nil
 }
 
-func (b basketRepo) Get(id models.PrimaryKey) (models.Basket, error) {
+func (b *basketRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Basket, error) {
 
 	basket := models.Basket{}
 
-	row := b.db.QueryRow(`select id, sale_id, product_id, quantity, price, created_at, updated_at from basket where deleted_at is null and id = $1`, id)
+	row := b.pool.QueryRow(ctx, `select id, sale_id, product_id, quantity, price, created_at, updated_at from basket where deleted_at is null and id = $1`, id)
 
 	err := row.Scan(
 		&basket.ID,
@@ -79,7 +68,7 @@ func (b basketRepo) Get(id models.PrimaryKey) (models.Basket, error) {
 	return basket, nil
 }
 
-func (b basketRepo) GetList(request models.GetListRequest) (models.BasketsResponse, error) {
+func (b *basketRepo) GetList(ctx context.Context, request models.GetListRequest) (models.BasketsResponse, error) {
 
 	var (
 		baskets           = []models.Basket{}
@@ -95,7 +84,7 @@ func (b basketRepo) GetList(request models.GetListRequest) (models.BasketsRespon
 	if search != "" {
 		countQuery += fmt.Sprintf(`where price ilike '%%%s%%'`, search)
 	}
-	if err := b.db.QueryRow(countQuery).Scan(&count); err != nil {
+	if err := b.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting count", err.Error())
 		return models.BasketsResponse{}, err
 	}
@@ -107,7 +96,7 @@ func (b basketRepo) GetList(request models.GetListRequest) (models.BasketsRespon
 	}
 
 	query += `LIMIT $1 OFFSET $2`
-	rows, err := b.db.Query(query, request.Limit, offset)
+	rows, err := b.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
 		fmt.Println("error is while selecting basket", err.Error())
 		return models.BasketsResponse{}, err
@@ -137,7 +126,7 @@ func (b basketRepo) GetList(request models.GetListRequest) (models.BasketsRespon
 	}, nil
 }
 
-func (b basketRepo) Update(request models.UpdateBasket) (string, error) {
+func (b *basketRepo) Update(ctx context.Context, request models.UpdateBasket) (string, error) {
 
 	query := `update basket
    set sale_id = $1,
@@ -148,7 +137,7 @@ func (b basketRepo) Update(request models.UpdateBasket) (string, error) {
    where id = $6  
    `
 
-	res, err := b.db.Exec(query,
+	_, err := b.pool.Exec(ctx, query,
 		request.SaleID,
 		request.ProductID,
 		request.Quantity,
@@ -160,21 +149,10 @@ func (b basketRepo) Update(request models.UpdateBasket) (string, error) {
 		return "", err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return "", nil
 }
 
-func (b basketRepo) Delete(id string) error {
+func (b *basketRepo) Delete(ctx context.Context, id string) error {
 
 	query := `
 	update basket
@@ -182,22 +160,10 @@ func (b basketRepo) Delete(id string) error {
 	  where id = $2
 	`
 
-	res, err := b.db.Exec(query, check.TimeNow(), id)
+	_, err := b.pool.Exec(ctx, query, check.TimeNow(), id)
 	if err != nil {
 		log.Println("error while deleting basket by id", err.Error())
 		return err
 	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return errors.New("no rows affected during insert")
-	}
-
 	return nil
 }

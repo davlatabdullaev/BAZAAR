@@ -4,15 +4,15 @@ import (
 	"bazaar/api"
 	"bazaar/config"
 	"bazaar/storage/postgres"
+	"context"
 	"log"
-
 )
 
 func main() {
 
 	cfg := config.Load()
 
-	pgStore, err := postgres.New(cfg)
+	pgStore, err := postgres.New(context.Background(), cfg)
 	if err != nil {
 		log.Fatalln("error while connecting to db err: ", err.Error())
 		return

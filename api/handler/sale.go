@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bazaar/api/models"
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
@@ -17,13 +18,13 @@ func (h Handler) CreateSale(c *gin.Context) {
 		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
-	id, err := h.storage.Sale().Create(createSale)
+	id, err := h.storage.Sale().Create(context.Background(), createSale)
 	if err != nil {
 		handleResponse(c, "error while creating sale", http.StatusInternalServerError, err)
 		return
 	}
 
-	sale, err := h.storage.Sale().Get(models.PrimaryKey{
+	sale, err := h.storage.Sale().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -40,7 +41,7 @@ func (h Handler) GetSaleByID(c *gin.Context) {
 
 	id := c.Param("id")
 
-	sale, err := h.storage.Sale().Get(models.PrimaryKey{
+	sale, err := h.storage.Sale().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -76,7 +77,7 @@ func (h Handler) GetSaleList(c *gin.Context) {
 
 	search = c.Query("search")
 
-	response, err := h.storage.Sale().GetList(models.GetListRequest{
+	response, err := h.storage.Sale().GetList(context.Background(), models.GetListRequest{
 		Page:   page,
 		Limit:  limit,
 		Search: search,
@@ -107,13 +108,13 @@ func (h Handler) UpdateSale(c *gin.Context) {
 		return
 	}
 
-	id, err := h.storage.Sale().Update(updateSale)
+	id, err := h.storage.Sale().Update(context.Background(), updateSale)
 	if err != nil {
 		handleResponse(c, "error while updating sale", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	sale, err := h.storage.Sale().Get(models.PrimaryKey{
+	sale, err := h.storage.Sale().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -134,7 +135,7 @@ func (h Handler) DeleteSale(c *gin.Context) {
 		return
 	}
 
-	if err := h.storage.Sale().Delete(id.String()); err != nil {
+	if err := h.storage.Sale().Delete(context.Background(), id.String()); err != nil {
 		handleResponse(c, "error while deleting sale by id", http.StatusInternalServerError, err.Error())
 		return
 	}

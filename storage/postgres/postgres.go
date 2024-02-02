@@ -3,70 +3,87 @@ package postgres
 import (
 	"bazaar/config"
 	"bazaar/storage"
-	"database/sql"
+	"context"
 	"fmt"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/lib/pq"
 )
 
 type Store struct {
-	db *sql.DB
+	pool *pgxpool.Pool
 }
 
-func New(cfg config.Config) (storage.IStorage, error) {
-	url := fmt.Sprintf(`host = %s port = %s user = %s password = %s database = %s sslmode=disable`,
-		cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDB)
+func New(ctx context.Context, cfg config.Config) (storage.IStorage, error) {
+	url := fmt.Sprintf(
+		`postgres://%s:%s@%s:%s/%s?sslmode=disable`,
+		cfg.PostgresUser,
+		cfg.PostgresPassword,
+		cfg.PostgresHost,
+		cfg.PostgresPort,
+		cfg.PostgresDB,
+	)
 
-	db, err := sql.Open("postgres", url)
+	poolConfig, err := pgxpool.ParseConfig(url)
 	if err != nil {
-		return Store{}, err
+		fmt.Println("error while parsing config", err.Error())
+		return nil, err
+	}
+
+	poolConfig.MaxConns = 100
+
+	pool, err := pgxpool.NewWithConfig(ctx, poolConfig)
+	if err != nil {
+		fmt.Println("error while connecting to db", err.Error())
+		return nil, err
 	}
 
 	return Store{
-		db: db,
+		pool: pool,
 	}, nil
 
 }
 
 func (s Store) CloseDB() {
-	s.db.Close()
+	s.pool.Close()
 }
 
 func (s Store) Category() storage.ICategoryRepo {
-	return NewCategoryRepo(s.db)
+	return NewCategoryRepo(s.pool)
 }
 
 func (s Store) Staff() storage.IStaffRepo {
-	return NewStaffRepo(s.db)
+	return NewStaffRepo(s.pool)
 }
 
 func (s Store) StorageTransaction() storage.IStorageTransactionRepo {
-	return NewStorageTransactionRepo(s.db)
+	return NewStorageTransactionRepo(s.pool)
 }
 
 func (s Store) Tarif() storage.ITarifRepo {
-	return NewTarifRepo(s.db)
+	return NewTarifRepo(s.pool)
 }
 
 func (s Store) Transaction() storage.ITransactionRepo {
-	return NewTransactionRepo(s.db)
+	return NewTransactionRepo(s.pool)
 }
 
 func (s Store) Basket() storage.IBasketRepo {
-	return NewBasketRepo(s.db)
+	return NewBasketRepo(s.pool)
 }
 
 func (s Store) Branch() storage.IBranchRepo {
-	return NewBranchRepo(s.db)
+	return NewBranchRepo(s.pool)
 }
 
 func (s Store) Product() storage.IProductRepo {
-	return NewProductRepo(s.db)
+	return NewProductRepo(s.pool)
 }
 
 func (s Store) Sale() storage.ISaleRepo {
-	return NewSaleRepo(s.db)
+	return NewSaleRepo(s.pool)
 }
 
 func (s Store) Storage() storage.IStorageRepo {
-	return NewStorageRepo(s.db)
- }
- 
+	return NewStorageRepo(s.pool)
+}

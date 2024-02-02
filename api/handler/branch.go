@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bazaar/api/models"
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
@@ -17,13 +18,13 @@ func (h Handler) CreateBranch(c *gin.Context) {
 		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
-	id, err := h.storage.Branch().Create(createBranch)
+	id, err := h.storage.Branch().Create(context.Background(), createBranch)
 	if err != nil {
 		handleResponse(c, "error while creating branch", http.StatusInternalServerError, err)
 		return
 	}
 
-	branch, err := h.storage.Branch().Get(models.PrimaryKey{
+	branch, err := h.storage.Branch().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -41,7 +42,7 @@ func (h Handler) GetBranchByID(c *gin.Context) {
 
 	id := c.Param("id")
 
-	branch, err := h.storage.Branch().Get(models.PrimaryKey{
+	branch, err := h.storage.Branch().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -77,7 +78,7 @@ func (h Handler) GetBranchList(c *gin.Context) {
 
 	search = c.Query("search")
 
-	response, err := h.storage.Branch().GetList(models.GetListRequest{
+	response, err := h.storage.Branch().GetList(context.Background(), models.GetListRequest{
 		Page:   page,
 		Limit:  limit,
 		Search: search,
@@ -108,13 +109,13 @@ func (h Handler) UpdateBranch(c *gin.Context) {
 		return
 	}
 
-	id, err := h.storage.Branch().Update(updateBranch)
+	id, err := h.storage.Branch().Update(context.Background(), updateBranch)
 	if err != nil {
 		handleResponse(c, "error while updating branch", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	branch, err := h.storage.Branch().Get(models.PrimaryKey{
+	branch, err := h.storage.Branch().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -135,8 +136,7 @@ func (h Handler) DeleteBranch(c *gin.Context) {
 		return
 	}
 
-
-	if err := h.storage.Branch().Delete(id.String()); err != nil {
+	if err := h.storage.Branch().Delete(context.Background(), id.String()); err != nil {
 		handleResponse(c, "error while deleting branch by id", http.StatusInternalServerError, err.Error())
 		return
 	}

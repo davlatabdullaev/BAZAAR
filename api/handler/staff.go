@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bazaar/api/models"
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
@@ -17,13 +18,13 @@ func (h Handler) CreateStaff(c *gin.Context) {
 		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
-	id, err := h.storage.Staff().Create(createStaff)
+	id, err := h.storage.Staff().Create(context.Background(), createStaff)
 	if err != nil {
 		handleResponse(c, "error while creating staff", http.StatusInternalServerError, err)
 		return
 	}
 
-	staff, err := h.storage.Staff().Get(models.PrimaryKey{
+	staff, err := h.storage.Staff().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -41,7 +42,7 @@ func (h Handler) GetStaffByID(c *gin.Context) {
 
 	id := c.Param("id")
 
-	staff, err := h.storage.Staff().Get(models.PrimaryKey{
+	staff, err := h.storage.Staff().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -77,7 +78,7 @@ func (h Handler) GetStaffList(c *gin.Context) {
 
 	search = c.Query("search")
 
-	response, err := h.storage.Staff().GetList(models.GetListRequest{
+	response, err := h.storage.Staff().GetList(context.Background(), models.GetListRequest{
 		Page:   page,
 		Limit:  limit,
 		Search: search,
@@ -108,13 +109,13 @@ func (h Handler) UpdateStaff(c *gin.Context) {
 		return
 	}
 
-	id, err := h.storage.Staff().Update(updateStaff)
+	id, err := h.storage.Staff().Update(context.Background(), updateStaff)
 	if err != nil {
 		handleResponse(c, "error while updating staff", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	staff, err := h.storage.Staff().Get(models.PrimaryKey{
+	staff, err := h.storage.Staff().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -134,7 +135,7 @@ func (h Handler) DeleteStaff(c *gin.Context) {
 		return
 	}
 
-	if err := h.storage.Staff().Delete(id.String()); err != nil {
+	if err := h.storage.Staff().Delete(context.Background(), id.String()); err != nil {
 		handleResponse(c, "error while deleting staff", http.StatusInternalServerError, err.Error())
 		return
 	}

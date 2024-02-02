@@ -4,31 +4,31 @@ import (
 	"bazaar/api/models"
 	"bazaar/pkg/check"
 	"bazaar/storage"
-	"database/sql"
-	"errors"
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type storageRepo struct {
-	db *sql.DB
+	pool *pgxpool.Pool
 }
 
-func NewStorageRepo(db *sql.DB) storage.IStorageRepo {
-	return storageRepo{
-		db: db,
+func NewStorageRepo(pool *pgxpool.Pool) storage.IStorageRepo {
+	return &storageRepo{
+		pool: pool,
 	}
 }
 
-func (s storageRepo) Create(storage models.CreateStorage) (string, error) {
+func (s *storageRepo) Create(ctx context.Context, storage models.CreateStorage) (string, error) {
 
 	id := uuid.New()
 
 	query := `insert into storage (id, product_id, branch_id, count, updated_at) values ($1, $2, $3, $4, now())`
 
-	res, err := s.db.Exec(query,
+	_, err := s.pool.Exec(ctx, query,
 		id,
 		storage.ProductID,
 		storage.BranchID,
@@ -38,26 +38,14 @@ func (s storageRepo) Create(storage models.CreateStorage) (string, error) {
 		log.Println("error while inserting storage", err.Error())
 		return "", err
 	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return "", nil
 }
 
-func (s storageRepo) Get(id models.PrimaryKey) (models.Storage, error) {
+func (s *storageRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Storage, error) {
 
 	storage := models.Storage{}
 
-	row := s.db.QueryRow(`select id, product_id, branch_id, count, created_at, updated_at  from storage where deleted_at is null and id = $1`, id)
+	row := s.pool.QueryRow(ctx, `select id, product_id, branch_id, count, created_at, updated_at  from storage where deleted_at is null and id = $1`, id)
 
 	err := row.Scan(
 		&storage.ID,
@@ -76,7 +64,7 @@ func (s storageRepo) Get(id models.PrimaryKey) (models.Storage, error) {
 	return storage, nil
 }
 
-func (s storageRepo) GetList(request models.GetListRequest) (models.StoragesResponse, error) {
+func (s *storageRepo) GetList(ctx context.Context, request models.GetListRequest) (models.StoragesResponse, error) {
 
 	var (
 		storages          = []models.Storage{}
@@ -92,7 +80,7 @@ func (s storageRepo) GetList(request models.GetListRequest) (models.StoragesResp
 	if search != "" {
 		countQuery += fmt.Sprintf(`where count ilike '%%%s%%'`, search)
 	}
-	if err := s.db.QueryRow(countQuery).Scan(&count); err != nil {
+	if err := s.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting count", err.Error())
 		return models.StoragesResponse{}, err
 	}
@@ -104,7 +92,7 @@ func (s storageRepo) GetList(request models.GetListRequest) (models.StoragesResp
 	}
 
 	query += `LIMIT $1 OFFSET $2`
-	rows, err := s.db.Query(query, request.Limit, offset)
+	rows, err := s.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
 		fmt.Println("error is while selecting product", err.Error())
 		return models.StoragesResponse{}, err
@@ -134,11 +122,11 @@ func (s storageRepo) GetList(request models.GetListRequest) (models.StoragesResp
 	}, nil
 }
 
-func (s storageRepo) Update(request models.UpdateStorage) (string, error) {
+func (s *storageRepo) Update(ctx context.Context, request models.UpdateStorage) (string, error) {
 
 	query := `update storage set product_id = $1, branch_id = $2, count =$3, updated_at = $4 where id = $5`
 
-	res, err := s.db.Exec(query,
+	_, err := s.pool.Exec(ctx, query,
 		request.ProductID,
 		request.BranchID,
 		request.Count,
@@ -150,41 +138,19 @@ func (s storageRepo) Update(request models.UpdateStorage) (string, error) {
 		return "", err
 	}
 
-	rowaAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error while getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowaAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return "", nil
 }
 
-func (s storageRepo) Delete(id string) error {
+func (s *storageRepo) Delete(ctx context.Context, id string) error {
 
 	query := `update storage 
 	set deleted_at = $1 
 	where id = $2`
 
-	res, err := s.db.Exec(query, check.TimeNow(), id)
+	_, err := s.pool.Exec(ctx, query, check.TimeNow(), id)
 	if err != nil {
 		log.Println("error while deleting storage by id", err.Error())
 		return err
-	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return errors.New("no rows affected during insert")
 	}
 
 	return nil

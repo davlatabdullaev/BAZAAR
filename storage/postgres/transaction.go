@@ -4,26 +4,26 @@ import (
 	"bazaar/api/models"
 	"bazaar/pkg/check"
 	"bazaar/storage"
-	"database/sql"
-	"errors"
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type transactionRepo struct {
-	db *sql.DB
+	pool *pgxpool.Pool
 }
 
-func NewTransactionRepo(db *sql.DB) storage.ITransactionRepo {
-	return transactionRepo{
-		db: db,
+func NewTransactionRepo(pool *pgxpool.Pool) storage.ITransactionRepo {
+	return &transactionRepo{
+		pool: pool,
 	}
 }
 
-func (t transactionRepo) Create(request models.CreateTransaction) (string, error) {
+func (t *transactionRepo) Create(ctx context.Context, request models.CreateTransaction) (string, error) {
 
 	id := uuid.New()
 
@@ -34,7 +34,7 @@ func (t transactionRepo) Create(request models.CreateTransaction) (string, error
 	values 
 	($1, $2, $3, $4, $5, $6, $7, $8)`
 
-	res, err := t.db.Exec(query,
+	_, err := t.pool.Exec(ctx, query,
 		id,
 		request.SaleID,
 		request.StaffID,
@@ -49,21 +49,10 @@ func (t transactionRepo) Create(request models.CreateTransaction) (string, error
 		return "", err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return id.String(), nil
 }
 
-func (t transactionRepo) Get(id models.PrimaryKey) (models.Transaction, error) {
+func (t *transactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Transaction, error) {
 
 	transaction := models.Transaction{}
 
@@ -72,7 +61,7 @@ func (t transactionRepo) Get(id models.PrimaryKey) (models.Transaction, error) {
 	 created_at, updated_at from tarif
 	 where deleted_at is null and id = $1`
 
-	row := t.db.QueryRow(query, id)
+	row := t.pool.QueryRow(ctx, query, id)
 
 	err := row.Scan(
 		&transaction.ID,
@@ -94,7 +83,7 @@ func (t transactionRepo) Get(id models.PrimaryKey) (models.Transaction, error) {
 	return transaction, nil
 }
 
-func (t transactionRepo) GetList(request models.GetListRequest) (models.TransactionsResponse, error) {
+func (t *transactionRepo) GetList(ctx context.Context, request models.GetListRequest) (models.TransactionsResponse, error) {
 
 	var (
 		transactions      = []models.Transaction{}
@@ -110,7 +99,7 @@ func (t transactionRepo) GetList(request models.GetListRequest) (models.Transact
 	if search != "" {
 		countQuery += fmt.Sprintf(`where description ilike '%%%s%%'`, search)
 	}
-	if err := t.db.QueryRow(countQuery).Scan(&count); err != nil {
+	if err := t.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting transaction count", err.Error())
 		return models.TransactionsResponse{}, err
 	}
@@ -127,7 +116,7 @@ func (t transactionRepo) GetList(request models.GetListRequest) (models.Transact
 	}
 
 	query += `LIMIT $1 OFFSET $2`
-	rows, err := t.db.Query(query, request.Limit, offset)
+	rows, err := t.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
 		fmt.Println("error is while selecting transaction", err.Error())
 		return models.TransactionsResponse{}, err
@@ -160,14 +149,14 @@ func (t transactionRepo) GetList(request models.GetListRequest) (models.Transact
 	}, nil
 }
 
-func (t transactionRepo) Update(request models.UpdateTransaction) (string, error) {
+func (t *transactionRepo) Update(ctx context.Context, request models.UpdateTransaction) (string, error) {
 
 	query := `update transaction
    set sale_id = $1, staff_id = $2, transaction_type = $3,
    source_type = $4, amount = $5, description = $6, updated_at = $7
    where id = $8
    `
-	res, err := t.db.Exec(query,
+	_, err := t.pool.Exec(ctx, query,
 		request.SaleID,
 		request.StaffID,
 		request.TransactionType,
@@ -181,22 +170,10 @@ func (t transactionRepo) Update(request models.UpdateTransaction) (string, error
 		log.Println("error while updating transaction data...", err.Error())
 		return "", err
 	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return request.ID, nil
 }
 
-func (t transactionRepo) Delete(id string) error {
+func (t *transactionRepo) Delete(ctx context.Context, id string) error {
 
 	query := `
 	update transaction
@@ -204,21 +181,10 @@ func (t transactionRepo) Delete(id string) error {
 	  where id = $2
 	`
 
-	res, err := t.db.Exec(query, check.TimeNow(), id)
+	_, err := t.pool.Exec(ctx, query, check.TimeNow(), id)
 	if err != nil {
 		log.Println("error while deleting transaction by id", err.Error())
 		return err
-	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return errors.New("no rows affected during insert")
 	}
 
 	return nil

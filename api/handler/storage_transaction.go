@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bazaar/api/models"
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
@@ -17,13 +18,13 @@ func (h Handler) CreateStorageTransaction(c *gin.Context) {
 		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
-	id, err := h.storage.StorageTransaction().Create(createStorageTransaction)
+	id, err := h.storage.StorageTransaction().Create(context.Background(), createStorageTransaction)
 	if err != nil {
 		handleResponse(c, "error while creating storage transaction", http.StatusInternalServerError, err)
 		return
 	}
 
-	storageTransaction, err := h.storage.StorageTransaction().Get(models.PrimaryKey{
+	storageTransaction, err := h.storage.StorageTransaction().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -40,7 +41,7 @@ func (h Handler) GetStorageTransactionByID(c *gin.Context) {
 
 	id := c.Param("id")
 
-	storageTransaction, err := h.storage.StorageTransaction().Get(models.PrimaryKey{
+	storageTransaction, err := h.storage.StorageTransaction().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -76,7 +77,7 @@ func (h Handler) GetStorageTransactionList(c *gin.Context) {
 
 	search = c.Query("search")
 
-	response, err := h.storage.StorageTransaction().GetList(models.GetListRequest{
+	response, err := h.storage.StorageTransaction().GetList(context.Background(), models.GetListRequest{
 		Page:   page,
 		Limit:  limit,
 		Search: search,
@@ -106,13 +107,13 @@ func (h Handler) UpdateStorageTransaction(c *gin.Context) {
 		return
 	}
 
-	id, err := h.storage.StorageTransaction().Update(updateStorageTransaction)
+	id, err := h.storage.StorageTransaction().Update(context.Background(), updateStorageTransaction)
 	if err != nil {
 		handleResponse(c, "error while reading body", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	storageTransaction, err := h.storage.StorageTransaction().Get(models.PrimaryKey{
+	storageTransaction, err := h.storage.StorageTransaction().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -133,7 +134,7 @@ func (h Handler) DeleteStorageTransaction(c *gin.Context) {
 		return
 	}
 
-	if err := h.storage.StorageTransaction().Delete(id.String()); err != nil {
+	if err := h.storage.StorageTransaction().Delete(context.Background(), id.String()); err != nil {
 		handleResponse(c, "error while deleting storage transaction by id", http.StatusInternalServerError, err.Error())
 		return
 	}

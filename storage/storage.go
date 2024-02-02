@@ -1,6 +1,9 @@
 package storage
 
-import "bazaar/api/models"
+import (
+	"bazaar/api/models"
+	"context"
+)
 
 type IStorage interface {
 	CloseDB()
@@ -17,81 +20,81 @@ type IStorage interface {
 }
 
 type ICategoryRepo interface {
-	Create(models.CreateCategory) (string, error)
-	Get(models.PrimaryKey) (models.Category, error)
-	GetList(models.GetListRequest) (models.CategoriesResponse, error)
-	Update(models.UpdateCategory) (string, error)
-	Delete(string) error
+	Create(context.Context, models.CreateCategory) (string, error)
+	Get(context.Context, models.PrimaryKey) (models.Category, error)
+	GetList(context.Context, models.GetListRequest) (models.CategoriesResponse, error)
+	Update(context.Context, models.UpdateCategory) (string, error)
+	Delete(context.Context, string) error
 }
 
 type IStaffRepo interface {
-	Create(models.CreateStaff) (string, error)
-	Get(models.PrimaryKey) (models.Staff, error)
-	GetList(models.GetListRequest) (models.StaffsResponse, error)
-	Update(models.UpdateStaff) (string, error)
-	Delete(string) error
+	Create(context.Context, models.CreateStaff) (string, error)
+	Get(context.Context, models.PrimaryKey) (models.Staff, error)
+	GetList(context.Context, models.GetListRequest) (models.StaffsResponse, error)
+	Update(context.Context, models.UpdateStaff) (string, error)
+	Delete(context.Context, string) error
 }
 
 type IStorageTransactionRepo interface {
-	Create(models.CreateStorageTransaction) (string, error)
-	Get(models.PrimaryKey) (models.StorageTransaction, error)
-	GetList(models.GetListRequest) (models.StorageTransactionsResponse, error)
-	Update(models.UpdateStorageTransaction) (string, error)
-	Delete(string) error
+	Create(context.Context, models.CreateStorageTransaction) (string, error)
+	Get(context.Context, models.PrimaryKey) (models.StorageTransaction, error)
+	GetList(context.Context, models.GetListRequest) (models.StorageTransactionsResponse, error)
+	Update(context.Context, models.UpdateStorageTransaction) (string, error)
+	Delete(context.Context, string) error
 }
 
 type ITarifRepo interface {
-	Create(models.CreateTarif) (string, error)
-	Get(models.PrimaryKey) (models.Tarif, error)
-	GetList(models.GetListRequest) (models.TarifsResponse, error)
-	Update(models.UpdateTarif) (string, error)
-	Delete(string) error
+	Create(context.Context, models.CreateTarif) (string, error)
+	Get(context.Context, models.PrimaryKey) (models.Tarif, error)
+	GetList(context.Context, models.GetListRequest) (models.TarifsResponse, error)
+	Update(context.Context, models.UpdateTarif) (string, error)
+	Delete(context.Context, string) error
 }
 
 type ITransactionRepo interface {
-	Create(models.CreateTransaction) (string, error)
-	Get(models.PrimaryKey) (models.Transaction, error)
-	GetList(models.GetListRequest) (models.TransactionsResponse, error)
-	Update(models.UpdateTransaction) (string, error)
-	Delete(string) error
+	Create(context.Context, models.CreateTransaction) (string, error)
+	Get(context.Context, models.PrimaryKey) (models.Transaction, error)
+	GetList(context.Context, models.GetListRequest) (models.TransactionsResponse, error)
+	Update(context.Context, models.UpdateTransaction) (string, error)
+	Delete(context.Context, string) error
 }
 
 type IBasketRepo interface {
-	Create(models.CreateBasket) (string, error)
-	Get(models.PrimaryKey) (models.Basket, error)
-	GetList(models.GetListRequest) (models.BasketsResponse, error)
-	Update(models.UpdateBasket) (string, error)
-	Delete(string) error
+	Create(context.Context, models.CreateBasket) (string, error)
+	Get(context.Context, models.PrimaryKey) (models.Basket, error)
+	GetList(context.Context, models.GetListRequest) (models.BasketsResponse, error)
+	Update(context.Context, models.UpdateBasket) (string, error)
+	Delete(context.Context, string) error
 }
 
 type IBranchRepo interface {
-	Create(models.CreateBranch) (string, error)
-	Get(models.PrimaryKey) (models.Branch, error)
-	GetList(models.GetListRequest) (models.BranchsResponse, error)
-	Update(models.UpdateBranch) (string, error)
-	Delete(string) error
+	Create(context.Context, models.CreateBranch) (string, error)
+	Get(context.Context, models.PrimaryKey) (models.Branch, error)
+	GetList(context.Context, models.GetListRequest) (models.BranchsResponse, error)
+	Update(context.Context, models.UpdateBranch) (string, error)
+	Delete(context.Context, string) error
 }
 
 type IProductRepo interface {
-	Create(models.CreateProduct) (string, error)
-	Get(models.PrimaryKey) (models.Product, error)
-	GetList(models.GetListRequest) (models.ProductsResponse, error)
-	Update(models.UpdateProduct) (string, error)
-	Delete(string) error
+	Create(context.Context, models.CreateProduct) (string, error)
+	Get(context.Context, models.PrimaryKey) (models.Product, error)
+	GetList(context.Context, models.GetListRequest) (models.ProductsResponse, error)
+	Update(context.Context, models.UpdateProduct) (string, error)
+	Delete(context.Context, string) error
 }
 
 type ISaleRepo interface {
-	Create(models.CreateSale) (string, error)
-	Get(models.PrimaryKey) (models.Sale, error)
-	GetList(models.GetListRequest) (models.SalesResponse, error)
-	Update(models.UpdateSale) (string, error)
-	Delete(string) error
+	Create(context.Context, models.CreateSale) (string, error)
+	Get(context.Context, models.PrimaryKey) (models.Sale, error)
+	GetList(context.Context, models.GetListRequest) (models.SalesResponse, error)
+	Update(context.Context, models.UpdateSale) (string, error)
+	Delete(context.Context, string) error
 }
 
 type IStorageRepo interface {
-	Create(models.CreateStorage) (string, error)
-	Get(models.PrimaryKey) (models.Storage, error)
-	GetList(models.GetListRequest) (models.StoragesResponse, error)
-	Update(models.UpdateStorage) (string, error)
-	Delete(string) error
+	Create(context.Context, models.CreateStorage) (string, error)
+	Get(context.Context, models.PrimaryKey) (models.Storage, error)
+	GetList(context.Context, models.GetListRequest) (models.StoragesResponse, error)
+	Update(context.Context, models.UpdateStorage) (string, error)
+	Delete(context.Context, string) error
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bazaar/api/models"
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
@@ -17,13 +18,13 @@ func (h Handler) CreateTransaction(c *gin.Context) {
 		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
-	id, err := h.storage.Transaction().Create(createTransaction)
+	id, err := h.storage.Transaction().Create(context.Background(), createTransaction)
 	if err != nil {
 		handleResponse(c, "error while create transaction", http.StatusInternalServerError, err)
 		return
 	}
 
-	transaction, err := h.storage.Transaction().Get(models.PrimaryKey{
+	transaction, err := h.storage.Transaction().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -40,7 +41,7 @@ func (h Handler) GetTransactionByID(c *gin.Context) {
 
 	id := c.Param("id")
 
-	transaction, err := h.storage.Transaction().Get(models.PrimaryKey{
+	transaction, err := h.storage.Transaction().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -76,7 +77,7 @@ func (h Handler) GetTransactionList(c *gin.Context) {
 
 	search = c.Query("search")
 
-	response, err := h.storage.Transaction().GetList(models.GetListRequest{
+	response, err := h.storage.Transaction().GetList(context.Background(), models.GetListRequest{
 		Page:   page,
 		Limit:  limit,
 		Search: search,
@@ -107,13 +108,13 @@ func (h Handler) UpdateTransaction(c *gin.Context) {
 		return
 	}
 
-	id, err := h.storage.Transaction().Update(updateTransaction)
+	id, err := h.storage.Transaction().Update(context.Background(), updateTransaction)
 	if err != nil {
 		handleResponse(c, "error while updating transaction", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	transaction, err := h.storage.Transaction().Get(models.PrimaryKey{
+	transaction, err := h.storage.Transaction().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -134,7 +135,7 @@ func (h Handler) DeleteTransaction(c *gin.Context) {
 		return
 	}
 
-	if err := h.storage.Transaction().Delete(id.String()); err != nil {
+	if err := h.storage.Transaction().Delete(context.Background(), id.String()); err != nil {
 		handleResponse(c, "error while deleting by id", http.StatusInternalServerError, err.Error())
 		return
 	}

@@ -4,31 +4,31 @@ import (
 	"bazaar/api/models"
 	"bazaar/pkg/check"
 	"bazaar/storage"
-	"database/sql"
-	"errors"
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type branchRepo struct {
-	db *sql.DB
+	pool *pgxpool.Pool
 }
 
-func NewBranchRepo(db *sql.DB) storage.IBranchRepo {
-	return branchRepo{
-		db: db,
+func NewBranchRepo(pool *pgxpool.Pool) storage.IBranchRepo {
+	return &branchRepo{
+		pool: pool,
 	}
 }
 
-func (b branchRepo) Create(branch models.CreateBranch) (string, error) {
+func (b *branchRepo) Create(ctx context.Context, branch models.CreateBranch) (string, error) {
 
 	id := uuid.New()
 
 	query := `insert into category (id, name, address, updated_at) values ($1, $2, $3, $4)`
 
-	res, err := b.db.Exec(query,
+	_, err := b.pool.Exec(ctx, query,
 		id,
 		branch.Name,
 		branch.Address,
@@ -39,25 +39,16 @@ func (b branchRepo) Create(branch models.CreateBranch) (string, error) {
 		return "", err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return id.String(), nil
 }
 
-func (b branchRepo) Get(id models.PrimaryKey) (models.Branch, error) {
+func (b *branchRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Branch, error) {
 
 	branch := models.Branch{}
 
-	row := b.db.QueryRow(`select id, name, address, created_at, updated_at from branch where deleted_at is null and id = $1`, id)
+	query := `select id, name, address, created_at, updated_at from branch where deleted_at is null and id = $1`
+
+	row := b.pool.QueryRow(ctx, query, id)
 
 	err := row.Scan(
 		&branch.ID,
@@ -76,7 +67,7 @@ func (b branchRepo) Get(id models.PrimaryKey) (models.Branch, error) {
 
 }
 
-func (b branchRepo) GetList(request models.GetListRequest) (models.BranchsResponse, error) {
+func (b *branchRepo) GetList(ctx context.Context, request models.GetListRequest) (models.BranchsResponse, error) {
 
 	var (
 		branchs           = []models.Branch{}
@@ -92,7 +83,7 @@ func (b branchRepo) GetList(request models.GetListRequest) (models.BranchsRespon
 	if search != "" {
 		countQuery += fmt.Sprintf(`where name ilike '%%%s%%'`, search)
 	}
-	if err := b.db.QueryRow(countQuery).Scan(&count); err != nil {
+	if err := b.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting count", err.Error())
 		return models.BranchsResponse{}, err
 	}
@@ -104,7 +95,7 @@ func (b branchRepo) GetList(request models.GetListRequest) (models.BranchsRespon
 	}
 
 	query += `LIMIT $1 OFFSET $2`
-	rows, err := b.db.Query(query, request.Limit, offset)
+	rows, err := b.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
 		fmt.Println("error is while selecting branch", err.Error())
 		return models.BranchsResponse{}, err
@@ -133,7 +124,7 @@ func (b branchRepo) GetList(request models.GetListRequest) (models.BranchsRespon
 	}, nil
 }
 
-func (b branchRepo) Update(request models.UpdateBranch) (string, error) {
+func (b *branchRepo) Update(ctx context.Context, request models.UpdateBranch) (string, error) {
 
 	query := `update branch
    set name = $1,
@@ -142,7 +133,7 @@ func (b branchRepo) Update(request models.UpdateBranch) (string, error) {
    where id = $4  
    `
 
-	res, err := b.db.Exec(query,
+	_, err := b.pool.Exec(ctx, query,
 		request.Name,
 		request.Address,
 		request.UpdatedAt,
@@ -152,21 +143,10 @@ func (b branchRepo) Update(request models.UpdateBranch) (string, error) {
 		return "", err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return "", nil
 }
 
-func (b branchRepo) Delete(id string) error {
+func (b *branchRepo) Delete(ctx context.Context, id string) error {
 
 	query := `
 	update branch
@@ -174,22 +154,10 @@ func (b branchRepo) Delete(id string) error {
 	  where id = $2
 	`
 
-	res, err := b.db.Exec(query, check.TimeNow(), id)
+	_, err := b.pool.Exec(ctx, query, check.TimeNow(), id)
 	if err != nil {
 		log.Println("error while deleting branch by id", err.Error())
 		return err
 	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return errors.New("no rows affected during insert")
-	}
-
 	return nil
 }

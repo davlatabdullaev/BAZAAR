@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bazaar/api/models"
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
@@ -17,13 +18,13 @@ func (h Handler) CreateBasket(c *gin.Context) {
 		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
-	id, err := h.storage.Basket().Create(createBasket)
+	id, err := h.storage.Basket().Create(context.Background(), createBasket)
 	if err != nil {
 		handleResponse(c, "error while creating basket", http.StatusInternalServerError, err)
 		return
 	}
 
-	basket, err := h.storage.Basket().Get(models.PrimaryKey{
+	basket, err := h.storage.Basket().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -41,7 +42,7 @@ func (h Handler) GetBasketByID(c *gin.Context) {
 
 	id := c.Param("id")
 
-	basket, err := h.storage.Basket().Get(models.PrimaryKey{
+	basket, err := h.storage.Basket().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -77,7 +78,7 @@ func (h Handler) GetBasketList(c *gin.Context) {
 
 	search = c.Query("search")
 
-	response, err := h.storage.Basket().GetList(models.GetListRequest{
+	response, err := h.storage.Basket().GetList(context.Background(), models.GetListRequest{
 		Page:   page,
 		Limit:  limit,
 		Search: search,
@@ -108,13 +109,13 @@ func (h Handler) UpdateBasket(c *gin.Context) {
 		return
 	}
 
-	id, err := h.storage.Basket().Update(updateBasket)
+	id, err := h.storage.Basket().Update(context.Background(), updateBasket)
 	if err != nil {
 		handleResponse(c, "error while updating basket", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	basket, err := h.storage.Basket().Get(models.PrimaryKey{
+	basket, err := h.storage.Basket().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {
@@ -135,7 +136,7 @@ func (h Handler) DeleteBasket(c *gin.Context) {
 		return
 	}
 
-	if err := h.storage.Basket().Delete(id.String()); err != nil {
+	if err := h.storage.Basket().Delete(context.Background(), id.String()); err != nil {
 		handleResponse(c, "error while deleting basket by id", http.StatusInternalServerError, err.Error())
 		return
 	}

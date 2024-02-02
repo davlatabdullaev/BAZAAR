@@ -4,26 +4,26 @@ import (
 	"bazaar/api/models"
 	"bazaar/pkg/check"
 	"bazaar/storage"
-	"database/sql"
-	"errors"
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type tarifRepo struct {
-	db *sql.DB
+	pool *pgxpool.Pool
 }
 
-func NewTarifRepo(db *sql.DB) storage.ITarifRepo {
-	return tarifRepo{
-		db: db,
+func NewTarifRepo(pool *pgxpool.Pool) storage.ITarifRepo {
+	return &tarifRepo{
+		pool: pool,
 	}
 }
 
-func (t tarifRepo) Create(request models.CreateTarif) (string, error) {
+func (t *tarifRepo) Create(ctx context.Context, request models.CreateTarif) (string, error) {
 
 	id := uuid.New()
 
@@ -34,7 +34,7 @@ func (t tarifRepo) Create(request models.CreateTarif) (string, error) {
 	values 
 	($1, $2, $3, $4, $5, $6)`
 
-	res, err := t.db.Exec(query,
+	_, err := t.pool.Exec(ctx, query,
 		id,
 		request.Name,
 		request.TarifType,
@@ -47,22 +47,11 @@ func (t tarifRepo) Create(request models.CreateTarif) (string, error) {
 		return "", err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return id.String(), nil
 
 }
 
-func (t tarifRepo) Get(id models.PrimaryKey) (models.Tarif, error) {
+func (t *tarifRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Tarif, error) {
 
 	tarif := models.Tarif{}
 
@@ -71,7 +60,7 @@ func (t tarifRepo) Get(id models.PrimaryKey) (models.Tarif, error) {
 	 created_at, updated_at from tarif
 	 where deleted_at is null and id = $1`
 
-	row := t.db.QueryRow(query, id)
+	row := t.pool.QueryRow(ctx, query, id)
 
 	err := row.Scan(
 		&tarif.ID,
@@ -92,7 +81,7 @@ func (t tarifRepo) Get(id models.PrimaryKey) (models.Tarif, error) {
 
 }
 
-func (t tarifRepo) GetList(request models.GetListRequest) (models.TarifsResponse, error) {
+func (t *tarifRepo) GetList(ctx context.Context, request models.GetListRequest) (models.TarifsResponse, error) {
 
 	var (
 		tarifs            = []models.Tarif{}
@@ -108,7 +97,7 @@ func (t tarifRepo) GetList(request models.GetListRequest) (models.TarifsResponse
 	if search != "" {
 		countQuery += fmt.Sprintf(`where name ilike '%%%s%%'`, search)
 	}
-	if err := t.db.QueryRow(countQuery).Scan(&count); err != nil {
+	if err := t.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting tarif count", err.Error())
 		return models.TarifsResponse{}, err
 	}
@@ -124,7 +113,7 @@ func (t tarifRepo) GetList(request models.GetListRequest) (models.TarifsResponse
 	}
 
 	query += `LIMIT $1 OFFSET $2`
-	rows, err := t.db.Query(query, request.Limit, offset)
+	rows, err := t.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
 		fmt.Println("error is while selecting tarif", err.Error())
 		return models.TarifsResponse{}, err
@@ -155,14 +144,14 @@ func (t tarifRepo) GetList(request models.GetListRequest) (models.TarifsResponse
 	}, nil
 }
 
-func (t tarifRepo) Update(request models.UpdateTarif) (string, error) {
+func (t *tarifRepo) Update(ctx context.Context, request models.UpdateTarif) (string, error) {
 
 	query := `update tarif
    set name = $1, tarif_type = $2, amount_for_cash = $3,
    amount_for_card = $4, updated_at = $5
    where id = $6
    `
-	res, err := t.db.Exec(query,
+	_, err := t.pool.Exec(ctx, query,
 		request.Name,
 		request.TarifType,
 		request.AmountForCash,
@@ -174,22 +163,10 @@ func (t tarifRepo) Update(request models.UpdateTarif) (string, error) {
 		log.Println("error while updating tarif data...", err.Error())
 		return "", err
 	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return "", nil
 }
 
-func (t tarifRepo) Delete(id string) error {
+func (t *tarifRepo) Delete(ctx context.Context, id string) error {
 
 	query := `
 	update tarif
@@ -197,21 +174,10 @@ func (t tarifRepo) Delete(id string) error {
 	  where id = $2
 	`
 
-	res, err := t.db.Exec(query, check.TimeNow(), id)
+	_, err := t.pool.Exec(ctx, query, check.TimeNow(), id)
 	if err != nil {
 		log.Println("error while deleting tarif by id", err.Error())
 		return err
-	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return errors.New("no rows affected during insert")
 	}
 
 	return nil

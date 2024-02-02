@@ -4,26 +4,26 @@ import (
 	"bazaar/api/models"
 	"bazaar/pkg/check"
 	"bazaar/storage"
-	"database/sql"
-	"errors"
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type storageTransactionRepo struct {
-	db *sql.DB
+	pool *pgxpool.Pool
 }
 
-func NewStorageTransactionRepo(db *sql.DB) storage.IStorageTransactionRepo {
-	return storageTransactionRepo{
-		db: db,
+func NewStorageTransactionRepo(pool *pgxpool.Pool) storage.IStorageTransactionRepo {
+	return &storageTransactionRepo{
+		pool: pool,
 	}
 }
 
-func (s storageTransactionRepo) Create(request models.CreateStorageTransaction) (string, error) {
+func (s *storageTransactionRepo) Create(ctx context.Context, request models.CreateStorageTransaction) (string, error) {
 
 	id := uuid.New()
 
@@ -31,35 +31,23 @@ func (s storageTransactionRepo) Create(request models.CreateStorageTransaction) 
 
 	query := `insert into storage_transaction (id, staff_id, product_id, storage_tranaction_type, price, quantity, updated_at) values ($1, $2, $3, $4, $5, $6, $7)`
 
-	res, err := s.db.Exec(query,
+	_, err := s.pool.Exec(ctx, query,
 		id,
 		request.StaffID,
 		request.ProductID,
 		request.StorageTransactionType,
 		request.Price,
 		request.Quantity,
-	    updatedAt,
+		updatedAt,
 	)
 	if err != nil {
 		log.Println("error while inserting storage transaction data", err.Error())
 		return "", err
 	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return id.String(), nil
 }
 
-func (s storageTransactionRepo) Get(id models.PrimaryKey) (models.StorageTransaction, error) {
+func (s *storageTransactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models.StorageTransaction, error) {
 
 	storageTransaction := models.StorageTransaction{}
 
@@ -67,7 +55,7 @@ func (s storageTransactionRepo) Get(id models.PrimaryKey) (models.StorageTransac
 	price, quantity, created_at, updated_at from storage_transaction
 	 where deleted_at is null and id = $1`
 
-	row := s.db.QueryRow(query, id)
+	row := s.pool.QueryRow(ctx, query, id)
 
 	err := row.Scan(
 		&storageTransaction.ID,
@@ -88,7 +76,7 @@ func (s storageTransactionRepo) Get(id models.PrimaryKey) (models.StorageTransac
 	return storageTransaction, nil
 }
 
-func (s storageTransactionRepo) GetList(request models.GetListRequest) (models.StorageTransactionsResponse, error) {
+func (s *storageTransactionRepo) GetList(ctx context.Context, request models.GetListRequest) (models.StorageTransactionsResponse, error) {
 
 	var (
 		storageTransactions = []models.StorageTransaction{}
@@ -104,7 +92,7 @@ func (s storageTransactionRepo) GetList(request models.GetListRequest) (models.S
 	if search != "" {
 		countQuery += fmt.Sprintf(`where storage_transaction_type ilike '%%%s%%'`, search)
 	}
-	if err := s.db.QueryRow(countQuery).Scan(&count); err != nil {
+	if err := s.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting storage_transaction count", err.Error())
 		return models.StorageTransactionsResponse{}, err
 	}
@@ -119,7 +107,7 @@ func (s storageTransactionRepo) GetList(request models.GetListRequest) (models.S
 	}
 
 	query += `LIMIT $1 OFFSET $2`
-	rows, err := s.db.Query(query, request.Limit, offset)
+	rows, err := s.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
 		fmt.Println("error is while selecting storage transaction", err.Error())
 		return models.StorageTransactionsResponse{}, err
@@ -151,41 +139,30 @@ func (s storageTransactionRepo) GetList(request models.GetListRequest) (models.S
 	}, nil
 }
 
-func (s storageTransactionRepo) Update(request models.UpdateStorageTransaction) (string, error) {
+func (s *storageTransactionRepo) Update(ctx context.Context, request models.UpdateStorageTransaction) (string, error) {
 
 	query := `update storage_transaction
    set staff_id = $1, product_id = $2, storage_transaction_type = $3,
    price = $4, quantity = $5, updated_at = $6
    where id = $7
    `
-	res, err := s.db.Exec(query,
-	request.StaffID,
-	request.ProductID,
-	request.StorageTransactionType,
-	request.Price,
-	request.Quantity,	
-	check.TimeNow(),
+	_, err := s.pool.Exec(ctx, query,
+		request.StaffID,
+		request.ProductID,
+		request.StorageTransactionType,
+		request.Price,
+		request.Quantity,
+		check.TimeNow(),
 	)
 	if err != nil {
 		log.Println("error while updating storage_transaction data...", err.Error())
 		return "", err
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return "", errors.New("no rows affected during insert")
-	}
-
 	return request.ID, nil
 }
 
-func (s storageTransactionRepo) Delete(id string) error {
+func (s *storageTransactionRepo) Delete(ctx context.Context, id string) error {
 
 	query := `
 	update storage_transaction
@@ -193,23 +170,11 @@ func (s storageTransactionRepo) Delete(id string) error {
 	  where id = $2
 	`
 
-	res, err := s.db.Exec(query, check.TimeNow(), id)
+	_, err := s.pool.Exec(ctx, query, check.TimeNow(), id)
 	if err != nil {
 		log.Println("error while deleting storage_transaction by id", err.Error())
 		return err
 	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("error getting rows affected", err.Error())
-		return err
-	}
-
-	if rowsAffected == 0 {
-		log.Println("no rows affected during insert")
-		return errors.New("no rows affected during insert")
-	}
-
 
 	return nil
 }
