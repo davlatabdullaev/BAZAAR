@@ -10,6 +10,3 @@ type PrimaryKey struct {
 	ID string `json:"id"`
 }
 
-type Delete struct {
-	DeletedAt string `json:"deleted_at"`
-}
