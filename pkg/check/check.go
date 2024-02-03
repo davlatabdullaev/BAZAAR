@@ -6,13 +6,6 @@ import (
 	"time"
 )
 
-func TimeNow() time.Time {
-
-	time := time.Now()
-
-	return time
-}
-
 func CalculateAge(birthDate string) int {
 	layout := "2006-01-02"
 	birthday, err := time.Parse(layout, birthDate)
@@ -32,8 +25,6 @@ func CalculateAge(birthDate string) int {
 }
 
 func GenerateBarCode() int {
-
-	rand.Seed(TimeNow().UnixNano())
 
 	min := 1000000000
 

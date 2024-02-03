@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"bazaar/api/models"
-	"bazaar/pkg/check"
 	"bazaar/storage"
 	"context"
 	"fmt"
@@ -27,9 +26,7 @@ func (s *storageTransactionRepo) Create(ctx context.Context, request models.Crea
 
 	id := uuid.New()
 
-	updatedAt := time.Now()
-
-	query := `insert into storage_transaction (id, staff_id, product_id, storage_tranaction_type, price, quantity, updated_at) values ($1, $2, $3, $4, $5, $6, $7)`
+	query := `insert into storage_transaction (id, staff_id, product_id, storage_tranaction_type, price, quantity) values ($1, $2, $3, $4, $5, $6)`
 
 	_, err := s.pool.Exec(ctx, query,
 		id,
@@ -38,7 +35,6 @@ func (s *storageTransactionRepo) Create(ctx context.Context, request models.Crea
 		request.StorageTransactionType,
 		request.Price,
 		request.Quantity,
-		updatedAt,
 	)
 	if err != nil {
 		log.Println("error while inserting storage transaction data", err.Error())
@@ -152,7 +148,7 @@ func (s *storageTransactionRepo) Update(ctx context.Context, request models.Upda
 		request.StorageTransactionType,
 		request.Price,
 		request.Quantity,
-		check.TimeNow(),
+		time.Now(),
 	)
 	if err != nil {
 		log.Println("error while updating storage_transaction data...", err.Error())
@@ -170,7 +166,7 @@ func (s *storageTransactionRepo) Delete(ctx context.Context, id string) error {
 	  where id = $2
 	`
 
-	_, err := s.pool.Exec(ctx, query, check.TimeNow(), id)
+	_, err := s.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
 		log.Println("error while deleting storage_transaction by id", err.Error())
 		return err

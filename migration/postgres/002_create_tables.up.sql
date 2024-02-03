@@ -3,7 +3,7 @@ CREATE TABLE branch (
    name VARCHAR(75) NOT NULL,
    address VARCHAR(75) NOT NULL,
    created_at TIMESTAMP DEFAULT NOW(),
-   updated_at TIMESTAMP,
+   updated_at timestamp DEFAULT now(),
    deleted_at TIMESTAMP
 );
 CREATE TABLE category (
@@ -11,7 +11,7 @@ CREATE TABLE category (
     name VARCHAR(75) NOT NULL,
     parent_id uuid references category(id),
     created_at timestamp DEFAULT now(),
-    updated_at timestamp,
+    updated_at timestamp DEFAULT now(),
     deleted_at timestamp
 );
 CREATE TABLE product (
@@ -21,7 +21,7 @@ CREATE TABLE product (
     barcode varchar(10) unique not null,
     category_id uuid references category(id),
     created_at timestamp DEFAULT now(),
-    updated_at timestamp,
+    updated_at timestamp DEFAULT now(),
     deleted_at timestamp
 );
 create table  storage (
@@ -30,7 +30,7 @@ create table  storage (
     branch_id uuid references branch(id),
     count int not null,
     created_at timestamp DEFAULT now(),
-    updated_at timestamp,
+    updated_at timestamp DEFAULT now(),
     deleted_at timestamp
 );
 create table sale (
@@ -43,7 +43,7 @@ create table sale (
     status  varchar(20) check (status in('in_procces', 'succes', 'cancel')),
     client_name varchar(75) not null,
     created_at timestamp DEFAULT now(),
-    updated_at timestamp,
+    updated_at timestamp DEFAULT now(),
     deleted_at timestamp
 );
 create table basket (
@@ -53,7 +53,7 @@ create table basket (
     quantity int not null,
     price numeric(75,4) not null,
     created_at timestamp DEFAULT now(),
-    updated_at timestamp,
+    updated_at timestamp DEFAULT now(),
     deleted_at timestamp
 );
 create table tarif (
@@ -63,7 +63,7 @@ create table tarif (
     amount_for_cash numeric(75,4) not null,
     amount_for_card numeric(75,4) not null,
     created_at timestamp DEFAULT now(),
-    updated_at timestamp,
+    updated_at timestamp DEFAULT now(),
     deleted_at timestamp
 );
 create table staff (
@@ -79,7 +79,7 @@ create table staff (
    login varchar(75) not null,
    password varchar(128) not null,
    created_at timestamp DEFAULT now(),
-   updated_at timestamp,
+   updated_at timestamp DEFAULT now(),
    deleted_at timestamp
 );
 create table transaction (
@@ -91,7 +91,7 @@ create table transaction (
   amount numeric(75,4) not null,
   description text not null,
   created_at timestamp DEFAULT now(),
-  updated_at timestamp,
+  updated_at timestamp DEFAULT now(),
   deleted_at timestamp
 );
 create table storage_transaction (
@@ -102,7 +102,7 @@ create table storage_transaction (
     price numeric(75,4) not null,
     quantity numeric(75,4) not null,
     created_at timestamp DEFAULT now(),
-    updated_at timestamp,
+    updated_at timestamp DEFAULT now(),
     deleted_at timestamp
 );
 

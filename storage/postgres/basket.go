@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"bazaar/api/models"
-	"bazaar/pkg/check"
 	"bazaar/storage"
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -26,7 +26,7 @@ func (b *basketRepo) Create(ctx context.Context, basket models.CreateBasket) (st
 
 	id := uuid.New()
 
-	query := `insert into category (id, sale_id, product_id, quantity, price, updated_at) values ($1, $2, $3, $4, $5, $6)`
+	query := `insert into category (id, sale_id, product_id, quantity, price) values ($1, $2, $3, $4, $5)`
 
 	_, err := b.pool.Exec(ctx, query,
 		id,
@@ -34,7 +34,6 @@ func (b *basketRepo) Create(ctx context.Context, basket models.CreateBasket) (st
 		basket.ProductID,
 		basket.Quantity,
 		basket.Price,
-		check.TimeNow(),
 	)
 	if err != nil {
 		log.Println("error while inserting basket", err.Error())
@@ -134,7 +133,7 @@ func (b *basketRepo) Update(ctx context.Context, request models.UpdateBasket) (s
 	quantity = $3,
 	price = $4,
 	updated_at = $5 
-   where id = $6  
+   where id = $6 
    `
 
 	_, err := b.pool.Exec(ctx, query,
@@ -142,7 +141,7 @@ func (b *basketRepo) Update(ctx context.Context, request models.UpdateBasket) (s
 		request.ProductID,
 		request.Quantity,
 		request.Price,
-		check.TimeNow(),
+		time.Now(),
 		request.ID)
 	if err != nil {
 		log.Println("error while updating basket data...", err.Error())
@@ -160,7 +159,10 @@ func (b *basketRepo) Delete(ctx context.Context, id string) error {
 	  where id = $2
 	`
 
-	_, err := b.pool.Exec(ctx, query, check.TimeNow(), id)
+	_, err := b.pool.Exec(ctx,
+		query,
+		time.Now(),
+		id)
 	if err != nil {
 		log.Println("error while deleting basket by id", err.Error())
 		return err

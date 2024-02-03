@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"bazaar/api/models"
-	"bazaar/pkg/check"
 	"bazaar/storage"
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -26,7 +26,7 @@ func (s *saleRepo) Create(ctx context.Context, sale models.CreateSale) (string, 
 
 	id := uuid.New()
 
-	query := `insert into sale (id, branch_id, shop_assistent_id, chashier_id, payment_type, price, status, client_name, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+	query := `insert into sale (id, branch_id, shop_assistent_id, chashier_id, payment_type, price, status, client_name) values ($1, $2, $3, $4, $5, $6, $7, $8)`
 
 	_, err := s.pool.Exec(ctx, query,
 		id,
@@ -37,7 +37,6 @@ func (s *saleRepo) Create(ctx context.Context, sale models.CreateSale) (string, 
 		sale.Price,
 		sale.Status,
 		sale.ClientName,
-		check.TimeNow(),
 	)
 	if err != nil {
 		log.Println("error while inserting sale", err.Error())
@@ -151,7 +150,7 @@ func (s *saleRepo) Update(ctx context.Context, request models.UpdateSale) (strin
 		request.Price,
 		request.Status,
 		request.ClientName,
-		request.UpdatedAt,
+		time.Now(),
 		request.ID,
 	)
 	if err != nil {
@@ -167,7 +166,7 @@ func (s *saleRepo) Delete(ctx context.Context, id string) error {
 	set deleted_at = $1 
 	where id = $2`
 
-	_, err := s.pool.Exec(ctx, query, check.TimeNow(), id)
+	_, err := s.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
 		log.Println("error while deleting sale by id", err.Error())
 		return err

@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"bazaar/api/models"
-	"bazaar/pkg/check"
 	"bazaar/storage"
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -26,13 +26,12 @@ func (b *branchRepo) Create(ctx context.Context, branch models.CreateBranch) (st
 
 	id := uuid.New()
 
-	query := `insert into category (id, name, address, updated_at) values ($1, $2, $3, $4)`
+	query := `insert into category (id, name, address) values ($1, $2, $3)`
 
 	_, err := b.pool.Exec(ctx, query,
 		id,
 		branch.Name,
 		branch.Address,
-		check.TimeNow(),
 	)
 	if err != nil {
 		log.Println("error while inserting branch", err.Error())
@@ -136,7 +135,7 @@ func (b *branchRepo) Update(ctx context.Context, request models.UpdateBranch) (s
 	_, err := b.pool.Exec(ctx, query,
 		request.Name,
 		request.Address,
-		request.UpdatedAt,
+		time.Now(),
 		request.ID)
 	if err != nil {
 		log.Println("error while updating branch data...", err.Error())
@@ -154,7 +153,7 @@ func (b *branchRepo) Delete(ctx context.Context, id string) error {
 	  where id = $2
 	`
 
-	_, err := b.pool.Exec(ctx, query, check.TimeNow(), id)
+	_, err := b.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
 		log.Println("error while deleting branch by id", err.Error())
 		return err

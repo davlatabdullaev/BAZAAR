@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"bazaar/api/models"
-	"bazaar/pkg/check"
 	"bazaar/storage"
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -26,7 +26,7 @@ func (s *storageRepo) Create(ctx context.Context, storage models.CreateStorage) 
 
 	id := uuid.New()
 
-	query := `insert into storage (id, product_id, branch_id, count, updated_at) values ($1, $2, $3, $4, now())`
+	query := `insert into storage (id, product_id, branch_id, count) values ($1, $2, $3, $4)`
 
 	_, err := s.pool.Exec(ctx, query,
 		id,
@@ -130,7 +130,7 @@ func (s *storageRepo) Update(ctx context.Context, request models.UpdateStorage) 
 		request.ProductID,
 		request.BranchID,
 		request.Count,
-		check.TimeNow(),
+		time.Now(),
 		request.ID,
 	)
 	if err != nil {
@@ -147,7 +147,7 @@ func (s *storageRepo) Delete(ctx context.Context, id string) error {
 	set deleted_at = $1 
 	where id = $2`
 
-	_, err := s.pool.Exec(ctx, query, check.TimeNow(), id)
+	_, err := s.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
 		log.Println("error while deleting storage by id", err.Error())
 		return err

@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"bazaar/api/models"
-	"bazaar/pkg/check"
 	"bazaar/storage"
 	"context"
 	"fmt"
@@ -27,12 +26,10 @@ func (t *transactionRepo) Create(ctx context.Context, request models.CreateTrans
 
 	id := uuid.New()
 
-	updatedAt := time.Now()
-
 	query := `insert into transaction (id, sale_id, staff_id, transaction_type,
-		source_type, amount, description, updated_at) 
+		source_type, amount, description) 
 	values 
-	($1, $2, $3, $4, $5, $6, $7, $8)`
+	($1, $2, $3, $4, $5, $6, $7)`
 
 	_, err := t.pool.Exec(ctx, query,
 		id,
@@ -42,7 +39,6 @@ func (t *transactionRepo) Create(ctx context.Context, request models.CreateTrans
 		request.SourceType,
 		request.Amount,
 		request.Description,
-		updatedAt,
 	)
 	if err != nil {
 		log.Println("error while inserting transaction data", err.Error())
@@ -163,7 +159,7 @@ func (t *transactionRepo) Update(ctx context.Context, request models.UpdateTrans
 		request.SourceType,
 		request.Amount,
 		request.Description,
-		check.TimeNow(),
+		time.Now(),
 		request.ID,
 	)
 	if err != nil {
@@ -181,7 +177,7 @@ func (t *transactionRepo) Delete(ctx context.Context, id string) error {
 	  where id = $2
 	`
 
-	_, err := t.pool.Exec(ctx, query, check.TimeNow(), id)
+	_, err := t.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
 		log.Println("error while deleting transaction by id", err.Error())
 		return err

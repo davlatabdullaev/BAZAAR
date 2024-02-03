@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"bazaar/api/models"
-	"bazaar/pkg/check"
 	"bazaar/storage"
 	"context"
 	"fmt"
@@ -27,12 +26,10 @@ func (t *tarifRepo) Create(ctx context.Context, request models.CreateTarif) (str
 
 	id := uuid.New()
 
-	updatedAt := time.Now()
-
 	query := `insert into tarif (id, name, tarif_type, amount_for_cash,
-		amount_for_card, updated_at) 
+		amount_for_card) 
 	values 
-	($1, $2, $3, $4, $5, $6)`
+	($1, $2, $3, $4, $5)`
 
 	_, err := t.pool.Exec(ctx, query,
 		id,
@@ -40,7 +37,6 @@ func (t *tarifRepo) Create(ctx context.Context, request models.CreateTarif) (str
 		request.TarifType,
 		request.AmountForCash,
 		request.AmountForCard,
-		updatedAt,
 	)
 	if err != nil {
 		log.Println("error while inserting tarif data", err.Error())
@@ -156,7 +152,7 @@ func (t *tarifRepo) Update(ctx context.Context, request models.UpdateTarif) (str
 		request.TarifType,
 		request.AmountForCash,
 		request.AmountForCard,
-		check.TimeNow(),
+		time.Now(),
 		request.ID,
 	)
 	if err != nil {
@@ -174,7 +170,7 @@ func (t *tarifRepo) Delete(ctx context.Context, id string) error {
 	  where id = $2
 	`
 
-	_, err := t.pool.Exec(ctx, query, check.TimeNow(), id)
+	_, err := t.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
 		log.Println("error while deleting tarif by id", err.Error())
 		return err

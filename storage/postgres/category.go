@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"bazaar/api/models"
-	"bazaar/pkg/check"
 	"bazaar/storage"
 	"context"
 	"fmt"
@@ -27,15 +26,12 @@ func (c *categoryRepo) Create(ctx context.Context, category models.CreateCategor
 
 	id := uuid.New()
 
-	updatedAt := time.Now()
-
-	query := `insert into category (id, name, parent_id, updated_at) values ($1, $2, $3, $4)`
+	query := `insert into category (id, name, parent_id) values ($1, $2, $3)`
 
 	_, err := c.pool.Exec(ctx, query,
 		id,
 		category.Name,
 		category.ParentID,
-		updatedAt,
 	)
 	if err != nil {
 		log.Println("error while inserting category", err.Error())
@@ -123,7 +119,7 @@ func (c *categoryRepo) Update(ctx context.Context, request models.UpdateCategory
    where id = $4  
    `
 
-	_, err := c.pool.Exec(ctx, query, request.Name, request.ParentID, check.TimeNow(), request.ID)
+	_, err := c.pool.Exec(ctx, query, request.Name, request.ParentID, time.Now(), request.ID)
 	if err != nil {
 		log.Println("error while updating category data...", err.Error())
 		return "", err
@@ -140,7 +136,7 @@ func (c *categoryRepo) Delete(ctx context.Context, id string) error {
 	  where id = $2
 	`
 
-	_, err := c.pool.Exec(ctx, query, check.TimeNow(), id)
+	_, err := c.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
 		log.Println("error while deleting category by id", err.Error())
 		return err

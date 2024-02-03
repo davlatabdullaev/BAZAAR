@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -26,7 +27,7 @@ func (p *productRepo) Create(ctx context.Context, product models.CreateProduct) 
 
 	id := uuid.New()
 
-	query := `insert into product (id, name, price, barcode, category_id, updated_at) values ($1, $2, $3, $4, $5, $6)`
+	query := `insert into product (id, name, price, barcode, category_id) values ($1, $2, $3, $4, $5)`
 
 	_, err := p.pool.Exec(ctx, query,
 		id,
@@ -34,7 +35,6 @@ func (p *productRepo) Create(ctx context.Context, product models.CreateProduct) 
 		product.Price,
 		check.GenerateBarCode(),
 		product.CategoryID,
-		check.TimeNow(),
 	)
 	if err != nil {
 		log.Println("error while inserting product", err.Error())
@@ -138,7 +138,7 @@ func (p *productRepo) Update(ctx context.Context, request models.UpdateProduct) 
 		request.Name,
 		request.Price,
 		request.CategoryID,
-		check.TimeNow(),
+		time.Now(),
 		request.ID)
 	if err != nil {
 		log.Println("error while updating product data...", err.Error())
@@ -155,7 +155,7 @@ func (p *productRepo) Delete(ctx context.Context, id string) error {
 	  where id = $2
 	`
 
-	_, err := p.pool.Exec(ctx, query, check.TimeNow(), id)
+	_, err := p.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
 		log.Println("error while deleting product by id", err.Error())
 		return err

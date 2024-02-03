@@ -27,9 +27,8 @@ func (s *staffRepo) Create(ctx context.Context, request models.CreateStaff) (str
 
 	id := uuid.New()
 
-	updatedAt := time.Now()
 
-	query := `insert into staff (id, branch_id, tarif_id, type_staff, name, balance, birth_date, age, gender, login, password, updated_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
+	query := `insert into staff (id, branch_id, tarif_id, type_staff, name, balance, birth_date, age, gender, login, password) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 
 	_, err := s.pool.Exec(ctx, query,
 		id,
@@ -43,7 +42,6 @@ func (s *staffRepo) Create(ctx context.Context, request models.CreateStaff) (str
 		request.Gender,
 		request.Login,
 		request.Password,
-		updatedAt,
 	)
 	if err != nil {
 		log.Println("error while inserting staff data", err.Error())
@@ -164,7 +162,7 @@ func (s *staffRepo) Update(ctx context.Context, request models.UpdateStaff) (str
 		request.Gender,
 		request, request.Login,
 		request.Password,
-		request.UpdatedAt,
+		time.Now(),
 		request.ID,
 	)
 	if err != nil {
@@ -182,7 +180,7 @@ func (s *staffRepo) Delete(ctx context.Context, id string) error {
 	  where id = $2
 	`
 
-	_, err := s.pool.Exec(ctx, query, check.TimeNow(), id)
+	_, err := s.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
 		log.Println("error while deleting staff by id", err.Error())
 		return err
