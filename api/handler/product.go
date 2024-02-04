@@ -39,10 +39,16 @@ func (h Handler) CreateProduct(c *gin.Context) {
 func (h Handler) GetProductByID(c *gin.Context) {
 	var err error
 
-	id := c.Param("id")
+	uid := c.Param("id")
+
+	id, err := uuid.Parse(uid)
+	if err != nil {
+		handleResponse(c, "invalid uuid type ", http.StatusBadRequest, err.Error())
+		return
+	}
 
 	product, err := h.storage.Product().Get(context.Background(), models.PrimaryKey{
-		ID: id,
+		ID: id.String(),
 	})
 	if err != nil {
 		handleResponse(c, "error while get product by id", http.StatusInternalServerError, err)

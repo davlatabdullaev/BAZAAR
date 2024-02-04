@@ -12,7 +12,7 @@ type Sale struct {
 	Status          string    `json:"status"`
 	ClientName      string    `json:"client_name"`
 	CreatedAt       time.Time `json:"created_at"`
-	Updated         time.Time `json:"updated_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
 	DeletedAt       time.Time `json:"deleted_at"`
 }
 
@@ -35,7 +35,7 @@ type UpdateSale struct {
 	Price           string    `json:"price"`
 	Status          string    `json:"status"`
 	ClientName      string    `json:"client_name"`
-	Updated         time.Time `json:"updated_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
 }
 
 type SalesResponse struct {

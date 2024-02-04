@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "BASKET"
+                    "basket"
                 ],
                 "summary": "Create a new basket",
                 "parameters": [
@@ -67,6 +67,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/basket/{id}": {
+            "get": {
+                "description": "Get basket by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "basket"
+                ],
+                "summary": "Get basket by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "basket",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Basket"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/category": {
             "post": {
                 "description": "Create a new category",
@@ -77,7 +127,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "CATEGORY"
+                    "category"
                 ],
                 "summary": "Create a new category",
                 "parameters": [

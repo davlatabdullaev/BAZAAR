@@ -15,7 +15,7 @@ import (
 // @Router       /basket [POST]
 // @Summary      Create a new basket
 // @Description  Create a new basket
-// @Tags         BASKET
+// @Tags         basket
 // @Accept       json
 // @Produce      json
 // @Param        basket  body  models.CreateBasket  true  "baskets data"
@@ -48,14 +48,32 @@ func (h Handler) CreateBasket(c *gin.Context) {
 
 }
 
+// GetBasketByID godoc
+// @Router       /basket/{id} [GET]
+// @Summary      Get basket by id
+// @Description  Get basket by id
+// @Tags         basket
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "basket"
+// @Success      200  {object}  models.Basket
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetBasketByID(c *gin.Context) {
 
 	var err error
 
-	id := c.Param("id")
+	uid := c.Param("id")
+
+	id, err := uuid.Parse(uid)
+	if err != nil {
+		handleResponse(c, "invalid uuid type ", http.StatusBadRequest, err.Error())
+		return
+	}
 
 	basket, err := h.storage.Basket().Get(context.Background(), models.PrimaryKey{
-		ID: id,
+		ID: id.String(),
 	})
 	if err != nil {
 		handleResponse(c, "error while get basket by id", http.StatusInternalServerError, err)

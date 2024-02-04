@@ -39,10 +39,16 @@ func (h Handler) CreateTarif(c *gin.Context) {
 func (h Handler) GetTarifByID(c *gin.Context) {
 	var err error
 
-	id := c.Param("id")
+	uid := c.Param("id")
+
+	id, err := uuid.Parse(uid)
+	if err != nil {
+		handleResponse(c, "invalid uuid type ", http.StatusBadRequest, err.Error())
+		return
+	}
 
 	tarif, err := h.storage.Tarif().Get(context.Background(), models.PrimaryKey{
-		ID: id,
+		ID: id.String(),
 	})
 	if err != nil {
 		handleResponse(c, "error while get tarif by id", http.StatusInternalServerError, err)

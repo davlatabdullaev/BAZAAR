@@ -40,10 +40,16 @@ func (h Handler) GetStaffByID(c *gin.Context) {
 
 	var err error
 
-	id := c.Param("id")
+	uid := c.Param("id")
+
+	id, err := uuid.Parse(uid)
+	if err != nil {
+		handleResponse(c, "invalid uuid type ", http.StatusBadRequest, err.Error())
+		return
+	}
 
 	staff, err := h.storage.Staff().Get(context.Background(), models.PrimaryKey{
-		ID: id,
+		ID: id.String(),
 	})
 	if err != nil {
 		handleResponse(c, "error while get staff by id", http.StatusInternalServerError, err)
