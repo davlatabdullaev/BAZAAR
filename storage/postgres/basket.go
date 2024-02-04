@@ -148,7 +148,7 @@ func (b *basketRepo) Update(ctx context.Context, request models.UpdateBasket) (s
 		return "", err
 	}
 
-	return "", nil
+	return request.ID, nil
 }
 
 func (b *basketRepo) Delete(ctx context.Context, id string) error {

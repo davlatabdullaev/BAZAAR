@@ -1,0 +1,136 @@
+definitions:
+  models.Basket:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: string
+      price:
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+      sale_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Category:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      parent_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.CreateBasket:
+    properties:
+      price:
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+      sale_id:
+        type: string
+    type: object
+  models.CreateCategory:
+    properties:
+      name:
+        type: string
+      parent_id:
+        type: string
+    type: object
+  models.Response:
+    properties:
+      data: {}
+      description:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: This is a sample server celler server.
+  title: BAZAAR.UZ
+  version: "11"
+paths:
+  /basket:
+    post:
+      consumes:
+      - application/json
+      description: Create a new basket
+      parameters:
+      - description: baskets data
+        in: body
+        name: basket
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateBasket'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Basket'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Create a new basket
+      tags:
+      - BASKET
+  /category:
+    post:
+      consumes:
+      - application/json
+      description: Create a new category
+      parameters:
+      - description: category data
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateCategory'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Create a new category
+      tags:
+      - CATEGORY
+swagger: "2.0"

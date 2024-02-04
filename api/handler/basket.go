@@ -11,6 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateBasket godoc
+// @Router       /basket [POST]
+// @Summary      Create a new basket
+// @Description  Create a new basket
+// @Tags         BASKET
+// @Accept       json
+// @Produce      json
+// @Param        basket  body  models.CreateBasket  true  "baskets data"
+// @Success      201  {object}  models.Basket
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) CreateBasket(c *gin.Context) {
 	createBasket := models.CreateBasket{}
 

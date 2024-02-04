@@ -159,7 +159,7 @@ func (t *tarifRepo) Update(ctx context.Context, request models.UpdateTarif) (str
 		log.Println("error while updating tarif data...", err.Error())
 		return "", err
 	}
-	return "", nil
+	return request.ID, nil
 }
 
 func (t *tarifRepo) Delete(ctx context.Context, id string) error {

@@ -157,7 +157,7 @@ func (s *saleRepo) Update(ctx context.Context, request models.UpdateSale) (strin
 		log.Println("error while updating sale data...", err.Error())
 		return "", err
 	}
-	return "", nil
+	return request.ID, nil
 }
 
 func (s *saleRepo) Delete(ctx context.Context, id string) error {

@@ -10,6 +10,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateBasket godoc
+// @Router       /category [POST]
+// @Summary      Create a new category
+// @Description  Create a new category
+// @Tags         CATEGORY
+// @Accept       json
+// @Produce      json
+// @Param        category  body  models.CreateCategory  true  "category data"
+// @Success      201  {object}  models.Category
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) CreateCategory(c *gin.Context) {
 	createCategory := models.CreateCategory{}
 

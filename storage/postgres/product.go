@@ -41,7 +41,7 @@ func (p *productRepo) Create(ctx context.Context, product models.CreateProduct) 
 		return "", err
 	}
 
-	return "", nil
+	return id.String(), nil
 }
 
 func (p *productRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Product, error) {
@@ -144,7 +144,7 @@ func (p *productRepo) Update(ctx context.Context, request models.UpdateProduct) 
 		log.Println("error while updating product data...", err.Error())
 		return "", err
 	}
-	return "", nil
+	return request.ID, nil
 }
 
 func (p *productRepo) Delete(ctx context.Context, id string) error {

@@ -12,7 +12,6 @@ type Category struct {
 type CreateCategory struct {
 	Name      string `json:"name"`
 	ParentID  string `json:"parent_id"`
-	CreatedAt string `json:"created_at"`
 }
 
 type UpdateCategory struct {

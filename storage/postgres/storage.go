@@ -38,7 +38,7 @@ func (s *storageRepo) Create(ctx context.Context, storage models.CreateStorage) 
 		log.Println("error while inserting storage", err.Error())
 		return "", err
 	}
-	return "", nil
+	return id.String(), nil
 }
 
 func (s *storageRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Storage, error) {
@@ -138,7 +138,7 @@ func (s *storageRepo) Update(ctx context.Context, request models.UpdateStorage) 
 		return "", err
 	}
 
-	return "", nil
+	return request.ID, nil
 }
 
 func (s *storageRepo) Delete(ctx context.Context, id string) error {

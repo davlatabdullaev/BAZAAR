@@ -142,7 +142,7 @@ func (b *branchRepo) Update(ctx context.Context, request models.UpdateBranch) (s
 		return "", err
 	}
 
-	return "", nil
+	return request.ID, nil
 }
 
 func (b *branchRepo) Delete(ctx context.Context, id string) error {

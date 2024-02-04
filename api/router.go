@@ -3,10 +3,14 @@ package api
 import (
 	"bazaar/api/handler"
 	"bazaar/storage"
-
+    _"bazaar/api/docs"
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/gin-swagger" // gin-swagger middleware
+    "github.com/swaggo/files" // swagger embed files
 )
-
+// @title           BAZAAR.UZ
+// @version         11
+// @description     This is a sample server celler server.
 func New(store storage.IStorage) *gin.Engine {
 
 	h := handler.New(store)
@@ -93,5 +97,6 @@ func New(store storage.IStorage) *gin.Engine {
 	r.PUT("transaction/:id", h.UpdateTransaction)
 	r.DELETE("transaction/:id", h.DeleteTransaction)
 
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return r
 }
