@@ -1,47 +1,49 @@
 package models
 
+import "time"
+
 type Staff struct {
-	ID        string `json:"id"`
-	BranchID  string `json:"branch_id"`
-	TarifID   string `json:"tarif_id"`
-	TypeStaff string `json:"type_staff"`
-	Name      string `json:"name"`
-	Balance   string `json:"balance"`
-	BirthDate string `json:"birth_date"`
-	Age       int    `json:"age"`
-	Gender    string `json:"gender"`
-	Login     string `json:"login"`
-	Password  string `json:"password"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-	DeletedAt string `json:"deleted_at"`
+	ID        string    `json:"id"`
+	BranchID  string    `json:"branch_id"`
+	TarifID   string    `json:"tarif_id"`
+	TypeStaff string    `json:"type_staff"`
+	Name      string    `json:"name"`
+	Balance   string    `json:"balance"`
+	BirthDate string    `json:"birth_date"`
+	Age       int       `json:"age"`
+	Gender    string    `json:"gender"`
+	Login     string    `json:"login"`
+	Password  string    `json:"password"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	DeletedAt time.Time `json:"deleted_at"`
 }
 
 type CreateStaff struct {
-	BranchID  string `json:"branch_id"`
-	TarifID   string `json:"tarif_id"`
-	TypeStaff string `json:"type_staff"`
-	Name      string `json:"name"`
-	Balance   string `json:"balance"`
-	BirthDate string `json:"birth_date"`
-	Gender    string `json:"gender"`
-	Login     string `json:"login"`
-	Password  string `json:"password"`
-	CreatedAt string `json:"created_at"`
+	BranchID  string    `json:"branch_id"`
+	TarifID   string    `json:"tarif_id"`
+	TypeStaff string    `json:"type_staff"`
+	Name      string    `json:"name"`
+	Balance   string    `json:"balance"`
+	BirthDate string    `json:"birth_date"`
+	Gender    string    `json:"gender"`
+	Login     string    `json:"login"`
+	Password  string    `json:"password"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type UpdateStaff struct {
-	ID        string `json:"id"`
-	BranchID  string `json:"branch_id"`
-	TarifID   string `json:"tarif_id"`
-	TypeStaff string `json:"type_staff"`
-	Name      string `json:"name"`
-	Balance   string `json:"balance"`
-	BirthDate string `json:"birth_date"`
-	Gender    string `json:"gender"`
-	Login     string `json:"login"`
-	Password  string `json:"password"`
-	UpdatedAt string `json:"updated_at"`
+	ID        string    `json:"id"`
+	BranchID  string    `json:"branch_id"`
+	TarifID   string    `json:"tarif_id"`
+	TypeStaff string    `json:"type_staff"`
+	Name      string    `json:"name"`
+	Balance   string    `json:"balance"`
+	BirthDate string    `json:"birth_date"`
+	Gender    string    `json:"gender"`
+	Login     string    `json:"login"`
+	Password  string    `json:"password"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type StaffsResponse struct {

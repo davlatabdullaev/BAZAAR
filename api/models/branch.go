@@ -1,12 +1,14 @@
 package models
 
+import "time"
+
 type Branch struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Address   string `json:"address"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-	DeletedAt string `json:"deleted_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Address   string    `json:"address"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	DeletedAt string    `json:"deleted_at"`
 }
 
 type CreateBranch struct {
@@ -15,10 +17,10 @@ type CreateBranch struct {
 }
 
 type UpdateBranch struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Address   string `json:"address"`
-	UpdatedAt string `json:"updated_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Address   string    `json:"address"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type BranchsResponse struct {

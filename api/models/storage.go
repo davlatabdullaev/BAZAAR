@@ -1,13 +1,15 @@
 package models
 
+import "time"
+
 type Storage struct {
-	ID        string `json:"id"`
-	ProductID string `json:"product_id"`
-	BranchID  string `json:"branch_id"`
-	Count     int    `json:"count"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-	DeletedAt string `json:"deleted_at"`
+	ID        string    `json:"id"`
+	ProductID string    `json:"product_id"`
+	BranchID  string    `json:"branch_id"`
+	Count     int       `json:"count"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	DeletedAt time.Time `json:"deleted_at"`
 }
 
 type CreateStorage struct {
@@ -17,11 +19,11 @@ type CreateStorage struct {
 }
 
 type UpdateStorage struct {
-	ID        string `json:"id"`
-	ProductID string `json:"product_id"`
-	BranchID  string `json:"branch_id"`
-	Count     int    `json:"count"`
-	UpdatedAt string `json:"updated_at"`
+	ID        string    `json:"id"`
+	ProductID string    `json:"product_id"`
+	BranchID  string    `json:"branch_id"`
+	Count     int       `json:"count"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type StoragesResponse struct {
