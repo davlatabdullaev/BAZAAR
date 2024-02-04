@@ -67,32 +67,32 @@ create table tarif (
     deleted_at timestamp
 );
 create table staff (
-   id uuid primary key,
-   branch_id uuid references branch(id) not null,
-   tarif_id uuid references tarif(id) not null,
-   type_staff varchar(20) check (type_staff in('shop_assistant', 'chashier')) not NULL,
-   name varchar(75) not null,
-   balance numeric(75,4) not null,
-   birth_date date not null,
-   age int,
-   gender varchar(10) check (gender in('male', 'female')),
-   login varchar(75) not null,
-   password varchar(128) not null,
-   created_at timestamp DEFAULT now(),
-   updated_at timestamp DEFAULT now(),
-   deleted_at timestamp
+    id uuid primary key,
+    branch_id uuid references branch(id) not null,
+    tarif_id uuid references tarif(id) not null,
+    type_staff varchar(20) check (type_staff in('shop_assistant', 'chashier')) not NULL,
+    name varchar(75) not null,
+    balance numeric(75,4) not null,
+    birth_date date not null,
+    age int,
+    gender varchar(10) check (gender in('male', 'female')),
+    login varchar(75) not null,
+    password varchar(128) not null,
+    created_at timestamp DEFAULT now(),
+    updated_at timestamp DEFAULT now(),
+    deleted_at timestamp
 );
 create table transaction (
-  id uuid primary key,
-  sale_id uuid references sale(id),
-  staff_id uuid references staff(id),
-  transaction_type varchar(20) check (transaction_type in ('withdraw', 'topup')),
-  source_type varchar(20) check (source_type in ('bonus', 'sales')),
-  amount numeric(75,4) not null,
-  description text not null,
-  created_at timestamp DEFAULT now(),
-  updated_at timestamp DEFAULT now(),
-  deleted_at timestamp
+    id uuid primary key,
+    sale_id uuid references sale(id),
+    staff_id uuid references staff(id),
+    transaction_type varchar(20) check (transaction_type in ('withdraw', 'topup')),
+    source_type varchar(20) check (source_type in ('bonus', 'sales')),
+    amount numeric(75,4) not null,
+    description text not null,
+    created_at timestamp DEFAULT now(),
+    updated_at timestamp DEFAULT now(),
+    deleted_at timestamp
 );
 create table storage_transaction (
     id uuid primary key,

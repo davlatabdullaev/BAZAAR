@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
+
 // CreateBranch godoc
 // @Router       /branch [POST]
 // @Summary      Create a new branch
