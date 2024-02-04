@@ -108,7 +108,7 @@ func (s *staffRepo) GetList(ctx context.Context, request models.GetListRequest) 
 		query += fmt.Sprintf(` where name ilike '%%%s%%'`, search)
 	}
 
-	query += `LIMIT $1 OFFSET $2`
+	query += ` LIMIT $1 OFFSET $2`
 	rows, err := s.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
 		fmt.Println("error is while selecting staff", err.Error())

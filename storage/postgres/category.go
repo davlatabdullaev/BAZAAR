@@ -89,7 +89,7 @@ func (c *categoryRepo) GetList(ctx context.Context, request models.GetListReques
 		query += fmt.Sprintf(` where name ilike '%%%s%%'`, search)
 	}
 
-	query += `LIMIT $1 OFFSET $2`
+	query += ` LIMIT $1 OFFSET $2`
 	rows, err := c.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
 		fmt.Println("error is while selecting category", err.Error())

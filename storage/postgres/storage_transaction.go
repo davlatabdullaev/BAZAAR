@@ -102,7 +102,7 @@ func (s *storageTransactionRepo) GetList(ctx context.Context, request models.Get
 		query += fmt.Sprintf(` where storage_transaction_type ilike '%%%s%%'`, search)
 	}
 
-	query += `LIMIT $1 OFFSET $2`
+	query += ` LIMIT $1 OFFSET $2`
 	rows, err := s.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
 		fmt.Println("error is while selecting storage transaction", err.Error())

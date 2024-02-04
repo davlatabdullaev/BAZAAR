@@ -91,7 +91,7 @@ func (s *storageRepo) GetList(ctx context.Context, request models.GetListRequest
 		query += fmt.Sprintf(` where count ilike '%%%s%%'`, search)
 	}
 
-	query += `LIMIT $1 OFFSET $2`
+	query += ` LIMIT $1 OFFSET $2`
 	rows, err := s.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
 		fmt.Println("error is while selecting product", err.Error())

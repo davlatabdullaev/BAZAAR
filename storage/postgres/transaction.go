@@ -111,7 +111,7 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListReq
 		query += fmt.Sprintf(` where description ilike '%%%s%%'`, search)
 	}
 
-	query += `LIMIT $1 OFFSET $2`
+	query += ` LIMIT $1 OFFSET $2`
 	rows, err := t.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
 		fmt.Println("error is while selecting transaction", err.Error())
