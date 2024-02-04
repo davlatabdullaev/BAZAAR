@@ -90,10 +90,10 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListReq
 		search            = request.Search
 	)
 
-	countQuery = `select count(1) from transaction `
+	countQuery = `select count(1) from transaction where deleted_at is null `
 
 	if search != "" {
-		countQuery += fmt.Sprintf(`where description ilike '%%%s%%'`, search)
+		countQuery += fmt.Sprintf(`and description ilike '%%%s%%'`, search)
 	}
 	if err := t.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting transaction count", err.Error())

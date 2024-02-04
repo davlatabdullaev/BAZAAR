@@ -4,6 +4,7 @@ import (
 	"bazaar/api/models"
 	"bazaar/storage"
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -73,10 +74,10 @@ func (c *categoryRepo) GetList(ctx context.Context, request models.GetListReques
 		search            = request.Search
 	)
 
-	countQuery = `select count(1) from category `
+	countQuery = `select count(1) from category where deleted_at is null`
 
 	if search != "" {
-		countQuery += fmt.Sprintf(`where name ilike '%%%s%%'`, search)
+		countQuery += fmt.Sprintf(` and name ilike '%%%s%%'`, search)
 	}
 	if err := c.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting count", err.Error())
@@ -86,7 +87,7 @@ func (c *categoryRepo) GetList(ctx context.Context, request models.GetListReques
 	query = `select id, name, parent_id, created_at, updated_at from category where deleted_at is null`
 
 	if search != "" {
-		query += fmt.Sprintf(` where name ilike '%%%s%%'`, search)
+		query += fmt.Sprintf(` and name ilike '%%%s%%'`, search)
 	}
 
 	query += ` LIMIT $1 OFFSET $2`
@@ -98,10 +99,23 @@ func (c *categoryRepo) GetList(ctx context.Context, request models.GetListReques
 
 	for rows.Next() {
 		category := models.Category{}
-		if err = rows.Scan(&category.ID, &category.Name, &category.ParentID, &category.CreatedAt, &category.UpdatedAt); err != nil {
+		var parentID sql.NullString
+		if err = rows.Scan(
+			&category.ID,
+			&category.Name,
+			&parentID,
+			&category.CreatedAt,
+			&category.UpdatedAt); err != nil {
 			fmt.Println("error is while scanning category data", err.Error())
 			return models.CategoriesResponse{}, err
 		}
+
+		if parentID.Valid {
+			category.ParentID = parentID.String
+		} else {
+			category.ParentID = ""
+		}
+
 		categories = append(categories, category)
 
 	}
@@ -119,7 +133,11 @@ func (c *categoryRepo) Update(ctx context.Context, request models.UpdateCategory
    where id = $4  
    `
 
-	_, err := c.pool.Exec(ctx, query, request.Name, request.ParentID, time.Now(), request.ID)
+	_, err := c.pool.Exec(ctx, query,
+		 request.Name, 
+		 request.ParentID, 
+		 time.Now(), 
+		 request.ID)
 	if err != nil {
 		log.Println("error while updating category data...", err.Error())
 		return "", err

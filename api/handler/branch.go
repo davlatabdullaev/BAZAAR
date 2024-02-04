@@ -145,7 +145,7 @@ func (h Handler) GetBranchList(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "branch id"
-// @Param        branch body models.UpdateBranch true "basket"
+// @Param        branch body models.UpdateBranch true "branch"
 // @Success      200  {object}  models.Branch
 // @Failure      400  {object}  models.Response
 // @Failure      404  {object}  models.Response

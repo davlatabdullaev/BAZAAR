@@ -462,7 +462,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "basket",
+                        "description": "branch",
                         "name": "branch",
                         "in": "body",
                         "required": true,
@@ -2836,9 +2836,6 @@ const docTemplate = `{
         "models.CreateProduct": {
             "type": "object",
             "properties": {
-                "barcode": {
-                    "type": "string"
-                },
                 "category_id": {
                     "type": "string"
                 },
@@ -2998,7 +2995,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "barcode": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "category_id": {
                     "type": "string"
@@ -3374,9 +3371,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
                 }
             }
         },
@@ -3391,9 +3385,6 @@ const docTemplate = `{
                 },
                 "parent_id": {
                     "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
                 }
             }
         },
@@ -3401,7 +3392,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "barcode": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "category_id": {
                     "type": "string"

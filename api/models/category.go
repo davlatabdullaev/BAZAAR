@@ -20,7 +20,6 @@ type UpdateCategory struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	ParentID  string    `json:"parent_id"`
-	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type CategoriesResponse struct {

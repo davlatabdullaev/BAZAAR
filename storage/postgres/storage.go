@@ -75,10 +75,10 @@ func (s *storageRepo) GetList(ctx context.Context, request models.GetListRequest
 		search            = request.Search
 	)
 
-	countQuery = `select count(1) from storage `
+	countQuery = `select count(1) from storage where deleted_at is null `
 
 	if search != "" {
-		countQuery += fmt.Sprintf(`where count ilike '%%%s%%'`, search)
+		countQuery += fmt.Sprintf(`and count ilike '%%%s%%'`, search)
 	}
 	if err := s.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting count", err.Error())

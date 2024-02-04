@@ -78,7 +78,7 @@ func (b *basketRepo) GetList(ctx context.Context, request models.GetListRequest)
 		search            = request.Search
 	)
 
-	countQuery = `select count(1) from basket `
+	countQuery = `select count(1) from basket where deleted_at is null `
 
 	if search != "" {
 		countQuery += fmt.Sprintf(`and cast(price as text) ilike '%%%s%%'`, search)

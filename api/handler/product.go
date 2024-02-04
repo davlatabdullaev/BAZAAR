@@ -36,7 +36,7 @@ func (h Handler) CreateProduct(c *gin.Context) {
 		return
 	}
 
-	product, err := h.storage.Branch().Get(context.Background(), models.PrimaryKey{
+	product, err := h.storage.Product().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {

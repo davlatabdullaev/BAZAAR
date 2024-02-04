@@ -24,13 +24,13 @@ func CalculateAge(birthDate string) int {
 	return age
 }
 
-func GenerateBarCode() int {
+func GenerateBarCode() int64 {
 
 	min := 1000000000
 
 	max := 9999999999
 
-	random := rand.Intn(max-min) + min
+	random := int64(rand.Intn(max-min) + min)
 
 	return random
 

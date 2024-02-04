@@ -83,10 +83,10 @@ func (s *storageTransactionRepo) GetList(ctx context.Context, request models.Get
 		search              = request.Search
 	)
 
-	countQuery = `select count(1) from storage_transaction `
+	countQuery = `select count(1) from storage_transaction where deleted_at is null `
 
 	if search != "" {
-		countQuery += fmt.Sprintf(`where storage_transaction_type ilike '%%%s%%'`, search)
+		countQuery += fmt.Sprintf(`and storage_transaction_type ilike '%%%s%%'`, search)
 	}
 	if err := s.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting storage_transaction count", err.Error())

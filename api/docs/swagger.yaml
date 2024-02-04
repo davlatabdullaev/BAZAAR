@@ -102,8 +102,6 @@ definitions:
     type: object
   models.CreateProduct:
     properties:
-      barcode:
-        type: string
       category_id:
         type: string
       name:
@@ -208,7 +206,7 @@ definitions:
   models.Product:
     properties:
       barcode:
-        type: string
+        type: integer
       category_id:
         type: string
       created_at:
@@ -454,8 +452,6 @@ definitions:
         type: string
       name:
         type: string
-      updated_at:
-        type: string
     type: object
   models.UpdateCategory:
     properties:
@@ -465,13 +461,11 @@ definitions:
         type: string
       parent_id:
         type: string
-      updated_at:
-        type: string
     type: object
   models.UpdateProduct:
     properties:
       barcode:
-        type: string
+        type: integer
       category_id:
         type: string
       id:
@@ -923,7 +917,7 @@ paths:
         name: id
         required: true
         type: string
-      - description: basket
+      - description: branch
         in: body
         name: branch
         required: true
