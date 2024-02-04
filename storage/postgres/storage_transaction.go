@@ -51,7 +51,7 @@ func (s *storageTransactionRepo) Get(ctx context.Context, id models.PrimaryKey) 
 	price, quantity, created_at, updated_at from storage_transaction
 	 where deleted_at is null and id = $1`
 
-	row := s.pool.QueryRow(ctx, query, id)
+	row := s.pool.QueryRow(ctx, query, id.ID)
 
 	err := row.Scan(
 		&storageTransaction.ID,

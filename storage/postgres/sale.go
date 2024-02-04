@@ -50,7 +50,7 @@ func (s *saleRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Sale, 
 
 	sale := models.Sale{}
 
-	row := s.pool.QueryRow(ctx, `select id, branch_id, shop_assistent_id, cashier_id, payment_type, price, status, client_name, created_at, updated_at  from sale where deleted_at is null and id = $1`, id)
+	row := s.pool.QueryRow(ctx, `select id, branch_id, shop_assistent_id, cashier_id, payment_type, price, status, client_name, created_at, updated_at  from sale where deleted_at is null and id = $1`, id.ID)
 
 	err := row.Scan(
 		&sale.ID,

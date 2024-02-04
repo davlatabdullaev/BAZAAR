@@ -26,7 +26,7 @@ func (b *branchRepo) Create(ctx context.Context, branch models.CreateBranch) (st
 
 	id := uuid.New()
 
-	query := `insert into category (id, name, address) values ($1, $2, $3)`
+	query := `insert into branch (id, name, address) values ($1, $2, $3)`
 
 	_, err := b.pool.Exec(ctx, query,
 		id,
@@ -47,7 +47,7 @@ func (b *branchRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Bran
 
 	query := `select id, name, address, created_at, updated_at from branch where deleted_at is null and id = $1`
 
-	row := b.pool.QueryRow(ctx, query, id)
+	row := b.pool.QueryRow(ctx, query, id.ID)
 
 	err := row.Scan(
 		&branch.ID,

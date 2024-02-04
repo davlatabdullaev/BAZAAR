@@ -48,7 +48,7 @@ func (p *productRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Pro
 
 	product := models.Product{}
 
-	row := p.pool.QueryRow(ctx, `select id, name, price, barcode, category_id, created_at, updated_at  from product where deleted_at is null and id = $1`, id)
+	row := p.pool.QueryRow(ctx, `select id, name, price, barcode, category_id, created_at, updated_at  from product where deleted_at is null and id = $1`, id.ID)
 
 	err := row.Scan(
 		&product.ID,

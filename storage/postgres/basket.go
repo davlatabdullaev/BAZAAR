@@ -47,7 +47,7 @@ func (b *basketRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Bask
 
 	basket := models.Basket{}
 
-	row := b.pool.QueryRow(ctx, `select id, sale_id, product_id, quantity, price, created_at, updated_at from basket where deleted_at is null and id = $1`, id)
+	row := b.pool.QueryRow(ctx, `select id, sale_id, product_id, quantity, price, created_at, updated_at from basket where deleted_at is null and id = $1`, id.ID)
 
 	err := row.Scan(
 		&basket.ID,

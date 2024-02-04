@@ -56,7 +56,7 @@ func (t *tarifRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Tarif
 	 created_at, updated_at from tarif
 	 where deleted_at is null and id = $1`
 
-	row := t.pool.QueryRow(ctx, query, id)
+	row := t.pool.QueryRow(ctx, query, id.ID)
 
 	err := row.Scan(
 		&tarif.ID,
