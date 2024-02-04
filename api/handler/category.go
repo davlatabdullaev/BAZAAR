@@ -18,7 +18,7 @@ import (
 // @Accept       json
 // @Produce      json
 // @Param        category  body  models.CreateCategory  true  "category data"
-// @Success      201  {object}  models.Category
+// @Success      201  {object}  models.Category.ID
 // @Failure      400  {object}  models.Response
 // @Failure      404  {object}  models.Response
 // @Failure      500  {object}  models.Response

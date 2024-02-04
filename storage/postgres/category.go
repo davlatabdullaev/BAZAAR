@@ -45,7 +45,7 @@ func (c *categoryRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Ca
 
 	category := models.Category{}
 
-	row := c.pool.QueryRow(ctx, `select id, name, parent_id, created_at, updated_at from category where deleted_at is null and id = $1`, id)
+	row := c.pool.QueryRow(ctx, `select id, name, parent_id, created_at, updated_at from category where deleted_at is null and id = $1`, id.ID)
 
 	err := row.Scan(
 		&category.ID,
