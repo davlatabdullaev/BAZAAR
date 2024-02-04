@@ -11,6 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateProduct godoc
+// @Router       /product [POST]
+// @Summary      Create a new product
+// @Description  Create a new product
+// @Tags         product
+// @Accept       json
+// @Produce      json
+// @Param        product  body  models.CreateProduct  true  "product data"
+// @Success      201  {object}  models.Product
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) CreateProduct(c *gin.Context) {
 	createProduct := models.CreateProduct{}
 
@@ -36,6 +48,18 @@ func (h Handler) CreateProduct(c *gin.Context) {
 
 }
 
+// GetProductByID godoc
+// @Router       /product/{id} [GET]
+// @Summary      Get product by id
+// @Description  Get product by id
+// @Tags         product
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "product"
+// @Success      200  {object}  models.Product
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetProductByID(c *gin.Context) {
 	var err error
 
@@ -59,6 +83,20 @@ func (h Handler) GetProductByID(c *gin.Context) {
 
 }
 
+// GetProductsList godoc
+// @Router       /product [GET]
+// @Summary      Get products list
+// @Description  Get products list
+// @Tags         product
+// @Accept       json
+// @Produce      json
+// @Param        page query string false "page"
+// @Param        limit query string false "limit"
+// @Param        search query string false "search"
+// @Success      200  {object}  models.ProductsResponse
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetProductList(c *gin.Context) {
 
 	var (
@@ -98,6 +136,19 @@ func (h Handler) GetProductList(c *gin.Context) {
 
 }
 
+// UpdateProduct godoc
+// @Router       /product/{id} [PUT]
+// @Summary      Update product by id
+// @Description  Update product by id
+// @Tags         product
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "product id"
+// @Param        product body models.UpdateProduct true "product"
+// @Success      200  {object}  models.Product
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) UpdateProduct(c *gin.Context) {
 	updateProduct := models.UpdateProduct{}
 
@@ -132,6 +183,18 @@ func (h Handler) UpdateProduct(c *gin.Context) {
 
 }
 
+// DeleteProduct godoc
+// @Router       /product/{id} [DELETE]
+// @Summary      Delete Product
+// @Description  Delete Product
+// @Tags         product
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "product id"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) DeleteProduct(c *gin.Context) {
 
 	uid := c.Param("id")

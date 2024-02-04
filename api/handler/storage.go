@@ -11,6 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateStorage godoc
+// @Router       /storage [POST]
+// @Summary      Create a new storage
+// @Description  Create a new storage
+// @Tags         storage
+// @Accept       json
+// @Produce      json
+// @Param        storage  body  models.CreateStorage  true  "storage data"
+// @Success      201  {object}  models.Storage
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) CreateStorage(c *gin.Context) {
 	createStorage := models.CreateStorage{}
 
@@ -36,6 +48,18 @@ func (h Handler) CreateStorage(c *gin.Context) {
 
 }
 
+// GetStorageByID godoc
+// @Router       /storage/{id} [GET]
+// @Summary      Get storage by id
+// @Description  Get storage by id
+// @Tags         storage
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "storage"
+// @Success      200  {object}  models.Storage
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetStorageByID(c *gin.Context) {
 	var err error
 
@@ -59,6 +83,20 @@ func (h Handler) GetStorageByID(c *gin.Context) {
 
 }
 
+// GetStoragesList godoc
+// @Router       /storage [GET]
+// @Summary      Get storages list
+// @Description  Get storages list
+// @Tags         storage
+// @Accept       json
+// @Produce      json
+// @Param        page query string false "page"
+// @Param        limit query string false "limit"
+// @Param        search query string false "search"
+// @Success      200  {object}  models.StoragesResponse
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetStorageList(c *gin.Context) {
 
 	var (
@@ -98,6 +136,19 @@ func (h Handler) GetStorageList(c *gin.Context) {
 
 }
 
+// UpdateStorage godoc
+// @Router       /storage/{id} [PUT]
+// @Summary      Update storage by id
+// @Description  Update storage by id
+// @Tags         storage
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "storage id"
+// @Param        storage body models.UpdateStorage true "storage"
+// @Success      200  {object}  models.Storage
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) UpdateStorage(c *gin.Context) {
 	updateStorage := models.UpdateStorage{}
 
@@ -127,6 +178,18 @@ func (h Handler) UpdateStorage(c *gin.Context) {
 
 }
 
+// DeleteStorageTransaction godoc
+// @Router       /storage/{id} [DELETE]
+// @Summary      Delete Storage
+// @Description  Delete Storage
+// @Tags         storage
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "storage id"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) DeleteStorage(c *gin.Context) {
 
 	uid := c.Param("id")

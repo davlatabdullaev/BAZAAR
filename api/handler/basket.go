@@ -18,7 +18,7 @@ import (
 // @Tags         basket
 // @Accept       json
 // @Produce      json
-// @Param        basket  body  models.CreateBasket  true  "baskets data"
+// @Param        basket  body  models.CreateBasket  true  "basket data"
 // @Success      201  {object}  models.Basket
 // @Failure      400  {object}  models.Response
 // @Failure      404  {object}  models.Response
@@ -84,6 +84,20 @@ func (h Handler) GetBasketByID(c *gin.Context) {
 
 }
 
+// GetBasketsList godoc
+// @Router       /basket [GET]
+// @Summary      Get baskets list
+// @Description  Get baskets list
+// @Tags         basket
+// @Accept       json
+// @Produce      json
+// @Param        page query string false "page"
+// @Param        limit query string false "limit"
+// @Param        search query string false "search"
+// @Success      200  {object}  models.BasketsResponse
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetBasketList(c *gin.Context) {
 
 	var (
@@ -123,6 +137,19 @@ func (h Handler) GetBasketList(c *gin.Context) {
 
 }
 
+// UpdateBasket godoc
+// @Router       /basket/{id} [PUT]
+// @Summary      Update basket by id
+// @Description  Update basket by id
+// @Tags         basket
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "basket id"
+// @Param        basket body models.UpdateBasket true "basket"
+// @Success      200  {object}  models.Basket
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) UpdateBasket(c *gin.Context) {
 	updateBasket := models.UpdateBasket{}
 
@@ -157,6 +184,18 @@ func (h Handler) UpdateBasket(c *gin.Context) {
 
 }
 
+// DeleteBasket godoc
+// @Router       /basket/{id} [DELETE]
+// @Summary      Delete Basket
+// @Description  Delete Basket
+// @Tags         basket
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "basket id"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) DeleteBasket(c *gin.Context) {
 
 	uid := c.Param("id")

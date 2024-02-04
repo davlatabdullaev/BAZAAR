@@ -8,9 +8,9 @@ import (
 	"github.com/swaggo/gin-swagger" // gin-swagger middleware
     "github.com/swaggo/files" // swagger embed files
 )
-// @title           BAZAAR.UZ
-// @version         11
-// @description     This is a sample server celler server.
+// @title           BAZAAR
+// @version         0.0.1
+// @description     An API for a store called BAZAAR
 func New(store storage.IStorage) *gin.Engine {
 
 	h := handler.New(store)

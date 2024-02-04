@@ -11,6 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateSale godoc
+// @Router       /sale [POST]
+// @Summary      Create a new sale
+// @Description  Create a new sale
+// @Tags         sale
+// @Accept       json
+// @Produce      json
+// @Param        sale body  models.CreateSale  true  "sale data"
+// @Success      201  {object}  models.Sale
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) CreateSale(c *gin.Context) {
 	createSale := models.CreateSale{}
 
@@ -36,6 +48,18 @@ func (h Handler) CreateSale(c *gin.Context) {
 
 }
 
+// GetSaleByID godoc
+// @Router       /sale/{id} [GET]
+// @Summary      Get sale by id
+// @Description  Get sale by id
+// @Tags         sale
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "sale"
+// @Success      200  {object}  models.Sale
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetSaleByID(c *gin.Context) {
 	var err error
 
@@ -59,6 +83,20 @@ func (h Handler) GetSaleByID(c *gin.Context) {
 
 }
 
+// GetSalesList godoc
+// @Router       /sale [GET]
+// @Summary      Get sales list
+// @Description  Get sales list
+// @Tags         sale
+// @Accept       json
+// @Produce      json
+// @Param        page query string false "page"
+// @Param        limit query string false "limit"
+// @Param        search query string false "search"
+// @Success      200  {object}  models.SalesResponse
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetSaleList(c *gin.Context) {
 
 	var (
@@ -98,6 +136,19 @@ func (h Handler) GetSaleList(c *gin.Context) {
 
 }
 
+// UpdateSale godoc
+// @Router       /sale/{id} [PUT]
+// @Summary      Update sale by id
+// @Description  Update sale by id
+// @Tags         sale
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "sale id"
+// @Param        sale body models.UpdateSale true "sale"
+// @Success      200  {object}  models.Sale
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) UpdateSale(c *gin.Context) {
 	updateSale := models.UpdateSale{}
 
@@ -132,6 +183,18 @@ func (h Handler) UpdateSale(c *gin.Context) {
 
 }
 
+// DeleteSale godoc
+// @Router       /sale/{id} [DELETE]
+// @Summary      Delete Sale
+// @Description  Delete Sale
+// @Tags         sale
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "sale id"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) DeleteSale(c *gin.Context) {
 
 	uid := c.Param("id")

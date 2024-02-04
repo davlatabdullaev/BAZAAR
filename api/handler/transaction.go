@@ -11,6 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateTransaction godoc
+// @Router       /transaction [POST]
+// @Summary      Create a new transaction
+// @Description  Create a new transaction
+// @Tags         transaction
+// @Accept       json
+// @Produce      json
+// @Param        transaction  body  models.CreateTransaction  true  "transaction data"
+// @Success      201  {object}  models.Transaction
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) CreateTransaction(c *gin.Context) {
 	createTransaction := models.CreateTransaction{}
 
@@ -36,6 +48,18 @@ func (h Handler) CreateTransaction(c *gin.Context) {
 
 }
 
+// GetTransactionByID godoc
+// @Router       /transaction/{id} [GET]
+// @Summary      Get transaction by id
+// @Description  Get transaction by id
+// @Tags         transaction
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "transaction"
+// @Success      200  {object}  models.Transaction
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetTransactionByID(c *gin.Context) {
 	var err error
 
@@ -59,6 +83,20 @@ func (h Handler) GetTransactionByID(c *gin.Context) {
 
 }
 
+// GetTransactionsList godoc
+// @Router       /transaction [GET]
+// @Summary      Get transactions list
+// @Description  Get transactions list
+// @Tags         transaction
+// @Accept       json
+// @Produce      json
+// @Param        page query string false "page"
+// @Param        limit query string false "limit"
+// @Param        search query string false "search"
+// @Success      200  {object}  models.TransactionsResponse
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetTransactionList(c *gin.Context) {
 
 	var (
@@ -98,6 +136,19 @@ func (h Handler) GetTransactionList(c *gin.Context) {
 
 }
 
+// UpdateTransaction godoc
+// @Router       /transaction/{id} [PUT]
+// @Summary      Update transaction by id
+// @Description  Update transaction by id
+// @Tags         transaction
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "transaction id"
+// @Param        transaction body models.UpdateTransaction true "transaction"
+// @Success      200  {object}  models.Tarif
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) UpdateTransaction(c *gin.Context) {
 	updateTransaction := models.UpdateTransaction{}
 
@@ -132,6 +183,18 @@ func (h Handler) UpdateTransaction(c *gin.Context) {
 
 }
 
+// DeleteTransaction godoc
+// @Router       /transaction/{id} [DELETE]
+// @Summary      Delete Transaction
+// @Description  Delete Transaction
+// @Tags         transaction
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "transaction id"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) DeleteTransaction(c *gin.Context) {
 
 	uid := c.Param("id")

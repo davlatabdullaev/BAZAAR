@@ -11,6 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateStorageTransaction godoc
+// @Router       /storage_transaction [POST]
+// @Summary      Create a new storage_transaction
+// @Description  Create a new storage_transaction
+// @Tags         storage_transaction
+// @Accept       json
+// @Produce      json
+// @Param        storage_transaction  body  models.CreateStorageTransaction  true  "storage transaction  data"
+// @Success      201  {object}  models.StorageTransaction
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) CreateStorageTransaction(c *gin.Context) {
 	createStorageTransaction := models.CreateStorageTransaction{}
 
@@ -36,6 +48,18 @@ func (h Handler) CreateStorageTransaction(c *gin.Context) {
 
 }
 
+// GetStorageTransactionByID godoc
+// @Router       /storage_transaction/{id} [GET]
+// @Summary      Get storage transaction by id
+// @Description  Get storage transaction by id
+// @Tags         storage_transaction
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "storage transaction"
+// @Success      200  {object}  models.StorageTransaction
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetStorageTransactionByID(c *gin.Context) {
 	var err error
 
@@ -59,6 +83,20 @@ func (h Handler) GetStorageTransactionByID(c *gin.Context) {
 
 }
 
+// GetStorageTransactionsList godoc
+// @Router       /storage_transaction [GET]
+// @Summary      Get storage_transactions list
+// @Description  Get storage_transactions list
+// @Tags         storage_transaction
+// @Accept       json
+// @Produce      json
+// @Param        page query string false "page"
+// @Param        limit query string false "limit"
+// @Param        search query string false "search"
+// @Success      200  {object}  models.StorageTransactionsResponse
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetStorageTransactionList(c *gin.Context) {
 
 	var (
@@ -98,6 +136,19 @@ func (h Handler) GetStorageTransactionList(c *gin.Context) {
 
 }
 
+// UpdateStorageTransaction godoc
+// @Router       /storage_transaction/{id} [PUT]
+// @Summary      Update storage transaction by id
+// @Description  Update storage transaction by id
+// @Tags         storage_transaction
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "storage transaction id"
+// @Param        storage_transaction body models.UpdateStorageTransaction true "storage_transaction"
+// @Success      200  {object}  models.StorageTransaction
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) UpdateStorageTransaction(c *gin.Context) {
 	updateStorageTransaction := models.UpdateStorageTransaction{}
 	uid := c.Param("id")
@@ -131,6 +182,18 @@ func (h Handler) UpdateStorageTransaction(c *gin.Context) {
 
 }
 
+// DeleteStorageTransaction godoc
+// @Router       /storage_transaction/{id} [DELETE]
+// @Summary      Delete Storage Transaction
+// @Description  Delete Storage Transaction
+// @Tags         storage_transaction
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "storage transaction id"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) DeleteStorageTransaction(c *gin.Context) {
 
 	uid := c.Param("id")

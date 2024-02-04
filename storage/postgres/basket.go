@@ -81,7 +81,7 @@ func (b *basketRepo) GetList(ctx context.Context, request models.GetListRequest)
 	countQuery = `select count(1) from basket `
 
 	if search != "" {
-		countQuery += fmt.Sprintf(`where price ilike '%%%s%%'`, search)
+		countQuery += fmt.Sprintf(`and cast(price as text) ilike '%%%s%%'`, search)
 	}
 	if err := b.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting count", err.Error())
@@ -91,10 +91,10 @@ func (b *basketRepo) GetList(ctx context.Context, request models.GetListRequest)
 	query = `select id, sale_id, product_id, quantity, price, created_at, updated_at from basket where deleted_at is null`
 
 	if search != "" {
-		query += fmt.Sprintf(` where price ilike '%%%s%%'`, search)
+		query += fmt.Sprintf(`and cast(price as text) ilike '%%%s%%'`, search)
 	}
 
-	query += `LIMIT $1 OFFSET $2`
+	query += ` LIMIT $1 OFFSET $2`
 	rows, err := b.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
 		fmt.Println("error is while selecting basket", err.Error())

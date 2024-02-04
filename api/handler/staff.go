@@ -11,6 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateStaff godoc
+// @Router       /staff [POST]
+// @Summary      Create a new staff
+// @Description  Create a new staff
+// @Tags         staff
+// @Accept       json
+// @Produce      json
+// @Param        staff  body  models.CreateStaff  true  "staff data"
+// @Success      201  {object}  models.Staff
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) CreateStaff(c *gin.Context) {
 	createStaff := models.CreateStaff{}
 
@@ -36,6 +48,18 @@ func (h Handler) CreateStaff(c *gin.Context) {
 
 }
 
+// GetStaffByID godoc
+// @Router       /staff/{id} [GET]
+// @Summary      Get staff by id
+// @Description  Get staff by id
+// @Tags         staff
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "staff"
+// @Success      200  {object}  models.Staff
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetStaffByID(c *gin.Context) {
 
 	var err error
@@ -60,6 +84,20 @@ func (h Handler) GetStaffByID(c *gin.Context) {
 
 }
 
+// GetStaffsList godoc
+// @Router       /staff [GET]
+// @Summary      Get staffs list
+// @Description  Get staffs list
+// @Tags         staff
+// @Accept       json
+// @Produce      json
+// @Param        page query string false "page"
+// @Param        limit query string false "limit"
+// @Param        search query string false "search"
+// @Success      200  {object}  models.StaffsResponse
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetStaffList(c *gin.Context) {
 
 	var (
@@ -99,6 +137,19 @@ func (h Handler) GetStaffList(c *gin.Context) {
 
 }
 
+// UpdateStaff godoc
+// @Router       /staff/{id} [PUT]
+// @Summary      Update staff by id
+// @Description  Update staff by id
+// @Tags         staff
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "staff id"
+// @Param        staff body models.UpdateStaff true "staff"
+// @Success      200  {object}  models.Staff
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) UpdateStaff(c *gin.Context) {
 	updateStaff := models.UpdateStaff{}
 
@@ -132,6 +183,18 @@ func (h Handler) UpdateStaff(c *gin.Context) {
 	handleResponse(c, "", http.StatusOK, staff)
 }
 
+// DeleteStaff godoc
+// @Router       /staff/{id} [DELETE]
+// @Summary      Delete Staff
+// @Description  Delete Staff
+// @Tags         staff
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "staff id"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) DeleteStaff(c *gin.Context) {
 
 	uid := c.Param("id")

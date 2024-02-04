@@ -10,7 +10,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
-
+// CreateBranch godoc
+// @Router       /branch [POST]
+// @Summary      Create a new branch
+// @Description  Create a new branch
+// @Tags         branch
+// @Accept       json
+// @Produce      json
+// @Param        branch  body  models.CreateBranch  true  "branch data"
+// @Success      201  {object}  models.Branch
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) CreateBranch(c *gin.Context) {
 	createBranch := models.CreateBranch{}
 
@@ -36,6 +47,18 @@ func (h Handler) CreateBranch(c *gin.Context) {
 
 }
 
+// GetBranchByID godoc
+// @Router       /branch/{id} [GET]
+// @Summary      Get branch by id
+// @Description  Get branch by id
+// @Tags         branch
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "branch"
+// @Success      200  {object}  models.Branch
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetBranchByID(c *gin.Context) {
 
 	var err error
@@ -60,6 +83,20 @@ func (h Handler) GetBranchByID(c *gin.Context) {
 
 }
 
+// GetBranchsList godoc
+// @Router       /branch [GET]
+// @Summary      Get branchs list
+// @Description  Get branchs list
+// @Tags         branch
+// @Accept       json
+// @Produce      json
+// @Param        page query string false "page"
+// @Param        limit query string false "limit"
+// @Param        search query string false "search"
+// @Success      200  {object}  models.BranchsResponse
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetBranchList(c *gin.Context) {
 
 	var (
@@ -99,6 +136,19 @@ func (h Handler) GetBranchList(c *gin.Context) {
 
 }
 
+// UpdateBranch godoc
+// @Router       /branch/{id} [PUT]
+// @Summary      Update branch by id
+// @Description  Update branch by id
+// @Tags         branch
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "branch id"
+// @Param        branch body models.UpdateBranch true "basket"
+// @Success      200  {object}  models.Branch
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) UpdateBranch(c *gin.Context) {
 	updateBranch := models.UpdateBranch{}
 
@@ -133,6 +183,18 @@ func (h Handler) UpdateBranch(c *gin.Context) {
 
 }
 
+// DeleteBranch godoc
+// @Router       /branch/{id} [DELETE]
+// @Summary      Delete Branch
+// @Description  Delete Branch
+// @Tags         branch
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "branch id"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) DeleteBranch(c *gin.Context) {
 
 	uid := c.Param("id")

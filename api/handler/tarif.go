@@ -11,6 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateTarif godoc
+// @Router       /tarif [POST]
+// @Summary      Create a new tarif
+// @Description  Create a new tarif
+// @Tags         tarif
+// @Accept       json
+// @Produce      json
+// @Param        tarif  body  models.CreateTarif  true  "tarif data"
+// @Success      201  {object}  models.Tarif
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) CreateTarif(c *gin.Context) {
 	createTarif := models.CreateTarif{}
 
@@ -36,6 +48,18 @@ func (h Handler) CreateTarif(c *gin.Context) {
 
 }
 
+// GetTarifByID godoc
+// @Router       /tarif/{id} [GET]
+// @Summary      Get tarif by id
+// @Description  Get tarif by id
+// @Tags         tarif
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "tarif"
+// @Success      200  {object}  models.Tarif
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetTarifByID(c *gin.Context) {
 	var err error
 
@@ -59,6 +83,20 @@ func (h Handler) GetTarifByID(c *gin.Context) {
 
 }
 
+// GetTarifsList godoc
+// @Router       /tarif [GET]
+// @Summary      Get tarifs list
+// @Description  Get tarifs list
+// @Tags         tarif
+// @Accept       json
+// @Produce      json
+// @Param        page query string false "page"
+// @Param        limit query string false "limit"
+// @Param        search query string false "search"
+// @Success      200  {object}  models.TarifsResponse
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetTarifList(c *gin.Context) {
 
 	var (
@@ -98,6 +136,19 @@ func (h Handler) GetTarifList(c *gin.Context) {
 
 }
 
+// UpdateTarif godoc
+// @Router       /tarif/{id} [PUT]
+// @Summary      Update tarif by id
+// @Description  Update tarif by id
+// @Tags         tarif
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "tarif id"
+// @Param        tarif body models.UpdateTarif true "tarif"
+// @Success      200  {object}  models.Tarif
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) UpdateTarif(c *gin.Context) {
 	updateTarif := models.UpdateTarif{}
 
@@ -132,6 +183,18 @@ func (h Handler) UpdateTarif(c *gin.Context) {
 
 }
 
+// DeleteTarif godoc
+// @Router       /tarif/{id} [DELETE]
+// @Summary      Delete Tarif
+// @Description  Delete Tarif
+// @Tags         tarif
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "tarif id"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) DeleteTarif(c *gin.Context) {
 
 	uid := c.Param("id")

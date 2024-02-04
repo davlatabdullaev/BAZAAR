@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// CreateBasket godoc
+// CreateCategory godoc
 // @Router       /category [POST]
 // @Summary      Create a new category
 // @Description  Create a new category
@@ -48,6 +48,18 @@ func (h Handler) CreateCategory(c *gin.Context) {
 
 }
 
+// GetCategoryByID godoc
+// @Router       /category/{id} [GET]
+// @Summary      Get category by id
+// @Description  Get category by id
+// @Tags         category
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "category"
+// @Success      200  {object}  models.Category
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetCategoryByID(c *gin.Context) {
 	var err error
 
@@ -71,6 +83,20 @@ func (h Handler) GetCategoryByID(c *gin.Context) {
 
 }
 
+// GetCategoriesList godoc
+// @Router       /category [GET]
+// @Summary      Get category list
+// @Description  Get category list
+// @Tags         category
+// @Accept       json
+// @Produce      json
+// @Param        page query string false "page"
+// @Param        limit query string false "limit"
+// @Param        search query string false "search"
+// @Success      200  {object}  models.CategoriesResponse
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) GetCategoryList(c *gin.Context) {
 
 	var (
@@ -110,6 +136,19 @@ func (h Handler) GetCategoryList(c *gin.Context) {
 
 }
 
+// UpdateCategory godoc
+// @Router       /category/{id} [PUT]
+// @Summary      Update category by id
+// @Description  Update category by id
+// @Tags         category
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "category id"
+// @Param        category body models.UpdateCategory true "category"
+// @Success      200  {object}  models.Category
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) UpdateCategory(c *gin.Context) {
 	updateCategory := models.UpdateCategory{}
 
@@ -144,6 +183,18 @@ func (h Handler) UpdateCategory(c *gin.Context) {
 
 }
 
+// DeleteCategory godoc
+// @Router       /category/{id} [DELETE]
+// @Summary      Delete Category
+// @Description  Delete Category
+// @Tags         category
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "category id"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
 func (h Handler) DeleteCategory(c *gin.Context) {
 
 	uid := c.Param("id")
