@@ -591,7 +591,7 @@ info:
   contact: {}
   description: An API for a store called BAZAAR
   title: BAZAAR
-  version: 0.0.1
+  version: "1.0"
 paths:
   /basket:
     get:

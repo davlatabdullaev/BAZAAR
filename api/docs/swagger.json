@@ -4,7 +4,7 @@
         "description": "An API for a store called BAZAAR",
         "title": "BAZAAR",
         "contact": {},
-        "version": "0.0.1"
+        "version": "1.0"
     },
     "paths": {
         "/basket": {
