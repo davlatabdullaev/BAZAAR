@@ -10,7 +10,7 @@ import (
 )
 
 // @title           BAZAAR
-// @version         0.0.1
+// @version         1.0
 // @description     An API for a store called BAZAAR
 func New(store storage.IStorage) *gin.Engine {
 
