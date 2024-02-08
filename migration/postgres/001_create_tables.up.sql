@@ -1,109 +1,109 @@
-CREATE TABLE branch (
+CREATE TABLE IF NOT EXISTS branch (
    id UUID PRIMARY KEY,
    name VARCHAR(75) NOT NULL,
    address VARCHAR(75) NOT NULL,
    created_at TIMESTAMP DEFAULT NOW(),
-   updated_at timestamp DEFAULT now(),
+   updated_at TIMESTAMP DEFAULT NOW(),
    deleted_at TIMESTAMP
 );
-CREATE TABLE category (
+CREATE TABLE IF NOT EXISTS category (
     id UUID PRIMARY KEY,
     name VARCHAR(75) NOT NULL,
-    parent_id uuid references category(id),
-    created_at timestamp DEFAULT now(),
-    updated_at timestamp DEFAULT now(),
-    deleted_at timestamp
+    parent_id UUID REFERENCES category(id),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP
 );
-CREATE TABLE product (
-    id uuid PRIMARY key,
-    name VARCHAR(75) not null,
-    price numeric(75,4) not null,
-    barcode varchar(10) unique not null,
-    category_id uuid references category(id),
-    created_at timestamp DEFAULT now(),
-    updated_at timestamp DEFAULT now(),
-    deleted_at timestamp
+CREATE TABLE IF NOT EXISTS product (
+    id UUID PRIMARY KEY,
+    name VARCHAR(75) NOT NULL,
+    price numeric(75,4) NOT NULL,
+    barcode VARCHAR(10) UNIQUE NOT NULL,
+    category_id UUID REFERENCES category(id),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP
 );
-create table  storage (
-    id uuid PRIMARY key,
-    product_id uuid references product(id),
-    branch_id uuid references branch(id),
-    count int not null,
-    created_at timestamp DEFAULT now(),
-    updated_at timestamp DEFAULT now(),
-    deleted_at timestamp
+CREATE TABLE IF NOT EXISTS  storage (
+    id UUID PRIMARY KEY,
+    product_id UUID REFERENCES product(id),
+    branch_id UUID REFERENCES branch(id),
+    count INT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP
 );
-create table sale (
-    id uuid primary key,
-    branch_id uuid references branch(id),
-    shop_assistent_id varchar(10),
-    chashier_id  varchar(10) not null,
-    payment_type varchar(20) check (payment_type in('card', 'cash')),
-    price numeric(75,4) not null,
-    status  varchar(20) check (status in('in_procces', 'succes', 'cancel')),
-    client_name varchar(75) not null,
-    created_at timestamp DEFAULT now(),
-    updated_at timestamp DEFAULT now(),
-    deleted_at timestamp
+CREATE TABLE IF NOT EXISTS sale (
+    id UUID PRIMARY KEY,
+    branch_id UUID REFERENCES branch(id),
+    shop_assistent_id VARCHAR(10),
+    chashier_id  VARCHAR(10) NOT NULL,
+    payment_type VARCHAR(20) CHECK (payment_type IN('card', 'cash')),
+    price numeric(75,4) NOT NULL,
+    status  VARCHAR(20) CHECK (status IN('in_procces', 'succes', 'cancel')),
+    client_name VARCHAR(75) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP
 );
-create table basket (
-    id uuid primary key,
-    sale_id uuid references sale(id),
-    product_id uuid references product(id),
-    quantity int not null,
-    price numeric(75,4) not null,
-    created_at timestamp DEFAULT now(),
-    updated_at timestamp DEFAULT now(),
-    deleted_at timestamp
+CREATE TABLE IF NOT EXISTS basket (
+    id UUID PRIMARY KEY,
+    sale_id UUID REFERENCES sale(id),
+    product_id UUID REFERENCES product(id),
+    quantity INT NOT NULL,
+    price numeric(75,4) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP
 );
-create table tarif (
-    id uuid primary key,
-    name varchar(75) not null,
-    tarif_type varchar(20) check (tarif_type in('percent', 'field')),
-    amount_for_cash numeric(75,4) not null,
-    amount_for_card numeric(75,4) not null,
-    created_at timestamp DEFAULT now(),
-    updated_at timestamp DEFAULT now(),
-    deleted_at timestamp
+CREATE TABLE IF NOT EXISTS tarif (
+    id UUID PRIMARY KEY,
+    name VARCHAR(75) NOT NULL,
+    tarif_type VARCHAR(20) CHECK (tarif_type IN('percent', 'field')),
+    amount_for_cash numeric(75,4) NOT NULL,
+    amount_for_card numeric(75,4) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP
 );
-create table staff (
-    id uuid primary key,
-    branch_id uuid references branch(id) not null,
-    tarif_id uuid references tarif(id) not null,
-    type_staff varchar(20) check (type_staff in('shop_assistant', 'chashier')) not NULL,
-    name varchar(75) not null,
-    balance numeric(75,4) not null,
-    birth_date date not null,
-    age int,
-    gender varchar(10) check (gender in('male', 'female')),
-    login varchar(75) not null,
-    password varchar(128) not null,
-    created_at timestamp DEFAULT now(),
-    updated_at timestamp DEFAULT now(),
-    deleted_at timestamp
+CREATE TABLE IF NOT EXISTS staff (
+    id UUID PRIMARY KEY,
+    branch_id UUID REFERENCES branch(id) NOT NULL,
+    tarif_id UUID REFERENCES tarif(id) NOT NULL,
+    type_staff VARCHAR(20) CHECK (type_staff IN('shop_assistant', 'chashier')) NOT NULL,
+    name VARCHAR(75) NOT NULL,
+    balance numeric(75,4) NOT NULL,
+    birth_date date NOT NULL,
+    age INT,
+    gender VARCHAR(10) CHECK (gender IN('male', 'female')),
+    logIN VARCHAR(75) NOT NULL,
+    password VARCHAR(128) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP
 );
-create table transaction (
-    id uuid primary key,
-    sale_id uuid references sale(id),
-    staff_id uuid references staff(id),
-    transaction_type varchar(20) check (transaction_type in ('withdraw', 'topup')),
-    source_type varchar(20) check (source_type in ('bonus', 'sales')),
-    amount numeric(75,4) not null,
-    description text not null,
-    created_at timestamp DEFAULT now(),
-    updated_at timestamp DEFAULT now(),
-    deleted_at timestamp
+CREATE TABLE IF NOT EXISTS transaction (
+    id UUID PRIMARY KEY,
+    sale_id UUID REFERENCES sale(id),
+    staff_id UUID REFERENCES staff(id),
+    transaction_type VARCHAR(20) CHECK (transaction_type IN ('withdraw', 'topup')),
+    source_type VARCHAR(20) CHECK (source_type IN ('bonus', 'sales')),
+    amount numeric(75,4) NOT NULL,
+    description text NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP
 );
-create table storage_transaction (
-    id uuid primary key,
-    staff_id uuid references staff(id),
-    product_id uuid references product(id),
-    storage_transaction_type varchar(20) check (storage_transaction_type in ('minus', 'plus')),
-    price numeric(75,4) not null,
-    quantity numeric(75,4) not null,
-    created_at timestamp DEFAULT now(),
-    updated_at timestamp DEFAULT now(),
-    deleted_at timestamp
+CREATE TABLE IF NOT EXISTS storage_transaction (
+    id UUID PRIMARY KEY,
+    staff_id UUID REFERENCES staff(id),
+    product_id UUID REFERENCES product(id),
+    storage_transaction_type VARCHAR(20) CHECK (storage_transaction_type IN ('mINus', 'plus')),
+    price numeric(75,4) NOT NULL,
+    quantity numeric(75,4) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    deleted_at TIMESTAMP
 );
 
 
