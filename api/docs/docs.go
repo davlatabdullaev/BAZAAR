@@ -1345,6 +1345,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/sell": {
+            "post": {
+                "description": "sell",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sell"
+                ],
+                "summary": "sell",
+                "parameters": [
+                    {
+                        "description": "sell",
+                        "name": "sell",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateSale"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Sale"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/staff": {
             "get": {
                 "description": "Get staffs list",
@@ -2995,7 +3046,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "barcode": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "category_id": {
                     "type": "string"
@@ -3391,9 +3442,6 @@ const docTemplate = `{
         "models.UpdateProduct": {
             "type": "object",
             "properties": {
-                "barcode": {
-                    "type": "integer"
-                },
                 "category_id": {
                     "type": "string"
                 },
@@ -3404,9 +3452,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "price": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }
@@ -3494,9 +3539,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "product_id": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }

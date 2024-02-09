@@ -4,6 +4,7 @@ import (
 	"bazaar/api/models"
 	"bazaar/storage"
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -45,9 +46,19 @@ func (b *basketRepo) Create(ctx context.Context, basket models.CreateBasket) (st
 
 func (b *basketRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Basket, error) {
 
+	var updatedAt = sql.NullTime{}
+
 	basket := models.Basket{}
 
-	row := b.pool.QueryRow(ctx, `select id, sale_id, product_id, quantity, price, created_at, updated_at from basket where deleted_at is null and id = $1`, id.ID)
+	row := b.pool.QueryRow(ctx, `select 
+	id,
+    sale_id,
+    product_id, 
+	quantity, 
+	price,
+    created_at, 
+	updated_at::text
+	from basket where deleted_at is null and id = $1`, id.ID)
 
 	err := row.Scan(
 		&basket.ID,
@@ -56,12 +67,16 @@ func (b *basketRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Bask
 		&basket.Quantity,
 		&basket.Price,
 		&basket.CreatedAt,
-		&basket.UpdatedAt,
+		&updatedAt,
 	)
 
 	if err != nil {
 		log.Println("error while selecting basket", err.Error())
 		return models.Basket{}, err
+	}
+
+	if updatedAt.Valid {
+		basket.UpdatedAt = updatedAt.Time
 	}
 
 	return basket, nil
@@ -70,6 +85,7 @@ func (b *basketRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Bask
 func (b *basketRepo) GetList(ctx context.Context, request models.GetListRequest) (models.BasketsResponse, error) {
 
 	var (
+		updatedAt         = sql.NullTime{}
 		baskets           = []models.Basket{}
 		count             = 0
 		query, countQuery string
@@ -88,7 +104,15 @@ func (b *basketRepo) GetList(ctx context.Context, request models.GetListRequest)
 		return models.BasketsResponse{}, err
 	}
 
-	query = `select id, sale_id, product_id, quantity, price, created_at, updated_at from basket where deleted_at is null`
+	query = `select 
+	id, 
+	sale_id, 
+	product_id, 
+	quantity, 
+	price, 
+	created_at, 
+	updated_at::text 
+	from basket where deleted_at is null`
 
 	if search != "" {
 		query += fmt.Sprintf(`and cast(price as text) ilike '%%%s%%'`, search)
@@ -110,11 +134,16 @@ func (b *basketRepo) GetList(ctx context.Context, request models.GetListRequest)
 			&basket.Quantity,
 			&basket.Price,
 			&basket.CreatedAt,
-			&basket.UpdatedAt,
+			&updatedAt,
 		); err != nil {
 			fmt.Println("error is while scanning basket data", err.Error())
 			return models.BasketsResponse{}, err
 		}
+
+		if updatedAt.Valid {
+			basket.UpdatedAt = updatedAt.Time
+		}
+
 		baskets = append(baskets, basket)
 
 	}

@@ -23,7 +23,6 @@ type UpdateStorage struct {
 	ProductID string    `json:"product_id"`
 	BranchID  string    `json:"branch_id"`
 	Count     int       `json:"count"`
-	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type StoragesResponse struct {

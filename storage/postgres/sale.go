@@ -4,6 +4,7 @@ import (
 	"bazaar/api/models"
 	"bazaar/storage"
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -48,6 +49,8 @@ func (s *saleRepo) Create(ctx context.Context, sale models.CreateSale) (string, 
 
 func (s *saleRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Sale, error) {
 
+	var updatedAt = sql.NullTime{}
+
 	sale := models.Sale{}
 
 	row := s.pool.QueryRow(ctx, `select id, branch_id, shop_assistent_id, cashier_id, payment_type, price, status, client_name, created_at, updated_at  from sale where deleted_at is null and id = $1`, id.ID)
@@ -62,12 +65,16 @@ func (s *saleRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Sale, 
 		&sale.Status,
 		&sale.ClientName,
 		&sale.CreatedAt,
-		&sale.UpdatedAt,
+		&updatedAt,
 	)
 
 	if err != nil {
 		log.Println("error while selecting sale", err.Error())
 		return models.Sale{}, err
+	}
+
+	if updatedAt.Valid {
+		sale.UpdatedAt = updatedAt.Time
 	}
 
 	return sale, nil
@@ -76,6 +83,7 @@ func (s *saleRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Sale, 
 func (s *saleRepo) GetList(ctx context.Context, request models.GetListRequest) (models.SalesResponse, error) {
 
 	var (
+		updatedAt         = sql.NullTime{}
 		sales             = []models.Sale{}
 		count             = 0
 		query, countQuery string
@@ -119,10 +127,14 @@ func (s *saleRepo) GetList(ctx context.Context, request models.GetListRequest) (
 			&sale.Status,
 			&sale.ClientName,
 			&sale.CreatedAt,
-			&sale.UpdatedAt,
+			&updatedAt,
 		); err != nil {
 			fmt.Println("error is while scanning sale data", err.Error())
 			return models.SalesResponse{}, err
+		}
+
+		if updatedAt.Valid {
+			sale.UpdatedAt = updatedAt.Time
 		}
 
 		sales = append(sales, sale)

@@ -4,6 +4,7 @@ import (
 	"bazaar/api/models"
 	"bazaar/storage"
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -49,11 +50,18 @@ func (t *tarifRepo) Create(ctx context.Context, request models.CreateTarif) (str
 
 func (t *tarifRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Tarif, error) {
 
+	var updatedAt = sql.NullTime{}
+
 	tarif := models.Tarif{}
 
-	query := `select id, name, tarif_type, amount_for_cash,
+	query := `select 
+	id, 
+	name, 
+	tarif_type, 
+	amount_for_cash,
 	amount_for_card, 
-	 created_at, updated_at from tarif
+	created_at, 
+	updated_at from tarif
 	 where deleted_at is null and id = $1`
 
 	row := t.pool.QueryRow(ctx, query, id.ID)
@@ -65,12 +73,16 @@ func (t *tarifRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Tarif
 		&tarif.AmountForCash,
 		&tarif.AmountForCard,
 		&tarif.CreatedAt,
-		&tarif.UpdatedAt,
+		&updatedAt,
 	)
 
 	if err != nil {
 		log.Println("error while selecting tarif data", err.Error())
 		return models.Tarif{}, err
+	}
+
+	if updatedAt.Valid {
+		tarif.UpdatedAt = updatedAt.Time
 	}
 
 	return tarif, nil
@@ -80,6 +92,7 @@ func (t *tarifRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Tarif
 func (t *tarifRepo) GetList(ctx context.Context, request models.GetListRequest) (models.TarifsResponse, error) {
 
 	var (
+		updatedAt         = sql.NullTime{}
 		tarifs            = []models.Tarif{}
 		count             = 0
 		query, countQuery string
@@ -124,10 +137,14 @@ func (t *tarifRepo) GetList(ctx context.Context, request models.GetListRequest) 
 			&tarif.AmountForCash,
 			&tarif.AmountForCard,
 			&tarif.CreatedAt,
-			&tarif.UpdatedAt,
+			&updatedAt,
 		); err != nil {
 			fmt.Println("error is while scanning tarif data", err.Error())
 			return models.TarifsResponse{}, err
+		}
+
+		if updatedAt.Valid {
+			tarif.UpdatedAt = updatedAt.Time
 		}
 
 		tarifs = append(tarifs, tarif)

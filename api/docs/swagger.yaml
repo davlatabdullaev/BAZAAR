@@ -206,7 +206,7 @@ definitions:
   models.Product:
     properties:
       barcode:
-        type: integer
+        type: string
       category_id:
         type: string
       created_at:
@@ -464,8 +464,6 @@ definitions:
     type: object
   models.UpdateProduct:
     properties:
-      barcode:
-        type: integer
       category_id:
         type: string
       id:
@@ -473,8 +471,6 @@ definitions:
       name:
         type: string
       price:
-        type: string
-      updated_at:
         type: string
     type: object
   models.UpdateSale:
@@ -532,8 +528,6 @@ definitions:
       id:
         type: string
       product_id:
-        type: string
-      updated_at:
         type: string
     type: object
   models.UpdateStorageTransaction:
@@ -1473,6 +1467,39 @@ paths:
       summary: Update sale by id
       tags:
       - sale
+  /sell:
+    post:
+      consumes:
+      - application/json
+      description: sell
+      parameters:
+      - description: sell
+        in: body
+        name: sell
+        schema:
+          $ref: '#/definitions/models.CreateSale'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Sale'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: sell
+      tags:
+      - sell
   /staff:
     get:
       consumes:

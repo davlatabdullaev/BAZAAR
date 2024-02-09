@@ -4,6 +4,7 @@ import (
 	"bazaar/api/models"
 	"bazaar/storage"
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -43,6 +44,8 @@ func (s *storageRepo) Create(ctx context.Context, storage models.CreateStorage) 
 
 func (s *storageRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Storage, error) {
 
+	var updatedAt = sql.NullTime{}
+
 	storage := models.Storage{}
 
 	row := s.pool.QueryRow(ctx, `select id, product_id, branch_id, count, created_at, updated_at  from storage where deleted_at is null and id = $1`, id.ID)
@@ -53,12 +56,16 @@ func (s *storageRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Sto
 		&storage.BranchID,
 		&storage.Count,
 		&storage.CreatedAt,
-		&storage.UpdatedAt,
+		&updatedAt,
 	)
 
 	if err != nil {
 		log.Println("error while selecting storage", err.Error())
 		return models.Storage{}, err
+	}
+
+	if updatedAt.Valid {
+		storage.UpdatedAt = updatedAt.Time
 	}
 
 	return storage, nil
@@ -67,6 +74,7 @@ func (s *storageRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Sto
 func (s *storageRepo) GetList(ctx context.Context, request models.GetListRequest) (models.StoragesResponse, error) {
 
 	var (
+		updatedAt         = sql.NullTime{}
 		storages          = []models.Storage{}
 		count             = 0
 		query, countQuery string
@@ -85,7 +93,13 @@ func (s *storageRepo) GetList(ctx context.Context, request models.GetListRequest
 		return models.StoragesResponse{}, err
 	}
 
-	query = `select id, product_id, branch_id, count, created_at, updated_at from storage where deleted_at is null`
+	query = `select 
+	id, 
+	product_id, 
+	branch_id, 
+	count, 
+	created_at, 
+	updated_at from storage where deleted_at is null`
 
 	if search != "" {
 		query += fmt.Sprintf(` where count ilike '%%%s%%'`, search)
@@ -106,10 +120,14 @@ func (s *storageRepo) GetList(ctx context.Context, request models.GetListRequest
 			&storage.BranchID,
 			&storage.Count,
 			&storage.CreatedAt,
-			&storage.UpdatedAt,
+			&updatedAt,
 		); err != nil {
 			fmt.Println("error is while scanning storage data", err.Error())
 			return models.StoragesResponse{}, err
+		}
+
+		if updatedAt.Valid {
+			storage.UpdatedAt = updatedAt.Time
 		}
 
 		storages = append(storages, storage)
@@ -124,7 +142,12 @@ func (s *storageRepo) GetList(ctx context.Context, request models.GetListRequest
 
 func (s *storageRepo) Update(ctx context.Context, request models.UpdateStorage) (string, error) {
 
-	query := `update storage set product_id = $1, branch_id = $2, count =$3, updated_at = $4 where id = $5`
+	query := `update storage set 
+	product_id = $1, 
+	branch_id = $2,
+	count =$3, 
+	updated_at = $4 
+	where id = $5`
 
 	_, err := s.pool.Exec(ctx, query,
 		request.ProductID,

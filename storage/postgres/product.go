@@ -2,9 +2,9 @@ package postgres
 
 import (
 	"bazaar/api/models"
-	"bazaar/pkg/check"
 	"bazaar/storage"
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -27,13 +27,12 @@ func (p *productRepo) Create(ctx context.Context, product models.CreateProduct) 
 
 	id := uuid.New()
 
-	query := `insert into product (id, name, price, barcode, category_id) values ($1, $2, $3, $4, $5)`
+	query := `insert into product (id, name, price, category_id) values ($1, $2, $3, $4)`
 
 	_, err := p.pool.Exec(ctx, query,
 		id,
 		product.Name,
 		product.Price,
-		check.GenerateBarCode(),
 		product.CategoryID,
 	)
 	if err != nil {
@@ -46,9 +45,18 @@ func (p *productRepo) Create(ctx context.Context, product models.CreateProduct) 
 
 func (p *productRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Product, error) {
 
+	var updatedAt = sql.NullTime{}
+
 	product := models.Product{}
 
-	row := p.pool.QueryRow(ctx, `select id, name, price, barcode, category_id, created_at, updated_at  from product where deleted_at is null and id = $1`, id.ID)
+	row := p.pool.QueryRow(ctx, `select
+	 id, 
+	 name, 
+	 price, 
+	 barcode, 
+	 category_id, 
+	 created_at, 
+	 updated_at  from product where deleted_at is null and id = $1`, id.ID)
 
 	err := row.Scan(
 		&product.ID,
@@ -57,12 +65,16 @@ func (p *productRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Pro
 		&product.Barcode,
 		&product.CategoryID,
 		&product.CreatedAt,
-		&product.UpdatedAt,
+		&updatedAt,
 	)
 
 	if err != nil {
 		log.Println("error while selecting product", err.Error())
 		return models.Product{}, err
+	}
+
+	if updatedAt.Valid {
+		product.UpdatedAt = updatedAt.Time
 	}
 
 	return product, nil
@@ -71,6 +83,7 @@ func (p *productRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Pro
 func (p *productRepo) GetList(ctx context.Context, request models.GetListRequest) (models.ProductsResponse, error) {
 
 	var (
+		updatedAt         = sql.NullTime{}
 		products          = []models.Product{}
 		count             = 0
 		query, countQuery string
@@ -89,7 +102,14 @@ func (p *productRepo) GetList(ctx context.Context, request models.GetListRequest
 		return models.ProductsResponse{}, err
 	}
 
-	query = `select id, name, price, barcode, category_id, created_at, updated_at from product where deleted_at is null`
+	query = `select 
+	id, 
+	name, 
+	price, 
+	barcode, 
+	category_id, 
+	created_at, 
+	updated_at from product where deleted_at is null`
 
 	if search != "" {
 		query += fmt.Sprintf(` where name ilike '%%%s%%'`, search)
@@ -111,10 +131,14 @@ func (p *productRepo) GetList(ctx context.Context, request models.GetListRequest
 			&product.Barcode,
 			&product.CategoryID,
 			&product.CreatedAt,
-			&product.UpdatedAt,
+			&updatedAt,
 		); err != nil {
 			fmt.Println("error is while scanning product data", err.Error())
 			return models.ProductsResponse{}, err
+		}
+
+		if updatedAt.Valid {
+			product.UpdatedAt = updatedAt.Time
 		}
 
 		products = append(products, product)

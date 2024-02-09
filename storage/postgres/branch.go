@@ -4,6 +4,7 @@ import (
 	"bazaar/api/models"
 	"bazaar/storage"
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -43,9 +44,17 @@ func (b *branchRepo) Create(ctx context.Context, branch models.CreateBranch) (st
 
 func (b *branchRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Branch, error) {
 
+	var updatedAt = sql.NullTime{}
+
 	branch := models.Branch{}
 
-	query := `select id, name, address, created_at, updated_at from branch where deleted_at is null and id = $1`
+	query := `select
+	 id, 
+	 name, 
+	 address, 
+	 created_at, 
+	 updated_at
+	 from branch where deleted_at is null and id = $1`
 
 	row := b.pool.QueryRow(ctx, query, id.ID)
 
@@ -54,12 +63,16 @@ func (b *branchRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Bran
 		&branch.Name,
 		&branch.Address,
 		&branch.CreatedAt,
-		&branch.UpdatedAt,
+		&updatedAt,
 	)
 
 	if err != nil {
 		log.Println("error while selecting branch", err.Error())
 		return models.Branch{}, err
+	}
+
+	if updatedAt.Valid {
+		branch.UpdatedAt = updatedAt.Time
 	}
 
 	return branch, nil
@@ -69,6 +82,7 @@ func (b *branchRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Bran
 func (b *branchRepo) GetList(ctx context.Context, request models.GetListRequest) (models.BranchsResponse, error) {
 
 	var (
+		updatedAt         = sql.NullTime{}
 		branchs           = []models.Branch{}
 		count             = 0
 		query, countQuery string
@@ -107,10 +121,14 @@ func (b *branchRepo) GetList(ctx context.Context, request models.GetListRequest)
 			&branch.Name,
 			&branch.Address,
 			&branch.CreatedAt,
-			&branch.UpdatedAt,
+			&updatedAt,
 		); err != nil {
 			fmt.Println("error is while scanning branch data", err.Error())
 			return models.BranchsResponse{}, err
+		}
+
+		if updatedAt.Valid {
+			branch.UpdatedAt = updatedAt.Time
 		}
 
 		branchs = append(branchs, branch)

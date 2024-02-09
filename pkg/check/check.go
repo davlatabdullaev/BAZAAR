@@ -2,7 +2,6 @@ package check
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
 )
 
@@ -22,16 +21,4 @@ func CalculateAge(birthDate string) int {
 	}
 
 	return age
-}
-
-func GenerateBarCode() int64 {
-
-	min := 1000000000
-
-	max := 9999999999
-
-	random := int64(rand.Intn(max-min) + min)
-
-	return random
-
 }

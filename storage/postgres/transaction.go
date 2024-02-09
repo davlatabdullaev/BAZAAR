@@ -4,6 +4,7 @@ import (
 	"bazaar/api/models"
 	"bazaar/storage"
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -50,6 +51,8 @@ func (t *transactionRepo) Create(ctx context.Context, request models.CreateTrans
 
 func (t *transactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Transaction, error) {
 
+	var updatedAt = sql.NullTime{}
+
 	transaction := models.Transaction{}
 
 	query := `select id, sale_id, staff_id, transaction_type,
@@ -68,12 +71,16 @@ func (t *transactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models
 		&transaction.Amount,
 		&transaction.Description,
 		&transaction.CreatedAt,
-		&transaction.UpdatedAt,
+		&updatedAt,
 	)
 
 	if err != nil {
 		log.Println("error while selecting transaction data", err.Error())
 		return models.Transaction{}, err
+	}
+
+	if updatedAt.Valid {
+		transaction.UpdatedAt = updatedAt.Time
 	}
 
 	return transaction, nil
@@ -82,6 +89,7 @@ func (t *transactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models
 func (t *transactionRepo) GetList(ctx context.Context, request models.GetListRequest) (models.TransactionsResponse, error) {
 
 	var (
+		updatedAt         = sql.NullTime{}
 		transactions      = []models.Transaction{}
 		count             = 0
 		query, countQuery string
@@ -100,11 +108,17 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListReq
 		return models.TransactionsResponse{}, err
 	}
 
-	query = `select id, sale_id, staff_id, 
-	transaction_type, source_type,
-	amount, description,
-	created_at, updated_at
-	from tarif 
+	query = `select 
+	id, 
+	sale_id, 
+	staff_id, 
+	transaction_type, 
+	source_type,
+	amount, 
+	description,
+	created_at, 
+	updated_at
+	from transaction 
 	where deleted_at is null`
 
 	if search != "" {
@@ -129,10 +143,14 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListReq
 			&transaction.Amount,
 			&transaction.Description,
 			&transaction.CreatedAt,
-			&transaction.UpdatedAt,
+			&updatedAt,
 		); err != nil {
 			fmt.Println("error is while scanning transaction data", err.Error())
 			return models.TransactionsResponse{}, err
+		}
+
+		if updatedAt.Valid {
+			transaction.UpdatedAt = updatedAt.Time
 		}
 
 		transactions = append(transactions, transaction)

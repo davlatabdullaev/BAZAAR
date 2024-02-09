@@ -4,6 +4,7 @@ import (
 	"bazaar/api/models"
 	"bazaar/storage"
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -45,10 +46,19 @@ func (s *storageTransactionRepo) Create(ctx context.Context, request models.Crea
 
 func (s *storageTransactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models.StorageTransaction, error) {
 
+	var updatedAt = sql.NullTime{}
+
 	storageTransaction := models.StorageTransaction{}
 
-	query := `select id, staff_id, product_id, storage_transaction_type, 
-	price, quantity, created_at, updated_at from storage_transaction
+	query := `select id,
+	 staff_id, 
+	 product_id, 
+	 storage_transaction_type, 
+	 price, 
+	 quantity, 
+	 created_at, 
+	 updated_at 
+	 from storage_transaction
 	 where deleted_at is null and id = $1`
 
 	row := s.pool.QueryRow(ctx, query, id.ID)
@@ -61,12 +71,16 @@ func (s *storageTransactionRepo) Get(ctx context.Context, id models.PrimaryKey) 
 		&storageTransaction.Price,
 		&storageTransaction.Quantity,
 		&storageTransaction.CreatedAt,
-		&storageTransaction.UpdatedAt,
+		&updatedAt,
 	)
 
 	if err != nil {
 		log.Println("error while selecting storage transaction data", err.Error())
 		return models.StorageTransaction{}, err
+	}
+
+	if updatedAt.Valid {
+		storageTransaction.UpdatedAt = updatedAt.Time
 	}
 
 	return storageTransaction, nil
@@ -75,6 +89,7 @@ func (s *storageTransactionRepo) Get(ctx context.Context, id models.PrimaryKey) 
 func (s *storageTransactionRepo) GetList(ctx context.Context, request models.GetListRequest) (models.StorageTransactionsResponse, error) {
 
 	var (
+		updatedAt           = sql.NullTime{}
 		storageTransactions = []models.StorageTransaction{}
 		count               = 0
 		query, countQuery   string
@@ -93,8 +108,15 @@ func (s *storageTransactionRepo) GetList(ctx context.Context, request models.Get
 		return models.StorageTransactionsResponse{}, err
 	}
 
-	query = `select id, staff_id, product_id, storafe_transaction_type, 
-	price, quantity, created_at, updated_at
+	query = `select 
+	id, 
+	staff_id, 
+	product_id, 
+	storafe_transaction_type, 
+	price, 
+	quantity, 
+	created_at, 
+	updated_at
 	from storage_transaction 
 	where deleted_at is null`
 
@@ -119,10 +141,14 @@ func (s *storageTransactionRepo) GetList(ctx context.Context, request models.Get
 			&storageTransaction.Price,
 			&storageTransaction.Quantity,
 			&storageTransaction.CreatedAt,
-			&storageTransaction.UpdatedAt,
+			&updatedAt,
 		); err != nil {
 			fmt.Println("error is while scanning storage transaction data", err.Error())
 			return models.StorageTransactionsResponse{}, err
+		}
+
+		if updatedAt.Valid {
+			storageTransaction.UpdatedAt = updatedAt.Time
 		}
 
 		storageTransactions = append(storageTransactions, storageTransaction)

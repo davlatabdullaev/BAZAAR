@@ -5,6 +5,7 @@ import (
 	"bazaar/pkg/check"
 	"bazaar/storage"
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -26,7 +27,6 @@ func NewStaffRepo(pool *pgxpool.Pool) storage.IStaffRepo {
 func (s *staffRepo) Create(ctx context.Context, request models.CreateStaff) (string, error) {
 
 	id := uuid.New()
-
 
 	query := `insert into staff (id, branch_id, tarif_id, type_staff, name, balance, birth_date, age, gender, login, password) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 
@@ -53,6 +53,8 @@ func (s *staffRepo) Create(ctx context.Context, request models.CreateStaff) (str
 
 func (s *staffRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Staff, error) {
 
+	var updatedAt = sql.NullTime{}
+
 	staff := models.Staff{}
 
 	query := `select id, branch_id, tarif_id, type_staff, name, birth_date, age, gender, login, password, created_at, updated_at from staff where deleted_at is null and id = $1`
@@ -71,7 +73,7 @@ func (s *staffRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Staff
 		&staff.Login,
 		&staff.Password,
 		&staff.CreatedAt,
-		&staff.UpdatedAt,
+		&updatedAt,
 	)
 
 	if err != nil {
@@ -79,11 +81,16 @@ func (s *staffRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Staff
 		return models.Staff{}, err
 	}
 
+	if updatedAt.Valid {
+		staff.UpdatedAt = updatedAt.Time
+	}
+
 	return staff, nil
 }
 
 func (s *staffRepo) GetList(ctx context.Context, request models.GetListRequest) (models.StaffsResponse, error) {
 	var (
+		updatedAt         = sql.NullTime{}
 		staffs            = []models.Staff{}
 		count             = 0
 		query, countQuery string
@@ -129,10 +136,14 @@ func (s *staffRepo) GetList(ctx context.Context, request models.GetListRequest) 
 			&staff.Login,
 			&staff.Password,
 			&staff.CreatedAt,
-			&staff.UpdatedAt,
+			&updatedAt,
 		); err != nil {
 			fmt.Println("error is while scanning staff data", err.Error())
 			return models.StaffsResponse{}, err
+		}
+
+		if updatedAt.Valid {
+			staff.UpdatedAt = updatedAt.Time
 		}
 
 		staffs = append(staffs, staff)
