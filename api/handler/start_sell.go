@@ -35,7 +35,7 @@ func (h Handler) StartSell(c *gin.Context) {
 	}
 
 	sale, err := h.storage.Sale().Get(context.Background(), models.PrimaryKey{
-		saleID,
+		ID: saleID,
 	})
 	if err != nil {
 		handleResponse(c, "error is while getting sale by id", http.StatusInternalServerError, err.Error())
