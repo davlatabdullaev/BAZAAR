@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS branch (
    name VARCHAR(75) NOT NULL,
    address VARCHAR(75) NOT NULL,
    created_at TIMESTAMP DEFAULT NOW(),
-   updated_at TIMESTAMP DEFAULT NOW(),
+   updated_at TIMESTAMP,
    deleted_at TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS category (
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS category (
     name VARCHAR(75) NOT NULL,
     parent_id UUID REFERENCES category(id),
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS product (
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS product (
     barcode VARCHAR(10) UNIQUE NOT NULL,
     category_id UUID REFERENCES category(id),
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS  storage (
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS  storage (
     branch_id UUID REFERENCES branch(id),
     count INT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS sale (
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS sale (
     status  VARCHAR(20) CHECK (status IN('in_procces', 'succes', 'cancel')),
     client_name VARCHAR(75) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS basket (
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS basket (
     quantity INT NOT NULL,
     price numeric(75,4) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS tarif (
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS tarif (
     amount_for_cash numeric(75,4) NOT NULL,
     amount_for_card numeric(75,4) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS staff (
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS staff (
     logIN VARCHAR(75) NOT NULL,
     password VARCHAR(128) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS transaction (
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS transaction (
     amount numeric(75,4) NOT NULL,
     description text NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS storage_transaction (
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS storage_transaction (
     price numeric(75,4) NOT NULL,
     quantity numeric(75,4) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
 
