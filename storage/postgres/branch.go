@@ -101,7 +101,13 @@ func (b *branchRepo) GetList(ctx context.Context, request models.GetListRequest)
 		return models.BranchsResponse{}, err
 	}
 
-	query = `select id, name, address, created_at, updated_at from branch where deleted_at is null`
+	query = `select 
+	id, 
+	name, 
+	address, 
+	created_at, 
+	updated_at 
+	from branch where deleted_at is null`
 
 	if search != "" {
 		query += fmt.Sprintf(` and name ilike '%%%s%%'`, search)

@@ -2908,7 +2908,7 @@
                 "price": {
                     "type": "string"
                 },
-                "shop_assistant_id": {
+                "shop_assistent_id": {
                     "type": "string"
                 },
                 "status": {
@@ -2926,9 +2926,6 @@
                     "type": "string"
                 },
                 "branch_id": {
-                    "type": "string"
-                },
-                "created_at": {
                     "type": "string"
                 },
                 "gender": {
@@ -2997,9 +2994,6 @@
                 "amount_for_cash": {
                     "type": "number"
                 },
-                "created_at": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -3013,9 +3007,6 @@
             "properties": {
                 "amount": {
                     "type": "number"
-                },
-                "created_at": {
-                    "type": "string"
                 },
                 "description": {
                     "type": "string"
@@ -3116,7 +3107,7 @@
                 "price": {
                     "type": "string"
                 },
-                "shop_assistant_id": {
+                "shop_assistent_id": {
                     "type": "string"
                 },
                 "status": {
@@ -3397,9 +3388,6 @@
                 },
                 "sale_id": {
                     "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
                 }
             }
         },
@@ -3469,13 +3457,10 @@
                 "price": {
                     "type": "string"
                 },
-                "shop_assistant_id": {
+                "shop_assistent_id": {
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }
@@ -3511,9 +3496,6 @@
                     "type": "string"
                 },
                 "type_staff": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }
@@ -3578,9 +3560,6 @@
                 },
                 "tarif_type": {
                     "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
                 }
             }
         },
@@ -3606,9 +3585,6 @@
                     "type": "string"
                 },
                 "transaction_type": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }

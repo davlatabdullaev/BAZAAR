@@ -121,7 +121,7 @@ definitions:
         type: string
       price:
         type: string
-      shop_assistant_id:
+      shop_assistent_id:
         type: string
       status:
         type: string
@@ -133,8 +133,6 @@ definitions:
       birth_date:
         type: string
       branch_id:
-        type: string
-      created_at:
         type: string
       gender:
         type: string
@@ -179,8 +177,6 @@ definitions:
         type: number
       amount_for_cash:
         type: number
-      created_at:
-        type: string
       name:
         type: string
       tarif_type:
@@ -190,8 +186,6 @@ definitions:
     properties:
       amount:
         type: number
-      created_at:
-        type: string
       description:
         type: string
       sale_id:
@@ -257,7 +251,7 @@ definitions:
         type: string
       price:
         type: string
-      shop_assistant_id:
+      shop_assistent_id:
         type: string
       status:
         type: string
@@ -441,8 +435,6 @@ definitions:
         type: integer
       sale_id:
         type: string
-      updated_at:
-        type: string
     type: object
   models.UpdateBranch:
     properties:
@@ -487,11 +479,9 @@ definitions:
         type: string
       price:
         type: string
-      shop_assistant_id:
+      shop_assistent_id:
         type: string
       status:
-        type: string
-      updated_at:
         type: string
     type: object
   models.UpdateStaff:
@@ -515,8 +505,6 @@ definitions:
       tarif_id:
         type: string
       type_staff:
-        type: string
-      updated_at:
         type: string
     type: object
   models.UpdateStorage:
@@ -559,8 +547,6 @@ definitions:
         type: string
       tarif_type:
         type: string
-      updated_at:
-        type: string
     type: object
   models.UpdateTransaction:
     properties:
@@ -577,8 +563,6 @@ definitions:
       staff_id:
         type: string
       transaction_type:
-        type: string
-      updated_at:
         type: string
     type: object
 info:

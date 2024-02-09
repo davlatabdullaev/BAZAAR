@@ -27,7 +27,7 @@ func (b *basketRepo) Create(ctx context.Context, basket models.CreateBasket) (st
 
 	id := uuid.New()
 
-	query := `insert into category (id, sale_id, product_id, quantity, price) values ($1, $2, $3, $4, $5)`
+	query := `insert into basket (id, sale_id, product_id, quantity, price) values ($1, $2, $3, $4, $5)`
 
 	_, err := b.pool.Exec(ctx, query,
 		id,
@@ -57,7 +57,7 @@ func (b *basketRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Bask
 	quantity, 
 	price,
     created_at, 
-	updated_at::text
+	updated_at
 	from basket where deleted_at is null and id = $1`, id.ID)
 
 	err := row.Scan(
@@ -111,7 +111,7 @@ func (b *basketRepo) GetList(ctx context.Context, request models.GetListRequest)
 	quantity, 
 	price, 
 	created_at, 
-	updated_at::text 
+	updated_at
 	from basket where deleted_at is null`
 
 	if search != "" {

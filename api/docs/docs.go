@@ -2916,7 +2916,7 @@ const docTemplate = `{
                 "price": {
                     "type": "string"
                 },
-                "shop_assistant_id": {
+                "shop_assistent_id": {
                     "type": "string"
                 },
                 "status": {
@@ -2934,9 +2934,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "branch_id": {
-                    "type": "string"
-                },
-                "created_at": {
                     "type": "string"
                 },
                 "gender": {
@@ -3005,9 +3002,6 @@ const docTemplate = `{
                 "amount_for_cash": {
                     "type": "number"
                 },
-                "created_at": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -3021,9 +3015,6 @@ const docTemplate = `{
             "properties": {
                 "amount": {
                     "type": "number"
-                },
-                "created_at": {
-                    "type": "string"
                 },
                 "description": {
                     "type": "string"
@@ -3124,7 +3115,7 @@ const docTemplate = `{
                 "price": {
                     "type": "string"
                 },
-                "shop_assistant_id": {
+                "shop_assistent_id": {
                     "type": "string"
                 },
                 "status": {
@@ -3405,9 +3396,6 @@ const docTemplate = `{
                 },
                 "sale_id": {
                     "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
                 }
             }
         },
@@ -3477,13 +3465,10 @@ const docTemplate = `{
                 "price": {
                     "type": "string"
                 },
-                "shop_assistant_id": {
+                "shop_assistent_id": {
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }
@@ -3519,9 +3504,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type_staff": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }
@@ -3586,9 +3568,6 @@ const docTemplate = `{
                 },
                 "tarif_type": {
                     "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
                 }
             }
         },
@@ -3614,9 +3593,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "transaction_type": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }

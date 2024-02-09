@@ -111,9 +111,14 @@ func (t *tarifRepo) GetList(ctx context.Context, request models.GetListRequest) 
 		return models.TarifsResponse{}, err
 	}
 
-	query = `select id, name, tarif_type, 
-	amount_for_cash, amount_for_card,
-	created_at, updated_at
+	query = `select 
+	id, 
+	name, 
+	tarif_type, 
+	amount_for_cash, 
+	amount_for_card,
+	created_at, 
+	updated_at
 	from tarif 
 	where deleted_at is null`
 

@@ -26,7 +26,6 @@ type UpdateBasket struct {
 	ProductID string    `json:"product_id"`
 	Quantity  int       `json:"quantity"`
 	Price     string    `json:"price"`
-	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type BasketsResponse struct {

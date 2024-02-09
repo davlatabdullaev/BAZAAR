@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS basket (
 CREATE TABLE IF NOT EXISTS tarif (
     id UUID PRIMARY KEY,
     name VARCHAR(75) NOT NULL,
-    tarif_type VARCHAR(20) CHECK (tarif_type IN('percent', 'field')),
+    tarif_type VARCHAR(20) CHECK (tarif_type IN('percent', 'fixed')),
     amount_for_cash numeric(75,4) NOT NULL,
     amount_for_card numeric(75,4) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
@@ -98,12 +98,12 @@ CREATE TABLE IF NOT EXISTS storage_transaction (
     id UUID PRIMARY KEY,
     staff_id UUID REFERENCES staff(id),
     product_id UUID REFERENCES product(id),
-    storage_transaction_type VARCHAR(20) CHECK (storage_transaction_type IN ('mINus', 'plus')),
+    storage_transaction_type VARCHAR(20) CHECK (storage_transaction_type IN ('minus', 'plus')),
     price numeric(75,4) NOT NULL,
     quantity numeric(75,4) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP,
     deleted_at TIMESTAMP
-);
+);--tekshirilmadi
 
 

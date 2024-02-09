@@ -18,7 +18,6 @@ type CreateTarif struct {
 	TarifType     string    `json:"tarif_type"`
 	AmountForCash float64   `json:"amount_for_cash"`
 	AmountForCard float64   `json:"amount_for_card"`
-	CreatedAt     time.Time `json:"created_at"`
 }
 
 type UpdateTarif struct {
@@ -27,7 +26,6 @@ type UpdateTarif struct {
 	TarifType     string    `json:"tarif_type"`
 	AmountForCash float64   `json:"amount_for_cash"`
 	AmountForCard float64   `json:"amount_for_card"`
-	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 type TarifsResponse struct {

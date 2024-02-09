@@ -28,7 +28,18 @@ func (s *staffRepo) Create(ctx context.Context, request models.CreateStaff) (str
 
 	id := uuid.New()
 
-	query := `insert into staff (id, branch_id, tarif_id, type_staff, name, balance, birth_date, age, gender, login, password) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
+	query := `insert into staff (
+		id, 
+		branch_id, 
+		tarif_id, 
+		type_staff, 
+		name, 
+		balance, 
+		birth_date, 
+		age, 
+		gender, 
+		login, 
+		password) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 
 	_, err := s.pool.Exec(ctx, query,
 		id,
@@ -57,7 +68,19 @@ func (s *staffRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Staff
 
 	staff := models.Staff{}
 
-	query := `select id, branch_id, tarif_id, type_staff, name, birth_date, age, gender, login, password, created_at, updated_at from staff where deleted_at is null and id = $1`
+	query := `select 
+	id, 
+	branch_id, 
+	tarif_id, 
+	type_staff, 
+	name, 
+	birth_date::text, 
+	age, 
+	gender, 
+	login, 
+	password, 
+	created_at, 
+	updated_at from staff where deleted_at is null and id = $1`
 
 	row := s.pool.QueryRow(ctx, query, id.ID)
 
@@ -109,7 +132,19 @@ func (s *staffRepo) GetList(ctx context.Context, request models.GetListRequest) 
 		return models.StaffsResponse{}, err
 	}
 
-	query = `select id, branch_id, tarif_id, type_staff, name, birth_date, age, gender, login, password, created_at, updated_at from staff where deleted_at is null`
+	query = `select 
+	id, 
+	branch_id, 
+	tarif_id, 
+	type_staff, 
+	name, 
+	birth_date::text, 
+	age, 
+	gender, 
+	login, 
+	password, 
+	created_at, 
+	updated_at from staff where deleted_at is null`
 
 	if search != "" {
 		query += fmt.Sprintf(` where name ilike '%%%s%%'`, search)
@@ -159,9 +194,19 @@ func (s *staffRepo) GetList(ctx context.Context, request models.GetListRequest) 
 func (s *staffRepo) Update(ctx context.Context, request models.UpdateStaff) (string, error) {
 
 	query := `update staff
-   set branch_id = $1, tarif_id = $2, type_staff = $3,
-   name = $4, birth_date = $5, age = $6, gender = $7, login = $8, password = $9, updated_at = $10
-   where id = $11
+   set 
+   branch_id = $1, 
+   tarif_id = $2, 
+   type_staff = $3,
+   name = $4, 
+   birth_date = $5, 
+   age = $6, 
+   gender = $7, 
+   login = $8, 
+   password = $9,
+   balance = $10, 
+   updated_at = $11
+   where id = $12
    `
 	_, err := s.pool.Exec(ctx, query,
 		request.BranchID,
@@ -171,13 +216,14 @@ func (s *staffRepo) Update(ctx context.Context, request models.UpdateStaff) (str
 		request.BirthDate,
 		check.CalculateAge(request.BirthDate),
 		request.Gender,
-		request, request.Login,
+		request.Login,
 		request.Password,
+		request.Balance,
 		time.Now(),
 		request.ID,
 	)
 	if err != nil {
-		log.Println("error while updating category data...", err.Error())
+		log.Println("error while updating staff data...", err.Error())
 		return "", err
 	}
 	return request.ID, nil

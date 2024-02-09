@@ -29,7 +29,6 @@ type CreateStaff struct {
 	Gender    string    `json:"gender"`
 	Login     string    `json:"login"`
 	Password  string    `json:"password"`
-	CreatedAt time.Time `json:"created_at"`
 }
 
 type UpdateStaff struct {
@@ -43,7 +42,6 @@ type UpdateStaff struct {
 	Gender    string    `json:"gender"`
 	Login     string    `json:"login"`
 	Password  string    `json:"password"`
-	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type StaffsResponse struct {

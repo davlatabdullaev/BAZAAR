@@ -102,7 +102,17 @@ func (s *saleRepo) GetList(ctx context.Context, request models.GetListRequest) (
 		return models.SalesResponse{}, err
 	}
 
-	query = `select id, branch_id, shop_assistent_id, cashier_id, payment_type, price, status, client_name, created_at, updated_at from sale where deleted_at is null`
+	query = `select 
+	id, 
+	branch_id, 
+	shop_assistent_id, 
+	cashier_id, 
+	payment_type, 
+	price, 
+	status, 
+	client_name, 
+	created_at, 
+	updated_at from sale where deleted_at is null`
 
 	if search != "" {
 		query += fmt.Sprintf(` where price ilike '%%%s%%'`, search)
@@ -149,9 +159,15 @@ func (s *saleRepo) GetList(ctx context.Context, request models.GetListRequest) (
 
 func (s *saleRepo) Update(ctx context.Context, request models.UpdateSale) (string, error) {
 
-	query := `update sale set branch_id = $1, shop_assistent_id = $2,
-	 cashier_id = $3, payment_type = $4, price = $5, 
-	 status = $6, client_name = $7, updated_at = $8 
+	query := `update sale set 
+	branch_id = $1, 
+	shop_assistent_id = $2,
+	cashier_id = $3, 
+	payment_type = $4, 
+	price = $5, 
+	status = $6, 
+	client_name = $7, 
+	updated_at = $8 
 	 where id = $9`
 
 	_, err := s.pool.Exec(ctx, query,

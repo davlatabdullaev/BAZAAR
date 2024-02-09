@@ -27,8 +27,14 @@ func (t *transactionRepo) Create(ctx context.Context, request models.CreateTrans
 
 	id := uuid.New()
 
-	query := `insert into transaction (id, sale_id, staff_id, transaction_type,
-		source_type, amount, description) 
+	query := `insert into transaction (
+		id, 
+		sale_id, 
+		staff_id, 
+		transaction_type,
+		source_type, 
+		amount, 
+		description) 
 	values 
 	($1, $2, $3, $4, $5, $6, $7)`
 
@@ -55,9 +61,17 @@ func (t *transactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models
 
 	transaction := models.Transaction{}
 
-	query := `select id, sale_id, staff_id, transaction_type,
-	source_type, amount, description, 
-	 created_at, updated_at from tarif
+	query := `select 
+	id, 
+	sale_id, 
+	staff_id, 
+	transaction_type,
+	source_type, 
+	amount, 
+	description, 
+	created_at, 
+	updated_at 
+	from transaction
 	 where deleted_at is null and id = $1`
 
 	row := t.pool.QueryRow(ctx, query, id.ID)

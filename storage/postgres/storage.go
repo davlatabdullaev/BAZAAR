@@ -48,7 +48,13 @@ func (s *storageRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Sto
 
 	storage := models.Storage{}
 
-	row := s.pool.QueryRow(ctx, `select id, product_id, branch_id, count, created_at, updated_at  from storage where deleted_at is null and id = $1`, id.ID)
+	row := s.pool.QueryRow(ctx, `select 
+	id, 
+	product_id, 
+	branch_id, 
+	count, 
+	created_at, 
+	updated_at  from storage where deleted_at is null and id = $1`, id.ID)
 
 	err := row.Scan(
 		&storage.ID,
