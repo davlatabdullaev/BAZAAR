@@ -1843,7 +1843,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "storage",
+                        "description": "storage data",
                         "name": "storage",
                         "in": "body",
                         "required": true,

@@ -95,7 +95,7 @@ func (p *productRepo) GetList(ctx context.Context, request models.GetListRequest
 	countQuery = `select count(1) from product where deleted_at is null `
 
 	if search != "" {
-		countQuery += fmt.Sprintf(`and name ilike '%%%s%%'`, search)
+		countQuery += fmt.Sprintf(`and name ilike '%%%s%%' or barcode ilike '%%%s%%'`, search, search)
 	}
 	if err := p.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting count", err.Error())
@@ -112,7 +112,7 @@ func (p *productRepo) GetList(ctx context.Context, request models.GetListRequest
 	updated_at from product where deleted_at is null`
 
 	if search != "" {
-		query += fmt.Sprintf(` where name ilike '%%%s%%'`, search)
+		query += fmt.Sprintf(` and name ilike '%%%s%%' or barcode ilike '%%%s%%'`, search, search)
 	}
 
 	query += ` LIMIT $1 OFFSET $2`
@@ -154,7 +154,11 @@ func (p *productRepo) GetList(ctx context.Context, request models.GetListRequest
 func (p *productRepo) Update(ctx context.Context, request models.UpdateProduct) (string, error) {
 
 	query := `update product
-   set name = $1, price = $2, category_id = $3, updated_at = $4
+   set 
+    name = $1,
+    price = $2, 
+	category_id = $3, 
+	updated_at = $4
    where id = $5  
    `
 

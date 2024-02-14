@@ -144,7 +144,7 @@ func (h Handler) GetStorageList(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "storage id"
-// @Param        storage body models.UpdateStorage true "storage"
+// @Param        storage body models.UpdateStorage true "storage data"
 // @Success      200  {object}  models.Storage
 // @Failure      400  {object}  models.Response
 // @Failure      404  {object}  models.Response
@@ -158,6 +158,13 @@ func (h Handler) UpdateStorage(c *gin.Context) {
 		return
 	}
 
+
+	if err := c.ShouldBindJSON(&updateStorage); err != nil {
+		handleResponse(c, "error while reading body", http.StatusBadRequest, err.Error())
+		return
+	}
+
+
 	updateStorage.ID = uid
 
 	id, err := h.storage.Storage().Update(context.Background(), updateStorage)
@@ -166,7 +173,7 @@ func (h Handler) UpdateStorage(c *gin.Context) {
 		return
 	}
 
-	storage, err := h.storage.Sale().Get(context.Background(), models.PrimaryKey{
+	storage, err := h.storage.Storage().Get(context.Background(), models.PrimaryKey{
 		ID: id,
 	})
 	if err != nil {

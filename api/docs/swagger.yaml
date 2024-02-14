@@ -1808,7 +1808,7 @@ paths:
         name: id
         required: true
         type: string
-      - description: storage
+      - description: storage data
         in: body
         name: storage
         required: true

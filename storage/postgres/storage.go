@@ -89,10 +89,10 @@ func (s *storageRepo) GetList(ctx context.Context, request models.GetListRequest
 		search            = request.Search
 	)
 
-	countQuery = `select count(1) from storage where deleted_at is null `
+	countQuery = `select count(1) from storage where deleted_at is null`
 
 	if search != "" {
-		countQuery += fmt.Sprintf(`and count ilike '%%%s%%'`, search)
+		countQuery += fmt.Sprintf(` and count = '%s'`, search)
 	}
 	if err := s.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting count", err.Error())
@@ -108,7 +108,7 @@ func (s *storageRepo) GetList(ctx context.Context, request models.GetListRequest
 	updated_at from storage where deleted_at is null`
 
 	if search != "" {
-		query += fmt.Sprintf(` where count ilike '%%%s%%'`, search)
+		query += fmt.Sprintf(` and count = '%s'`, search)
 	}
 
 	query += ` LIMIT $1 OFFSET $2`
@@ -148,10 +148,10 @@ func (s *storageRepo) GetList(ctx context.Context, request models.GetListRequest
 
 func (s *storageRepo) Update(ctx context.Context, request models.UpdateStorage) (string, error) {
 
-	query := `update storage set 
+	query := ` update storage set 
 	product_id = $1, 
-	branch_id = $2,
-	count =$3, 
+	branch_id = $2, 
+	count = $3, 
 	updated_at = $4 
 	where id = $5`
 
@@ -162,6 +162,7 @@ func (s *storageRepo) Update(ctx context.Context, request models.UpdateStorage) 
 		time.Now(),
 		request.ID,
 	)
+
 	if err != nil {
 		log.Println("error while updating storage data...", err.Error())
 		return "", err

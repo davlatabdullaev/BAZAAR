@@ -104,6 +104,6 @@ CREATE TABLE IF NOT EXISTS storage_transaction (
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP,
     deleted_at TIMESTAMP
-);--tekshirilmadi
+);
 
 
