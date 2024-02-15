@@ -21,14 +21,20 @@ type CreateBasket struct {
 }
 
 type UpdateBasket struct {
-	ID        string    `json:"id"`
-	SaleID    string    `json:"sale_id"`
-	ProductID string    `json:"product_id"`
-	Quantity  int       `json:"quantity"`
-	Price     string    `json:"price"`
+	ID        string `json:"id"`
+	SaleID    string `json:"sale_id"`
+	ProductID string `json:"product_id"`
+	Quantity  int    `json:"quantity"`
+	Price     string `json:"price"`
 }
 
 type BasketsResponse struct {
 	Baskets []Basket `json:"baskets"`
 	Count   int      `json:"count"`
+}
+
+type GetBasketsListRequest struct {
+	Page   int    `json:"page"`
+	Limit  int    `json:"limit"`
+	Search string `json:"search"`
 }

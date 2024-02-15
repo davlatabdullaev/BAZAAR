@@ -62,7 +62,7 @@ type ITransactionRepo interface {
 type IBasketRepo interface {
 	Create(context.Context, models.CreateBasket) (string, error)
 	Get(context.Context, models.PrimaryKey) (models.Basket, error)
-	GetList(context.Context, models.GetListRequest) (models.BasketsResponse, error)
+	GetList(context.Context, models.GetBasketsListRequest) (models.BasketsResponse, error)
 	Update(context.Context, models.UpdateBasket) (string, error)
 	Delete(context.Context, string) error
 }

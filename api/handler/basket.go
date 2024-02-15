@@ -4,6 +4,7 @@ import (
 	"bazaar/api/models"
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -40,6 +41,48 @@ func (h Handler) CreateBasket(c *gin.Context) {
 	}
 
 	if createBasket.Quantity <= storage.Count {
+
+		basketForProductID, err := h.storage.Basket().GetList(context.Background(), models.GetBasketsListRequest{
+			Page:   1,
+			Limit:  10,
+			Search: createBasket.ProductID,
+		})
+		if err != nil {
+			handleResponse(c, "error while searching selected basket", http.StatusInternalServerError, "error searching selected basket")
+		}
+
+		basketForSaleID, err := h.storage.Basket().GetList(context.Background(), models.GetBasketsListRequest{
+			Page:   1,
+			Limit:  10,
+			Search: createBasket.SaleID,
+		})
+		if err != nil {
+			handleResponse(c, "error while searching selected basket", http.StatusInternalServerError, "error searching selected basket")
+		}
+
+		var foundProduct, foundSale bool
+
+		for _, basket := range basketForProductID.Baskets {
+			if basket.ProductID == createBasket.ProductID {
+				foundProduct = true
+				break
+			}
+		}
+
+		for _, basket := range basketForSaleID.Baskets {
+			if basket.SaleID == createBasket.SaleID {
+				foundSale = true
+				break
+			}
+		}
+
+		if foundProduct && foundSale {
+
+             
+
+			// ok
+             fmt.Println("ok")
+		}
 
 		id, err := h.storage.Basket().Create(context.Background(), createBasket)
 		if err != nil {
@@ -137,7 +180,7 @@ func (h Handler) GetBasketList(c *gin.Context) {
 
 	search = c.Query("search")
 
-	response, err := h.storage.Basket().GetList(context.Background(), models.GetListRequest{
+	response, err := h.storage.Basket().GetList(context.Background(), models.GetBasketsListRequest{
 		Page:   page,
 		Limit:  limit,
 		Search: search,
