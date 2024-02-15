@@ -30,21 +30,36 @@ func (h Handler) CreateBasket(c *gin.Context) {
 		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
-	id, err := h.storage.Basket().Create(context.Background(), createBasket)
-	if err != nil {
-		handleResponse(c, "error while creating basket", http.StatusInternalServerError, err)
-		return
-	}
-
-	basket, err := h.storage.Basket().Get(context.Background(), models.PrimaryKey{
-		ID: id,
+	storage, err := h.storage.Storage().GetList(context.Background(), models.GetListRequest{
+		Page:   1,
+		Limit:  10,
+		Search: createBasket.ProductID,
 	})
 	if err != nil {
-		handleResponse(c, "error while get basket ", http.StatusInternalServerError, err)
-		return
+		handleResponse(c, "error while searching product in storage", http.StatusInternalServerError, err)
 	}
 
-	handleResponse(c, "", http.StatusCreated, basket)
+	if createBasket.Quantity <= storage.Count {
+
+		id, err := h.storage.Basket().Create(context.Background(), createBasket)
+		if err != nil {
+			handleResponse(c, "error while creating basket", http.StatusInternalServerError, err)
+			return
+		}
+
+		basket, err := h.storage.Basket().Get(context.Background(), models.PrimaryKey{
+			ID: id,
+		})
+		if err != nil {
+			handleResponse(c, "error while get basket ", http.StatusInternalServerError, err)
+			return
+		}
+
+		handleResponse(c, "", http.StatusCreated, basket)
+
+	} else {
+		handleResponse(c, "", http.StatusOK, "the number of products is not enough")
+	}
 
 }
 
