@@ -98,6 +98,10 @@ func New(store storage.IStorage) *gin.Engine {
 	r.PUT("transaction/:id", h.UpdateTransaction)
 	r.DELETE("transaction/:id", h.DeleteTransaction)
 
+	// SELL
+
+	r.POST("sell/", h.StartSell)
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return r
 }
