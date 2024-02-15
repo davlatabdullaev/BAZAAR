@@ -27,7 +27,7 @@ func (s *storageTransactionRepo) Create(ctx context.Context, request models.Crea
 
 	id := uuid.New()
 
-	query := `insert into storage_transaction (id, staff_id, product_id, storage_tranaction_type, price, quantity) values ($1, $2, $3, $4, $5, $6)`
+	query := `insert into storage_transaction (id, staff_id, product_id, storage_transaction_type, price, quantity) values ($1, $2, $3, $4, $5, $6)`
 
 	_, err := s.pool.Exec(ctx, query,
 		id,
@@ -112,7 +112,7 @@ func (s *storageTransactionRepo) GetList(ctx context.Context, request models.Get
 	id, 
 	staff_id, 
 	product_id, 
-	storafe_transaction_type, 
+	storage_transaction_type, 
 	price, 
 	quantity, 
 	created_at, 
@@ -164,8 +164,13 @@ func (s *storageTransactionRepo) GetList(ctx context.Context, request models.Get
 func (s *storageTransactionRepo) Update(ctx context.Context, request models.UpdateStorageTransaction) (string, error) {
 
 	query := `update storage_transaction
-   set staff_id = $1, product_id = $2, storage_transaction_type = $3,
-   price = $4, quantity = $5, updated_at = $6
+   set 
+   staff_id = $1, 
+   product_id = $2, 
+   storage_transaction_type = $3,
+   price = $4, 
+   quantity = $5, 
+   updated_at = $6
    where id = $7
    `
 	_, err := s.pool.Exec(ctx, query,
@@ -175,6 +180,7 @@ func (s *storageTransactionRepo) Update(ctx context.Context, request models.Upda
 		request.Price,
 		request.Quantity,
 		time.Now(),
+		request.ID,
 	)
 	if err != nil {
 		log.Println("error while updating storage_transaction data...", err.Error())

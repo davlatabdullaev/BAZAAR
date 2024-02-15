@@ -54,7 +54,7 @@ type ITarifRepo interface {
 type ITransactionRepo interface {
 	Create(context.Context, models.CreateTransaction) (string, error)
 	Get(context.Context, models.PrimaryKey) (models.Transaction, error)
-	GetList(context.Context, models.GetListRequest) (models.TransactionsResponse, error)
+	GetList(context.Context, models.GetListTransactionsRequest) (models.TransactionsResponse, error)
 	Update(context.Context, models.UpdateTransaction) (string, error)
 	Delete(context.Context, string) error
 }

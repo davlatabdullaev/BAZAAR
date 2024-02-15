@@ -4,6 +4,8 @@ import (
 	"bazaar/api/models"
 	"context"
 	"errors"
+	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 
@@ -92,7 +94,8 @@ func (h Handler) GetTransactionByID(c *gin.Context) {
 // @Produce      json
 // @Param        page query string false "page"
 // @Param        limit query string false "limit"
-// @Param        search query string false "search"
+// @Param		 from-amount query string false "from-amount"
+// @Param		 to-amount query string false "to-amount"
 // @Success      200  {object}  models.TransactionsResponse
 // @Failure      400  {object}  models.Response
 // @Failure      404  {object}  models.Response
@@ -101,8 +104,9 @@ func (h Handler) GetTransactionList(c *gin.Context) {
 
 	var (
 		page, limit int
-		search      string
 		err         error
+		fromAmount  float64
+		toAmount    float64
 	)
 
 	pageStr := c.DefaultQuery("page", "1")
@@ -119,12 +123,18 @@ func (h Handler) GetTransactionList(c *gin.Context) {
 		return
 	}
 
-	search = c.Query("search")
+	toAmountStr := c.DefaultQuery("to-amount", fmt.Sprintf("%f", math.MaxFloat64))
+	toAmount, err = strconv.ParseFloat(toAmountStr, 64)
+	if err != nil {
+		handleResponse(c, "error is while converting to amount", http.StatusBadRequest, err.Error())
+		return
+	}
 
-	response, err := h.storage.Transaction().GetList(context.Background(), models.GetListRequest{
+	response, err := h.storage.Transaction().GetList(context.Background(), models.GetListTransactionsRequest{
 		Page:   page,
 		Limit:  limit,
-		Search: search,
+		FromAmount: fromAmount,
+		ToAmount: toAmount,
 	})
 
 	if err != nil {

@@ -125,7 +125,7 @@ func (s *staffRepo) GetList(ctx context.Context, request models.GetListRequest) 
 	countQuery = `select count(1) from staff where deleted_at is null `
 
 	if search != "" {
-		countQuery += fmt.Sprintf(`and name ilike '%%%s%%'`, search)
+		countQuery += fmt.Sprintf(`and name ilike '%%%s%%' or login ilike '%%%s%%' `, search, search)
 	}
 	if err := s.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting staff count", err.Error())
@@ -147,7 +147,7 @@ func (s *staffRepo) GetList(ctx context.Context, request models.GetListRequest) 
 	updated_at from staff where deleted_at is null`
 
 	if search != "" {
-		query += fmt.Sprintf(` where name ilike '%%%s%%'`, search)
+		query += fmt.Sprintf(` and name ilike '%%%s%%' or login ilike '%%%s%%' `, search, search)
 	}
 
 	query += ` LIMIT $1 OFFSET $2`

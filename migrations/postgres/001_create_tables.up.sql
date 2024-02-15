@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS sale (
     id UUID PRIMARY KEY,
     branch_id UUID REFERENCES branch(id),
     shop_assistent_id VARCHAR(10),
-    chashier_id  VARCHAR(10) NOT NULL,
+    cashier_id  VARCHAR(10) NOT NULL,
     payment_type VARCHAR(20) CHECK (payment_type IN('card', 'cash')),
     price numeric(75,4) NOT NULL,
     status  VARCHAR(20) CHECK (status IN('in_procces', 'succes', 'cancel')),
@@ -105,5 +105,3 @@ CREATE TABLE IF NOT EXISTS storage_transaction (
     updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
-
-

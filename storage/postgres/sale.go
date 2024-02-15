@@ -27,7 +27,7 @@ func (s *saleRepo) Create(ctx context.Context, sale models.CreateSale) (string, 
 
 	id := uuid.New()
 
-	query := `insert into sale (id, branch_id, shop_assistent_id, chashier_id, payment_type, price, status, client_name) values ($1, $2, $3, $4, $5, $6, $7, $8)`
+	query := `insert into sale (id, branch_id, shop_assistent_id, cashier_id, payment_type, price, status, client_name) values ($1, $2, $3, $4, $5, $6, $7, $8)`
 
 	_, err := s.pool.Exec(ctx, query,
 		id,
@@ -95,7 +95,7 @@ func (s *saleRepo) GetList(ctx context.Context, request models.GetListRequest) (
 	countQuery = `select count(1) from sale where deleted_at is null`
 
 	if search != "" {
-		countQuery += fmt.Sprintf(` and price ilike '%%%s%%'`, search)
+		countQuery += fmt.Sprintf(` and client_name ilike '%%%s%%' or payment_type ilike '%%%s%%'`, search, search)
 	}
 	if err := s.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting count", err.Error())
@@ -115,7 +115,7 @@ func (s *saleRepo) GetList(ctx context.Context, request models.GetListRequest) (
 	updated_at from sale where deleted_at is null`
 
 	if search != "" {
-		query += fmt.Sprintf(` where price ilike '%%%s%%'`, search)
+		query += fmt.Sprintf(` and client_name ilike '%%%s%%' or payment_type ilike '%%%s%%'`, search, search)
 	}
 
 	query += ` LIMIT $1 OFFSET $2`

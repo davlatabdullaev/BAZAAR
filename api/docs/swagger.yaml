@@ -158,8 +158,6 @@ definitions:
     type: object
   models.CreateStorageTransaction:
     properties:
-      created_at:
-        type: string
       price:
         type: number
       product_id:
@@ -531,8 +529,6 @@ definitions:
       staff_id:
         type: string
       storage_transaction_type:
-        type: string
-      updated_at:
         type: string
     type: object
   models.UpdateTarif:
@@ -2202,9 +2198,13 @@ paths:
         in: query
         name: limit
         type: string
-      - description: search
+      - description: from-amount
         in: query
-        name: search
+        name: from-amount
+        type: string
+      - description: to-amount
+        in: query
+        name: to-amount
         type: string
       produces:
       - application/json

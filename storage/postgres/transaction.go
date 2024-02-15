@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -100,25 +101,29 @@ func (t *transactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models
 	return transaction, nil
 }
 
-func (t *transactionRepo) GetList(ctx context.Context, request models.GetListRequest) (models.TransactionsResponse, error) {
-
+func (t *transactionRepo) GetList(ctx context.Context, request models.GetListTransactionsRequest) (models.TransactionsResponse, error) {
 	var (
-		updatedAt         = sql.NullTime{}
-		transactions      = []models.Transaction{}
-		count             = 0
-		query, countQuery string
+		updatedAt = sql.NullTime{}
 		page              = request.Page
 		offset            = (page - 1) * request.Limit
-		search            = request.Search
+		transactions      = []models.Transaction{}
+		fromAmount        = request.FromAmount
+		toAmount          = request.ToAmount
+		count             = 0
+		query, countQuery string
 	)
 
 	countQuery = `select count(1) from transaction where deleted_at is null `
+	if fromAmount != 0 && toAmount != 0 {
+		countQuery += fmt.Sprintf(` and amount between %f and %f `, fromAmount, toAmount)
+	} else if fromAmount != 0 {
+		countQuery += ` and amount >= ` + strconv.FormatFloat(fromAmount, 'f', 2, 64)
+	} else {
+		countQuery += ` and amount <= ` + strconv.FormatFloat(toAmount, 'f', 2, 64)
 
-	if search != "" {
-		countQuery += fmt.Sprintf(`and description ilike '%%%s%%'`, search)
 	}
 	if err := t.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
-		fmt.Println("error is while selecting transaction count", err.Error())
+		fmt.Println("error is while scanning row", err.Error())
 		return models.TransactionsResponse{}, err
 	}
 
@@ -127,22 +132,26 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListReq
 	sale_id, 
 	staff_id, 
 	transaction_type, 
-	source_type,
-	amount, 
-	description,
+	source_type, 
+	amount,
+    description, 
 	created_at, 
-	updated_at
-	from transaction 
-	where deleted_at is null`
+	updated_at from transaction where deleted_at is null `
 
-	if search != "" {
-		query += fmt.Sprintf(` where description ilike '%%%s%%'`, search)
+	if fromAmount != 0 && toAmount != 0 {
+		countQuery += fmt.Sprintf(` and amount between %f and %f `, fromAmount, toAmount)
+	} else if fromAmount != 0  {
+		countQuery += ` and amount >= ` + strconv.FormatFloat(fromAmount, 'f', 2, 64)
+	} else {
+		countQuery += ` and amount <= ` + strconv.FormatFloat(toAmount, 'f', 2, 64)
+
 	}
 
-	query += ` LIMIT $1 OFFSET $2`
+	query += ` LIMIT $1 OFFSET $2 `
+
 	rows, err := t.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
-		fmt.Println("error is while selecting transaction", err.Error())
+		fmt.Println("error is while selecting all transaction", err.Error())
 		return models.TransactionsResponse{}, err
 	}
 
@@ -158,8 +167,8 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListReq
 			&transaction.Description,
 			&transaction.CreatedAt,
 			&updatedAt,
-		); err != nil {
-			fmt.Println("error is while scanning transaction data", err.Error())
+			); err != nil {
+			fmt.Println("error is while scanning rows", err.Error())
 			return models.TransactionsResponse{}, err
 		}
 
@@ -168,9 +177,7 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListReq
 		}
 
 		transactions = append(transactions, transaction)
-
 	}
-
 	return models.TransactionsResponse{
 		Transactions: transactions,
 		Count:        count,
@@ -180,8 +187,14 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListReq
 func (t *transactionRepo) Update(ctx context.Context, request models.UpdateTransaction) (string, error) {
 
 	query := `update transaction
-   set sale_id = $1, staff_id = $2, transaction_type = $3,
-   source_type = $4, amount = $5, description = $6, updated_at = $7
+   set 
+   sale_id = $1, 
+   staff_id = $2, 
+   transaction_type = $3,
+   source_type = $4, 
+   amount = $5, 
+   description = $6, 
+   updated_at = $7
    where id = $8
    `
 	_, err := t.pool.Exec(ctx, query,

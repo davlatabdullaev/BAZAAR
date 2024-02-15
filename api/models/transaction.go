@@ -34,6 +34,14 @@ type UpdateTransaction struct {
 	Description     string    `json:"description"`
 }
 
+
+type GetListTransactionsRequest struct {
+	Page       int     `json:"page"`
+	Limit      int     `json:"limit"`
+	FromAmount float64 `json:"from_amount"`
+	ToAmount   float64 `json:"to_amount"`
+}
+
 type TransactionsResponse struct {
 	Transactions []Transaction `json:"transaction"`
 	Count        int           `json:"count"`

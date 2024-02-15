@@ -2488,8 +2488,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "search",
-                        "name": "search",
+                        "description": "from-amount",
+                        "name": "from-amount",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "to-amount",
+                        "name": "to-amount",
                         "in": "query"
                     }
                 ],
@@ -2973,9 +2979,6 @@ const docTemplate = `{
         "models.CreateStorageTransaction": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string"
-                },
                 "price": {
                     "type": "number"
                 },
@@ -3544,9 +3547,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "storage_transaction_type": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }

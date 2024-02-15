@@ -20,7 +20,6 @@ type CreateStorageTransaction struct {
 	StorageTransactionType string    `json:"storage_transaction_type"`
 	Price                  float64   `json:"price"`
 	Quantity               float64   `json:"quantity"`
-	CreatedAt              time.Time `json:"created_at"`
 }
 
 type UpdateStorageTransaction struct {
@@ -30,7 +29,6 @@ type UpdateStorageTransaction struct {
 	StorageTransactionType string    `json:"storage_transaction_type"`
 	Price                  float64   `json:"price"`
 	Quantity               float64   `json:"quantity"`
-	UpdatedAt              time.Time `json:"updated_at"`
 }
 
 type StorageTransactionsResponse struct {
