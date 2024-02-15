@@ -2488,14 +2488,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "from-amount",
-                        "name": "from-amount",
+                        "description": "from_amount",
+                        "name": "from_amount",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "to-amount",
-                        "name": "to-amount",
+                        "description": "to_amount",
+                        "name": "to_amount",
                         "in": "query"
                     }
                 ],

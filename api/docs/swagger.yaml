@@ -2198,13 +2198,13 @@ paths:
         in: query
         name: limit
         type: string
-      - description: from-amount
+      - description: from_amount
         in: query
-        name: from-amount
+        name: from_amount
         type: string
-      - description: to-amount
+      - description: to_amount
         in: query
-        name: to-amount
+        name: to_amount
         type: string
       produces:
       - application/json

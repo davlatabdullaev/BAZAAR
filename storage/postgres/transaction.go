@@ -116,9 +116,9 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListTra
 	countQuery = `select count(1) from transaction where deleted_at is null `
 	if fromAmount != 0 && toAmount != 0 {
 		countQuery += fmt.Sprintf(` and amount between %f and %f `, fromAmount, toAmount)
-	} else if fromAmount != 0 {
+	} else if fromAmount != 0 && toAmount == 0{
 		countQuery += ` and amount >= ` + strconv.FormatFloat(fromAmount, 'f', 2, 64)
-	} else {
+	} else if toAmount != 0 && fromAmount == 0{ 
 		countQuery += ` and amount <= ` + strconv.FormatFloat(toAmount, 'f', 2, 64)
 
 	}
@@ -139,11 +139,11 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListTra
 	updated_at from transaction where deleted_at is null `
 
 	if fromAmount != 0 && toAmount != 0 {
-		countQuery += fmt.Sprintf(` and amount between %f and %f `, fromAmount, toAmount)
-	} else if fromAmount != 0  {
-		countQuery += ` and amount >= ` + strconv.FormatFloat(fromAmount, 'f', 2, 64)
-	} else {
-		countQuery += ` and amount <= ` + strconv.FormatFloat(toAmount, 'f', 2, 64)
+		query += fmt.Sprintf(` and amount between %f and %f `, fromAmount, toAmount)
+	} else if fromAmount != 0 && toAmount == 0  {
+		query += ` and amount >= ` + strconv.FormatFloat(fromAmount, 'f', 2, 64)
+	} else if toAmount != 0 && fromAmount== 0 {
+		query += ` and amount <= ` + strconv.FormatFloat(toAmount, 'f', 2, 64)
 
 	}
 

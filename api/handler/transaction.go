@@ -94,8 +94,8 @@ func (h Handler) GetTransactionByID(c *gin.Context) {
 // @Produce      json
 // @Param        page query string false "page"
 // @Param        limit query string false "limit"
-// @Param		 from-amount query string false "from-amount"
-// @Param		 to-amount query string false "to-amount"
+// @Param		 from_amount query string false "from_amount"
+// @Param		 to_amount query string false "to_amount"
 // @Success      200  {object}  models.TransactionsResponse
 // @Failure      400  {object}  models.Response
 // @Failure      404  {object}  models.Response
@@ -123,18 +123,25 @@ func (h Handler) GetTransactionList(c *gin.Context) {
 		return
 	}
 
-	toAmountStr := c.DefaultQuery("to-amount", fmt.Sprintf("%f", math.MaxFloat64))
+	toAmountStr := c.DefaultQuery("to_amount", fmt.Sprintf("%f", math.MaxFloat64))
 	toAmount, err = strconv.ParseFloat(toAmountStr, 64)
 	if err != nil {
 		handleResponse(c, "error is while converting to amount", http.StatusBadRequest, err.Error())
 		return
 	}
 
+	fromAmountStr := c.DefaultQuery("from-amount", "0")
+	fromAmount, err = strconv.ParseFloat(fromAmountStr, 64)
+	if err != nil {
+		handleResponse(c, "error is while converting from amount", http.StatusBadRequest, err.Error())
+		return
+	}
+
 	response, err := h.storage.Transaction().GetList(context.Background(), models.GetListTransactionsRequest{
-		Page:   page,
-		Limit:  limit,
+		Page:       page,
+		Limit:      limit,
 		FromAmount: fromAmount,
-		ToAmount: toAmount,
+		ToAmount:   toAmount,
 	})
 
 	if err != nil {
