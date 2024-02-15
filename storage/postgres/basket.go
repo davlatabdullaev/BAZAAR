@@ -204,7 +204,7 @@ func (b *basketRepo) UpdateBasketQuantity(ctx context.Context, request models.Up
 
 	query := `update basket
    set 
-    quantity = $1,
+    quantity = quantity + $1,
     updated_at = $2 
    where id = $3 
    `
