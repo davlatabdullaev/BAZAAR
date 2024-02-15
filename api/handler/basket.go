@@ -4,7 +4,6 @@ import (
 	"bazaar/api/models"
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -78,10 +77,11 @@ func (h Handler) CreateBasket(c *gin.Context) {
 
 		if foundProduct && foundSale {
 
-             
+			h.storage.Basket().UpdateBasketQuantity(context.Background(), models.UpdateBasketQuantity{
+				ID:       basketForProductID.Baskets[0].ID,
+				Quantity: createBasket.Quantity,
+			})
 
-			// ok
-             fmt.Println("ok")
 		}
 
 		id, err := h.storage.Basket().Create(context.Background(), createBasket)
@@ -271,3 +271,49 @@ func (h Handler) DeleteBasket(c *gin.Context) {
 	handleResponse(c, "", http.StatusOK, "data succesfully deleted")
 
 }
+
+// // UpdateBasket godoc
+// // @Router       /basket/{id} [PATCH]
+// // @Summary      Update basket quantity by id
+// // @Description  Update basket quantity by id
+// // @Tags         basket
+// // @Accept       json
+// // @Produce      json
+// // @Param        id path string true "basket id"
+// // @Param        basket body models.UpdateBasketQuantity true "basket"
+// // @Success      200  {object}  models.Basket
+// // @Failure      400  {object}  models.Response
+// // @Failure      404  {object}  models.Response
+// // @Failure      500  {object}  models.Response
+// func (h Handler) UpdateBasketQuantity(c *gin.Context) {
+
+// 	updateBasketQuantity := models.UpdateBasketQuantity{}
+
+// 	uid := c.Param("id")
+// 	if uid == "" {
+// 		handleResponse(c, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
+// 		return
+// 	}
+
+// 	if err := c.ShouldBindJSON(&updateBasketQuantity); err != nil {
+// 		handleResponse(c, "error while reading body", http.StatusBadRequest, err.Error())
+// 		return
+// 	}
+
+// 	id, err := h.storage.Basket().UpdateBasketQuantity(context.Background(), updateBasketQuantity)
+// 	if err != nil {
+// 		handleResponse(c, "error while updating basket quantity", http.StatusInternalServerError, err.Error())
+// 		return
+// 	}
+
+// 	basket, err := h.storage.Basket().Get(context.Background(), models.PrimaryKey{
+// 		ID: id,
+// 	})
+// 	if err != nil {
+// 		handleResponse(c, "error while getting basket by id", http.StatusInternalServerError, err)
+// 		return
+// 	}
+
+// 	handleResponse(c, "", http.StatusOK, basket)
+
+// }

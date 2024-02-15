@@ -198,3 +198,25 @@ func (b *basketRepo) Delete(ctx context.Context, id string) error {
 	}
 	return nil
 }
+
+
+func (b *basketRepo) UpdateBasketQuantity(ctx context.Context, request models.UpdateBasketQuantity) (string, error) {
+
+	query := `update basket
+   set 
+    quantity = $1,
+    updated_at = $2 
+   where id = $3 
+   `
+
+	_, err := b.pool.Exec(ctx, query,
+		request.Quantity,
+		time.Now(),
+		request.ID)
+	if err != nil {
+		log.Println("error while updating basket quantity...", err.Error())
+		return "", err
+	}
+
+	return request.ID, nil
+}

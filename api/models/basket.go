@@ -38,3 +38,8 @@ type GetBasketsListRequest struct {
 	Limit  int    `json:"limit"`
 	Search string `json:"search"`
 }
+
+type UpdateBasketQuantity struct {
+	ID       string `json:"id"`
+	Quantity int    `json:"quantity"`
+}

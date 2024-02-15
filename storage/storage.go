@@ -65,6 +65,7 @@ type IBasketRepo interface {
 	GetList(context.Context, models.GetBasketsListRequest) (models.BasketsResponse, error)
 	Update(context.Context, models.UpdateBasket) (string, error)
 	Delete(context.Context, string) error
+	UpdateBasketQuantity(context.Context, models.UpdateBasketQuantity) (string, error)
 }
 
 type IBranchRepo interface {
