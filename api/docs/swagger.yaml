@@ -8,7 +8,7 @@ definitions:
       id:
         type: string
       price:
-        type: string
+        type: number
       product_id:
         type: string
       quantity:
@@ -78,7 +78,7 @@ definitions:
   models.CreateBasket:
     properties:
       price:
-        type: string
+        type: number
       product_id:
         type: string
       quantity:
@@ -256,6 +256,13 @@ definitions:
       updated_at:
         type: string
     type: object
+  models.SaleRequest:
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+    type: object
   models.SalesResponse:
     properties:
       count:
@@ -426,7 +433,7 @@ definitions:
       id:
         type: string
       price:
-        type: string
+        type: number
       product_id:
         type: string
       quantity:
@@ -1095,6 +1102,41 @@ paths:
       summary: Update category by id
       tags:
       - category
+  /end_sell/{id}:
+    put:
+      consumes:
+      - application/json
+      description: end sell
+      parameters:
+      - description: sale_id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: sale request
+        in: body
+        name: SaleRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.SaleRequest'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: end sell
+      tags:
+      - sell
   /product:
     get:
       consumes:

@@ -813,6 +813,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/end_sell/{id}": {
+            "put": {
+                "description": "end sell",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sell"
+                ],
+                "summary": "end sell",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "sale_id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "sale request",
+                        "name": "SaleRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SaleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/product": {
             "get": {
                 "description": "Get products list",
@@ -2747,7 +2800,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "price": {
-                    "type": "string"
+                    "type": "number"
                 },
                 "product_id": {
                     "type": "string"
@@ -2855,7 +2908,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "price": {
-                    "type": "string"
+                    "type": "number"
                 },
                 "product_id": {
                     "type": "string"
@@ -3129,6 +3182,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.SaleRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "models.SalesResponse": {
             "type": "object",
             "properties": {
@@ -3389,7 +3453,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "price": {
-                    "type": "string"
+                    "type": "number"
                 },
                 "product_id": {
                     "type": "string"

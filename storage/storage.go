@@ -90,6 +90,7 @@ type ISaleRepo interface {
 	GetList(context.Context, models.GetListRequest) (models.SalesResponse, error)
 	Update(context.Context, models.UpdateSale) (string, error)
 	Delete(context.Context, string) error
+	UpdateSalePrice(context.Context, models.SaleRequest) (string, error)
 }
 
 type IStorageRepo interface {

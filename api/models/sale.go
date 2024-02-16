@@ -27,17 +27,23 @@ type CreateSale struct {
 }
 
 type UpdateSale struct {
-	ID              string    `json:"id"`
-	BranchID        string    `json:"branch_id"`
-	ShopAssistantID string    `json:"shop_assistent_id"`
-	CashierID       string    `json:"cashier_id"`
-	PaymentType     string    `json:"payment_type"`
-	Price           string    `json:"price"`
-	Status          string    `json:"status"`
-	ClientName      string    `json:"client_name"`
+	ID              string `json:"id"`
+	BranchID        string `json:"branch_id"`
+	ShopAssistantID string `json:"shop_assistent_id"`
+	CashierID       string `json:"cashier_id"`
+	PaymentType     string `json:"payment_type"`
+	Price           string `json:"price"`
+	Status          string `json:"status"`
+	ClientName      string `json:"client_name"`
 }
 
 type SalesResponse struct {
 	Sales []Sale `json:"sales"`
 	Count int    `json:"count"`
+}
+
+type SaleRequest struct {
+	ID         string `json:"id"`
+	TotalPrice int    `json:"-"`
+	Status     string `json:"status"`
 }

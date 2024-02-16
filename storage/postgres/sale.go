@@ -202,3 +202,23 @@ func (s *saleRepo) Delete(ctx context.Context, id string) error {
 
 	return nil
 }
+
+func (s *saleRepo) UpdateSalePrice(ctx context.Context, request models.SaleRequest) (string, error) {
+
+	query := `update sale set 
+  price = $1,
+  status = $2,
+  updated_at = $3 
+  where id = $4 `
+
+	if rowsAffected, err := s.pool.Exec(ctx, query, request.TotalPrice, request.Status, time.Now(), request.ID); err != nil {
+		if r := rowsAffected.RowsAffected(); r == 0 {
+			log.Println("error in rows affected ", err.Error())
+			return "", err
+		}
+		log.Println("error while updating sale price and status...", err.Error())
+		return "", err
+	}
+	return request.ID, nil
+
+}
