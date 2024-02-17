@@ -2590,7 +2590,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateTransaction"
+                            "$ref": "#/definitions/models.CreateTransactions"
                         }
                     }
                 ],
@@ -2598,7 +2598,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Transaction"
+                            "$ref": "#/definitions/models.Transactions"
                         }
                     },
                     "400": {
@@ -2648,7 +2648,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Transaction"
+                            "$ref": "#/definitions/models.Transactions"
                         }
                     },
                     "400": {
@@ -2697,7 +2697,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateTransaction"
+                            "$ref": "#/definitions/models.UpdateTransactions"
                         }
                     }
                 ],
@@ -2979,7 +2979,7 @@
             "type": "object",
             "properties": {
                 "balance": {
-                    "type": "string"
+                    "type": "number"
                 },
                 "birth_date": {
                     "type": "string"
@@ -3058,7 +3058,7 @@
                 }
             }
         },
-        "models.CreateTransaction": {
+        "models.CreateTransactions": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -3206,7 +3206,7 @@
                     "type": "integer"
                 },
                 "balance": {
-                    "type": "string"
+                    "type": "number"
                 },
                 "birth_date": {
                     "type": "string"
@@ -3389,7 +3389,7 @@
                 }
             }
         },
-        "models.Transaction": {
+        "models.Transactions": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -3433,7 +3433,7 @@
                 "transaction": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Transaction"
+                        "$ref": "#/definitions/models.Transactions"
                     }
                 }
             }
@@ -3536,7 +3536,7 @@
             "type": "object",
             "properties": {
                 "balance": {
-                    "type": "string"
+                    "type": "number"
                 },
                 "birth_date": {
                     "type": "string"
@@ -3627,7 +3627,7 @@
                 }
             }
         },
-        "models.UpdateTransaction": {
+        "models.UpdateTransactions": {
             "type": "object",
             "properties": {
                 "amount": {

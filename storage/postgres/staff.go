@@ -78,6 +78,7 @@ func (s *staffRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Staff
 	age, 
 	gender, 
 	login, 
+	balance,
 	password, 
 	created_at, 
 	updated_at from staff where deleted_at is null and id = $1`
@@ -94,6 +95,7 @@ func (s *staffRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Staff
 		&staff.Age,
 		&staff.Gender,
 		&staff.Login,
+		&staff.Balance,
 		&staff.Password,
 		&staff.CreatedAt,
 		&updatedAt,
@@ -141,7 +143,8 @@ func (s *staffRepo) GetList(ctx context.Context, request models.GetListRequest) 
 	birth_date::text, 
 	age, 
 	gender, 
-	login, 
+	login,
+	balance, 
 	password, 
 	created_at, 
 	updated_at from staff where deleted_at is null`
@@ -169,6 +172,7 @@ func (s *staffRepo) GetList(ctx context.Context, request models.GetListRequest) 
 			&staff.Age,
 			&staff.Gender,
 			&staff.Login,
+			&staff.Balance,
 			&staff.Password,
 			&staff.CreatedAt,
 			&updatedAt,
@@ -243,4 +247,26 @@ func (s *staffRepo) Delete(ctx context.Context, id string) error {
 		return err
 	}
 	return nil
+}
+
+func (s *staffRepo) UpdateStaffBalance(ctx context.Context, request models.UpdateStaffBalance) error {
+
+	fmt.Println("pg 123: ", request)
+
+	query := `update staff
+	 set 
+	 balance = balance + $1,
+	 updated_at = $2
+	 where id = $3
+	 `
+
+	_, err := s.pool.Exec(ctx, query, request.Balance, time.Now(), request.ID)
+
+	if err != nil {
+		log.Println("error while updating staff balance", err.Error())
+		return err
+	}
+
+	return nil
+
 }

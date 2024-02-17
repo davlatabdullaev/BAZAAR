@@ -8,7 +8,7 @@ type Staff struct {
 	TarifID   string    `json:"tarif_id"`
 	TypeStaff string    `json:"type_staff"`
 	Name      string    `json:"name"`
-	Balance   string    `json:"balance"`
+	Balance   float64   `json:"balance"`
 	BirthDate string    `json:"birth_date"`
 	Age       int       `json:"age"`
 	Gender    string    `json:"gender"`
@@ -20,31 +20,36 @@ type Staff struct {
 }
 
 type CreateStaff struct {
-	BranchID  string    `json:"branch_id"`
-	TarifID   string    `json:"tarif_id"`
-	TypeStaff string    `json:"type_staff"`
-	Name      string    `json:"name"`
-	Balance   string    `json:"balance"`
-	BirthDate string    `json:"birth_date"`
-	Gender    string    `json:"gender"`
-	Login     string    `json:"login"`
-	Password  string    `json:"password"`
+	BranchID  string  `json:"branch_id"`
+	TarifID   string  `json:"tarif_id"`
+	TypeStaff string  `json:"type_staff"`
+	Name      string  `json:"name"`
+	Balance   float64 `json:"balance"`
+	BirthDate string  `json:"birth_date"`
+	Gender    string  `json:"gender"`
+	Login     string  `json:"login"`
+	Password  string  `json:"password"`
 }
 
 type UpdateStaff struct {
-	ID        string    `json:"id"`
-	BranchID  string    `json:"branch_id"`
-	TarifID   string    `json:"tarif_id"`
-	TypeStaff string    `json:"type_staff"`
-	Name      string    `json:"name"`
-	Balance   string    `json:"balance"`
-	BirthDate string    `json:"birth_date"`
-	Gender    string    `json:"gender"`
-	Login     string    `json:"login"`
-	Password  string    `json:"password"`
+	ID        string  `json:"id"`
+	BranchID  string  `json:"branch_id"`
+	TarifID   string  `json:"tarif_id"`
+	TypeStaff string  `json:"type_staff"`
+	Name      string  `json:"name"`
+	Balance   float64 `json:"balance"`
+	BirthDate string  `json:"birth_date"`
+	Gender    string  `json:"gender"`
+	Login     string  `json:"login"`
+	Password  string  `json:"password"`
 }
 
 type StaffsResponse struct {
 	Staffs []Staff `json:"staffs"`
 	Count  int     `json:"count"`
+}
+
+type UpdateStaffBalance struct {
+	ID      string  `json:"id"`
+	Balance float64 `json:"balance"`
 }

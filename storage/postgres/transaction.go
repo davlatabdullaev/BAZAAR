@@ -24,11 +24,11 @@ func NewTransactionRepo(pool *pgxpool.Pool) storage.ITransactionRepo {
 	}
 }
 
-func (t *transactionRepo) Create(ctx context.Context, request models.CreateTransaction) (string, error) {
+func (t *transactionRepo) Create(ctx context.Context, request models.CreateTransactions) (string, error) {
 
 	id := uuid.New()
 
-	query := `insert into transaction (
+	query := `insert into transactions (
 		id, 
 		sale_id, 
 		staff_id, 
@@ -56,11 +56,11 @@ func (t *transactionRepo) Create(ctx context.Context, request models.CreateTrans
 	return id.String(), nil
 }
 
-func (t *transactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Transaction, error) {
+func (t *transactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Transactions, error) {
 
 	var updatedAt = sql.NullTime{}
 
-	transaction := models.Transaction{}
+	transaction := models.Transactions{}
 
 	query := `select 
 	id, 
@@ -72,7 +72,7 @@ func (t *transactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models
 	description, 
 	created_at, 
 	updated_at 
-	from transaction
+	from transactions
 	 where deleted_at is null and id = $1`
 
 	row := t.pool.QueryRow(ctx, query, id.ID)
@@ -91,7 +91,7 @@ func (t *transactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models
 
 	if err != nil {
 		log.Println("error while selecting transaction data", err.Error())
-		return models.Transaction{}, err
+		return models.Transactions{}, err
 	}
 
 	if updatedAt.Valid {
@@ -103,22 +103,22 @@ func (t *transactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models
 
 func (t *transactionRepo) GetList(ctx context.Context, request models.GetListTransactionsRequest) (models.TransactionsResponse, error) {
 	var (
-		updatedAt = sql.NullTime{}
+		updatedAt         = sql.NullTime{}
 		page              = request.Page
 		offset            = (page - 1) * request.Limit
-		transactions      = []models.Transaction{}
+		transactions      = []models.Transactions{}
 		fromAmount        = request.FromAmount
 		toAmount          = request.ToAmount
 		count             = 0
 		query, countQuery string
 	)
 
-	countQuery = `select count(1) from transaction where deleted_at is null `
+	countQuery = `select count(1) from transactions where deleted_at is null `
 	if fromAmount != 0 && toAmount != 0 {
 		countQuery += fmt.Sprintf(` and amount between %f and %f `, fromAmount, toAmount)
-	} else if fromAmount != 0 && toAmount == 0{
+	} else if fromAmount != 0 && toAmount == 0 {
 		countQuery += ` and amount >= ` + strconv.FormatFloat(fromAmount, 'f', 2, 64)
-	} else if toAmount != 0 && fromAmount == 0{ 
+	} else if toAmount != 0 && fromAmount == 0 {
 		countQuery += ` and amount <= ` + strconv.FormatFloat(toAmount, 'f', 2, 64)
 
 	}
@@ -136,13 +136,13 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListTra
 	amount,
     description, 
 	created_at, 
-	updated_at from transaction where deleted_at is null `
+	updated_at from transactions where deleted_at is null `
 
 	if fromAmount != 0 && toAmount != 0 {
 		query += fmt.Sprintf(` and amount between %f and %f `, fromAmount, toAmount)
-	} else if fromAmount != 0 && toAmount == 0  {
+	} else if fromAmount != 0 && toAmount == 0 {
 		query += ` and amount >= ` + strconv.FormatFloat(fromAmount, 'f', 2, 64)
-	} else if toAmount != 0 && fromAmount== 0 {
+	} else if toAmount != 0 && fromAmount == 0 {
 		query += ` and amount <= ` + strconv.FormatFloat(toAmount, 'f', 2, 64)
 
 	}
@@ -156,7 +156,7 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListTra
 	}
 
 	for rows.Next() {
-		transaction := models.Transaction{}
+		transaction := models.Transactions{}
 		if err = rows.Scan(
 			&transaction.ID,
 			&transaction.SaleID,
@@ -167,7 +167,7 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListTra
 			&transaction.Description,
 			&transaction.CreatedAt,
 			&updatedAt,
-			); err != nil {
+		); err != nil {
 			fmt.Println("error is while scanning rows", err.Error())
 			return models.TransactionsResponse{}, err
 		}
@@ -184,9 +184,9 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListTra
 	}, nil
 }
 
-func (t *transactionRepo) Update(ctx context.Context, request models.UpdateTransaction) (string, error) {
+func (t *transactionRepo) Update(ctx context.Context, request models.UpdateTransactions) (string, error) {
 
-	query := `update transaction
+	query := `update transactions
    set 
    sale_id = $1, 
    staff_id = $2, 
@@ -217,7 +217,7 @@ func (t *transactionRepo) Update(ctx context.Context, request models.UpdateTrans
 func (t *transactionRepo) Delete(ctx context.Context, id string) error {
 
 	query := `
-	update transaction
+	update transactions
 	 set deleted_at = $1
 	  where id = $2
 	`
@@ -226,6 +226,99 @@ func (t *transactionRepo) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		log.Println("error while deleting transaction by id", err.Error())
 		return err
+	}
+
+	return nil
+}
+
+func (t *transactionRepo) UpdateStaffBalanceAndCreateTransaction(ctx context.Context, request models.UpdateStaffBalanceAndCreateTransaction) error {
+
+	transaction, err := t.pool.Begin(ctx)
+
+	defer func() {
+
+		if err != nil {
+			transaction.Rollback(ctx)
+		} else {
+			transaction.Commit(ctx)
+		}
+
+	}()
+
+	queryForUpdateStaffBalance := `update staff set
+	 balance = balance + $1,
+    updated_at = $2
+	  where id = $3`
+
+	_, err = transaction.Exec(ctx, queryForUpdateStaffBalance, request.UpdateCashierBalance.Amount, time.Now(), request.UpdateCashierBalance.StaffID)
+	if err != nil {
+		log.Println("error while update staff balance")
+		return err
+	}
+
+	queryForCreateTransaction := `insert into transactions (
+		id, 
+		sale_id, 
+		staff_id, 
+		transaction_type,
+		source_type, 
+		amount, 
+		description) 
+	values 
+	($1, $2, $3, $4, $5, $6, $7)`
+
+	_, err = transaction.Exec(ctx, queryForCreateTransaction,
+		uuid.New().String(),
+		request.SaleID,
+		request.UpdateCashierBalance.StaffID,
+		request.TransactionType,
+		request.SourceType,
+		request.Amount,
+		request.Description,
+	)
+	if err != nil {
+		log.Println("error while creating transaction data", err.Error())
+		return err
+	}
+
+	if request.UpdateShopAssistantBalance.StaffID != "" {
+
+		queryForUpdateStaffBalance := `update staff set
+	 balance = balance + $1,
+     updated_at = $2
+	 where id = $3`
+
+		_, err = transaction.Exec(ctx, queryForUpdateStaffBalance, request.UpdateShopAssistantBalance.Amount, time.Now(), request.UpdateShopAssistantBalance.StaffID)
+		if err != nil {
+			log.Println("error while update staff balance")
+			return err
+		}
+
+		queryForCreateTransaction := `insert into transactions (
+	   id, 
+	   sale_id, 
+	   staff_id, 
+	   transaction_type,
+	   source_type, 
+	   amount, 
+	   description) 
+   values 
+   ($1, $2, $3, $4, $5, $6, $7)`
+
+		_, err = transaction.Exec(ctx, queryForCreateTransaction,
+			uuid.New().String(),
+			request.SaleID,
+			request.UpdateShopAssistantBalance.StaffID,
+			request.TransactionType,
+			request.SourceType,
+			request.Amount,
+			request.Description,
+		)
+		if err != nil {
+			log.Println("error while creating transaction data", err.Error())
+			return err
+		}
+
 	}
 
 	return nil

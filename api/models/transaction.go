@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type Transaction struct {
+type Transactions struct {
 	ID              string    `json:"id"`
 	SaleID          string    `json:"sale_id"`
 	StaffID         string    `json:"staff_id"`
@@ -15,25 +15,24 @@ type Transaction struct {
 	DeletedAt       time.Time `json:"deleted_at"`
 }
 
-type CreateTransaction struct {
-	SaleID          string    `json:"sale_id"`
-	StaffID         string    `json:"staff_id"`
-	TransactionType string    `json:"transaction_type"`
-	SourceType      string    `json:"source_type"`
-	Amount          float64   `json:"amount"`
-	Description     string    `json:"description"`
+type CreateTransactions struct {
+	SaleID          string  `json:"sale_id"`
+	StaffID         string  `json:"staff_id"`
+	TransactionType string  `json:"transaction_type"`
+	SourceType      string  `json:"source_type"`
+	Amount          float64 `json:"amount"`
+	Description     string  `json:"description"`
 }
 
-type UpdateTransaction struct {
-	ID              string    `json:"id"`
-	SaleID          string    `json:"sale_id"`
-	StaffID         string    `json:"staff_id"`
-	TransactionType string    `json:"transaction_type"`
-	SourceType      string    `json:"source_type"`
-	Amount          float64   `json:"amount"`
-	Description     string    `json:"description"`
+type UpdateTransactions struct {
+	ID              string  `json:"id"`
+	SaleID          string  `json:"sale_id"`
+	StaffID         string  `json:"staff_id"`
+	TransactionType string  `json:"transaction_type"`
+	SourceType      string  `json:"source_type"`
+	Amount          float64 `json:"amount"`
+	Description     string  `json:"description"`
 }
-
 
 type GetListTransactionsRequest struct {
 	Page       int     `json:"page"`
@@ -43,6 +42,22 @@ type GetListTransactionsRequest struct {
 }
 
 type TransactionsResponse struct {
-	Transactions []Transaction `json:"transaction"`
-	Count        int           `json:"count"`
+	Transactions []Transactions `json:"transaction"`
+	Count        int            `json:"count"`
+}
+
+type UpdateStaffBalanceAndCreateTransaction struct {
+	UpdateCashierBalance       StaffInfo
+	UpdateShopAssistantBalance StaffInfo
+	SaleID                     string
+	StaffID                    string
+	TransactionType            string
+	SourceType                 string
+	Amount                     string
+	Description                string
+}
+
+type StaffInfo struct {
+	StaffID string
+	Amount  float64
 }

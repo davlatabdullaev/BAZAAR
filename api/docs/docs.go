@@ -2598,7 +2598,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateTransaction"
+                            "$ref": "#/definitions/models.CreateTransactions"
                         }
                     }
                 ],
@@ -2606,7 +2606,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Transaction"
+                            "$ref": "#/definitions/models.Transactions"
                         }
                     },
                     "400": {
@@ -2656,7 +2656,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Transaction"
+                            "$ref": "#/definitions/models.Transactions"
                         }
                     },
                     "400": {
@@ -2705,7 +2705,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateTransaction"
+                            "$ref": "#/definitions/models.UpdateTransactions"
                         }
                     }
                 ],
@@ -2987,7 +2987,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "balance": {
-                    "type": "string"
+                    "type": "number"
                 },
                 "birth_date": {
                     "type": "string"
@@ -3066,7 +3066,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateTransaction": {
+        "models.CreateTransactions": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -3214,7 +3214,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "balance": {
-                    "type": "string"
+                    "type": "number"
                 },
                 "birth_date": {
                     "type": "string"
@@ -3397,7 +3397,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Transaction": {
+        "models.Transactions": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -3441,7 +3441,7 @@ const docTemplate = `{
                 "transaction": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Transaction"
+                        "$ref": "#/definitions/models.Transactions"
                     }
                 }
             }
@@ -3544,7 +3544,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "balance": {
-                    "type": "string"
+                    "type": "number"
                 },
                 "birth_date": {
                     "type": "string"
@@ -3635,7 +3635,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.UpdateTransaction": {
+        "models.UpdateTransactions": {
             "type": "object",
             "properties": {
                 "amount": {

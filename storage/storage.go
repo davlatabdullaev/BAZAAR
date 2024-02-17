@@ -33,6 +33,7 @@ type IStaffRepo interface {
 	GetList(context.Context, models.GetListRequest) (models.StaffsResponse, error)
 	Update(context.Context, models.UpdateStaff) (string, error)
 	Delete(context.Context, string) error
+	UpdateStaffBalance(context.Context, models.UpdateStaffBalance) error
 }
 
 type IStorageTransactionRepo interface {
@@ -52,11 +53,12 @@ type ITarifRepo interface {
 }
 
 type ITransactionRepo interface {
-	Create(context.Context, models.CreateTransaction) (string, error)
-	Get(context.Context, models.PrimaryKey) (models.Transaction, error)
+	Create(context.Context, models.CreateTransactions) (string, error)
+	Get(context.Context, models.PrimaryKey) (models.Transactions, error)
 	GetList(context.Context, models.GetListTransactionsRequest) (models.TransactionsResponse, error)
-	Update(context.Context, models.UpdateTransaction) (string, error)
+	Update(context.Context, models.UpdateTransactions) (string, error)
 	Delete(context.Context, string) error
+	UpdateStaffBalanceAndCreateTransaction(ctx context.Context, request models.UpdateStaffBalanceAndCreateTransaction) error
 }
 
 type IBasketRepo interface {

@@ -1,12 +1,12 @@
 CREATE OR REPLACE FUNCTION generate_barcode()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.barcode = LPAD(FLOOR(RANDOM() * 10000000000)::VARCHAR, 10, '0');
+    NEW.barcode = LPAD(FLOOR(RANDOM() * 100000000)::TEXT, 8, '0');
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER before_insert_product
+CREATE TRIGGER generate_barcode_trigger
 BEFORE INSERT ON product
 FOR EACH ROW
 WHEN (NEW.barcode IS NULL)

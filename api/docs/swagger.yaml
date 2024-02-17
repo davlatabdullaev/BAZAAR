@@ -129,7 +129,7 @@ definitions:
   models.CreateStaff:
     properties:
       balance:
-        type: string
+        type: number
       birth_date:
         type: string
       branch_id:
@@ -180,7 +180,7 @@ definitions:
       tarif_type:
         type: string
     type: object
-  models.CreateTransaction:
+  models.CreateTransactions:
     properties:
       amount:
         type: number
@@ -277,7 +277,7 @@ definitions:
       age:
         type: integer
       balance:
-        type: string
+        type: number
       birth_date:
         type: string
       branch_id:
@@ -396,7 +396,7 @@ definitions:
           $ref: '#/definitions/models.Tarif'
         type: array
     type: object
-  models.Transaction:
+  models.Transactions:
     properties:
       amount:
         type: number
@@ -425,7 +425,7 @@ definitions:
         type: integer
       transaction:
         items:
-          $ref: '#/definitions/models.Transaction'
+          $ref: '#/definitions/models.Transactions'
         type: array
     type: object
   models.UpdateBasket:
@@ -492,7 +492,7 @@ definitions:
   models.UpdateStaff:
     properties:
       balance:
-        type: string
+        type: number
       birth_date:
         type: string
       branch_id:
@@ -551,7 +551,7 @@ definitions:
       tarif_type:
         type: string
     type: object
-  models.UpdateTransaction:
+  models.UpdateTransactions:
     properties:
       amount:
         type: number
@@ -2280,14 +2280,14 @@ paths:
         name: transaction
         required: true
         schema:
-          $ref: '#/definitions/models.CreateTransaction'
+          $ref: '#/definitions/models.CreateTransactions'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Transaction'
+            $ref: '#/definitions/models.Transactions'
         "400":
           description: Bad Request
           schema:
@@ -2352,7 +2352,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Transaction'
+            $ref: '#/definitions/models.Transactions'
         "400":
           description: Bad Request
           schema:
@@ -2383,7 +2383,7 @@ paths:
         name: transaction
         required: true
         schema:
-          $ref: '#/definitions/models.UpdateTransaction'
+          $ref: '#/definitions/models.UpdateTransactions'
       produces:
       - application/json
       responses:

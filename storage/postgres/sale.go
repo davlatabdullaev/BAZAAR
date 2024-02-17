@@ -95,7 +95,7 @@ func (s *saleRepo) GetList(ctx context.Context, request models.GetListRequest) (
 	countQuery = `select count(1) from sale where deleted_at is null`
 
 	if search != "" {
-		countQuery += fmt.Sprintf(` and client_name ilike '%%%s%%' or payment_type ilike '%%%s%%'`, search, search)
+		countQuery += fmt.Sprintf(` and status ilike '%%%s%%' or payment_type ilike '%%%s%%'`, search, search)
 	}
 	if err := s.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
 		fmt.Println("error is while selecting count", err.Error())
@@ -115,7 +115,7 @@ func (s *saleRepo) GetList(ctx context.Context, request models.GetListRequest) (
 	updated_at from sale where deleted_at is null`
 
 	if search != "" {
-		query += fmt.Sprintf(` and client_name ilike '%%%s%%' or payment_type ilike '%%%s%%'`, search, search)
+		query += fmt.Sprintf(` and status ilike '%%%s%%' or payment_type ilike '%%%s%%'`, search, search)
 	}
 
 	query += ` LIMIT $1 OFFSET $2`

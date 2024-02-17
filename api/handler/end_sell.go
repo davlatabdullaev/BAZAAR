@@ -3,6 +3,7 @@ package handler
 import (
 	"bazaar/api/models"
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -53,10 +54,13 @@ func (h Handler) EndSale(c *gin.Context) {
 	for _, basket := range baskets.Baskets {
 		totalPrice += basket.Price
 		selectedProducts[basket.ProductID] = basket
+		
 	}
+	fmt.Println(totalPrice)
 
 	if request.Status == "cancel" {
 		totalPrice = 0
+		return
 	}
 
 	saleID, err := h.storage.Sale().UpdateSalePrice(context.Background(), models.SaleRequest{
@@ -75,24 +79,6 @@ func (h Handler) EndSale(c *gin.Context) {
 	if err != nil {
 		handleResponse(c, "error while get sale by id", http.StatusInternalServerError, err.Error())
 		return
-	}
-
-	if request.Status == "cancel" {
-		_, err := h.storage.Transaction().Create(context.Background(), models.CreateTransaction{
-			SaleID:          id,
-			StaffID:         sale.CashierID,
-			TransactionType: "withdraw",
-			SourceType:      "sales",
-			Amount:          totalPrice,
-			Description:     "sale cancelled",
-		})
-		if err != nil {
-			handleResponse(c, "error while creating transaction", http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		handleResponse(c, "succes", http.StatusOK, sale)
-
 	}
 
 	storageData, err := h.storage.Storage().GetList(context.Background(), models.GetListRequest{
@@ -124,8 +110,8 @@ func (h Handler) EndSale(c *gin.Context) {
 			}
 
 			_, err = h.storage.StorageTransaction().Create(context.Background(), models.CreateStorageTransaction{
-				StaffID:                sale.CashierID,
 				ProductID:              value.ProductID,
+				StaffID:                sale.CashierID,
 				StorageTransactionType: "minus",
 				Price:                  selectedProducts[value.ProductID].Price,
 				Quantity:               float64(selectedProducts[value.ProductID].Quantity),
@@ -138,6 +124,115 @@ func (h Handler) EndSale(c *gin.Context) {
 		}
 	}
 
-	
+	salesResponse, err := h.storage.Sale().Get(context.Background(), models.PrimaryKey{
+		ID: id,
+	})
 
+	if err != nil {
+		handleResponse(c, "error while getting sales list", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if salesResponse.Status == "succes" {
+
+		cashierResponse, err := h.storage.Staff().Get(context.Background(), models.PrimaryKey{
+			ID: sale.CashierID,
+		})
+
+		if err != nil {
+			handleResponse(c, "error while get staff data", http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		cashierTarifResponse, err := h.storage.Tarif().Get(context.Background(), models.PrimaryKey{
+			ID: cashierResponse.TarifID,
+		})
+		if err != nil {
+			handleResponse(c, "error while getting tarif by id", http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		shopAssistantResponse, err := h.storage.Staff().Get(context.Background(), models.PrimaryKey{
+			ID: sale.CashierID,
+		})
+
+		if err != nil {
+			handleResponse(c, "error while get staff data", http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		shopAssistantTarifResponse, err := h.storage.Tarif().Get(context.Background(), models.PrimaryKey{
+			ID: shopAssistantResponse.TarifID,
+		})
+		if err != nil {
+			handleResponse(c, "error while getting tarif by id", http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		amount := 0.0
+
+		if cashierTarifResponse.TarifType == "fixed" {
+
+			if salesResponse.PaymentType == "card" {
+				amount = (cashierTarifResponse.AmountForCard)
+			} else {
+				amount = (cashierTarifResponse.AmountForCash)
+			}
+
+		} else {
+
+			if salesResponse.
+				PaymentType == "card" {
+				amount = (cashierTarifResponse.AmountForCard) * totalPrice
+			} else {
+				amount = (cashierTarifResponse.AmountForCash) * totalPrice
+			}
+
+		}
+
+		reqToUpdate := models.UpdateStaffBalanceAndCreateTransaction{
+			UpdateCashierBalance: models.StaffInfo{
+				StaffID: cashierResponse.ID,
+				Amount:  amount,
+			},
+			SaleID:          id,
+			TransactionType: "topup",
+			SourceType:      "sales",
+			Amount:          salesResponse.Price,
+			Description:     "qwerty",
+		}
+
+		if salesResponse.ShopAssistantID != "" {
+
+			if shopAssistantTarifResponse.TarifType == "fixed" {
+
+				if salesResponse.PaymentType == "card" {
+					amount = (shopAssistantTarifResponse.AmountForCard)
+				} else {
+					amount = (shopAssistantTarifResponse.AmountForCash)
+				}
+
+			} else {
+
+				if salesResponse.PaymentType == "card" {
+					amount = (shopAssistantTarifResponse.AmountForCard) * totalPrice
+				} else {
+					amount = (shopAssistantTarifResponse.AmountForCash) * totalPrice
+
+				}
+
+			}
+
+			reqToUpdate.UpdateShopAssistantBalance.StaffID = shopAssistantResponse.ID
+			reqToUpdate.UpdateShopAssistantBalance.Amount = amount
+		}
+
+		err = h.storage.Transaction().UpdateStaffBalanceAndCreateTransaction(context.Background(), reqToUpdate)
+		if err != nil {
+			handleResponse(c, "error while update cashoier balance", http.StatusInternalServerError, err.Error())
+			return
+		}
+
+	}
 }
+

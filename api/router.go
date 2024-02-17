@@ -1,12 +1,13 @@
 package api
 
 import (
+	_ "bazaar/api/docs"
 	"bazaar/api/handler"
 	"bazaar/storage"
-    _"bazaar/api/docs"
+
 	"github.com/gin-gonic/gin"
-	"github.com/swaggo/gin-swagger" // gin-swagger middleware
-    "github.com/swaggo/files" // swagger embed files
+	swaggerFiles "github.com/swaggo/files"     // swagger embed files
+	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
 )
 
 // @title           BAZAAR
@@ -101,6 +102,7 @@ func New(store storage.IStorage) *gin.Engine {
 	// SELL
 
 	r.POST("sell/", h.StartSell)
+	r.PUT("end_sell/:id", h.EndSale)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return r

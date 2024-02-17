@@ -20,13 +20,13 @@ import (
 // @Tags         transaction
 // @Accept       json
 // @Produce      json
-// @Param        transaction  body  models.CreateTransaction  true  "transaction data"
-// @Success      201  {object}  models.Transaction
+// @Param        transaction  body  models.CreateTransactions  true  "transaction data"
+// @Success      201  {object}  models.Transactions
 // @Failure      400  {object}  models.Response
 // @Failure      404  {object}  models.Response
 // @Failure      500  {object}  models.Response
 func (h Handler) CreateTransaction(c *gin.Context) {
-	createTransaction := models.CreateTransaction{}
+	createTransaction := models.CreateTransactions{}
 
 	if err := c.ShouldBindJSON(&createTransaction); err != nil {
 		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
@@ -58,7 +58,7 @@ func (h Handler) CreateTransaction(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "transaction"
-// @Success      200  {object}  models.Transaction
+// @Success      200  {object}  models.Transactions
 // @Failure      400  {object}  models.Response
 // @Failure      404  {object}  models.Response
 // @Failure      500  {object}  models.Response
@@ -161,13 +161,13 @@ func (h Handler) GetTransactionList(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "transaction id"
-// @Param        transaction body models.UpdateTransaction true "transaction"
+// @Param        transaction body models.UpdateTransactions true "transaction"
 // @Success      200  {object}  models.Tarif
 // @Failure      400  {object}  models.Response
 // @Failure      404  {object}  models.Response
 // @Failure      500  {object}  models.Response
 func (h Handler) UpdateTransaction(c *gin.Context) {
-	updateTransaction := models.UpdateTransaction{}
+	updateTransaction := models.UpdateTransactions{}
 
 	uid := c.Param("id")
 	if uid == "" {

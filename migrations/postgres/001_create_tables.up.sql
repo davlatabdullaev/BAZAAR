@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS tarif (
     deleted_at TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS staff (
-    id UUID PRIMARY KEY,
+    id VARCHAR(50) UNIQUE NOT NULL,
     branch_id UUID REFERENCES branch(id) NOT NULL,
     tarif_id UUID REFERENCES tarif(id) NOT NULL,
     type_staff VARCHAR(20) CHECK (type_staff IN('shop_assistant', 'chashier')) NOT NULL,
@@ -76,16 +76,16 @@ CREATE TABLE IF NOT EXISTS staff (
     birth_date date NOT NULL,
     age INT,
     gender VARCHAR(10) CHECK (gender IN('male', 'female')),
-    logIN VARCHAR(75) NOT NULL,
+    login VARCHAR(75) NOT NULL,
     password VARCHAR(128) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
-CREATE TABLE IF NOT EXISTS transaction (
+CREATE TABLE IF NOT EXISTS transactions (
     id UUID PRIMARY KEY,
     sale_id UUID REFERENCES sale(id),
-    staff_id UUID REFERENCES staff(id),
+    staff_id VARCHAR(50) REFERENCES staff(id),
     transaction_type VARCHAR(20) CHECK (transaction_type IN ('withdraw', 'topup')),
     source_type VARCHAR(20) CHECK (source_type IN ('bonus', 'sales')),
     amount numeric(75,4) NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS transaction (
 );
 CREATE TABLE IF NOT EXISTS storage_transaction (
     id UUID PRIMARY KEY,
-    staff_id UUID REFERENCES staff(id),
+    staff_id VARCHAR(50) REFERENCES staff(id),
     product_id UUID REFERENCES product(id),
     storage_transaction_type VARCHAR(20) CHECK (storage_transaction_type IN ('minus', 'plus')),
     price numeric(75,4) NOT NULL,
@@ -104,4 +104,16 @@ CREATE TABLE IF NOT EXISTS storage_transaction (
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP,
     deleted_at TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS income (
+    id UUID PRIMARY KEY,
+    branch_id UUID REFERENCES branch(id),
+    price    numeric(100,4)
+);
+CREATE TABLE IF NOT EXISTS income_product (
+    id UUID PRIMARY KEY,
+    income_id UUID REFERENCES income(id),
+    product_id UUID REFERENCES product(id),
+    price numeric(100,4),
+    count int
 );
