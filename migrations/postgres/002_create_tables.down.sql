@@ -1,3 +1,3 @@
-drop table if exists branch;
+drop table if exists income;
 
-drop table if exists category;
+drop table if exists income;
