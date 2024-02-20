@@ -19,6 +19,10 @@ func New(store storage.IStorage) *gin.Engine {
 
 	r := gin.New()
 
+	//BARCODE
+
+	r.POST("barcode", h.Barcode)
+
 	// BASKET
 
 	r.POST("basket", h.CreateBasket)
