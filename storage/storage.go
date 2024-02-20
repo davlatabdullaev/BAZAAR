@@ -81,7 +81,7 @@ type IBranchRepo interface {
 type IProductRepo interface {
 	Create(context.Context, models.CreateProduct) (string, error)
 	Get(context.Context, models.PrimaryKey) (models.Product, error)
-	GetList(context.Context, models.GetListRequest) (models.ProductsResponse, error)
+	GetList(context.Context, models.ProductGetListRequest) (models.ProductsResponse, error)
 	Update(context.Context, models.UpdateProduct) (string, error)
 	Delete(context.Context, string) error
 }

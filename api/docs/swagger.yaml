@@ -1,4 +1,13 @@
 definitions:
+  models.Barcode:
+    properties:
+      barcode:
+        type: integer
+      count:
+        type: integer
+      sale_id:
+        type: string
+    type: object
   models.Basket:
     properties:
       created_at:
@@ -210,7 +219,7 @@ definitions:
       name:
         type: string
       price:
-        type: string
+        type: number
       updated_at:
         type: string
     type: object
@@ -574,6 +583,40 @@ info:
   title: BAZAAR
   version: "1.0"
 paths:
+  /barcode:
+    post:
+      consumes:
+      - application/json
+      description: barcode
+      parameters:
+      - description: info
+        in: body
+        name: info
+        required: true
+        schema:
+          $ref: '#/definitions/models.Barcode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: barcode
+      tags:
+      - barcode
   /basket:
     get:
       consumes:

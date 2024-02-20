@@ -80,7 +80,7 @@ func (p *productRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Pro
 	return product, nil
 }
 
-func (p *productRepo) GetList(ctx context.Context, request models.GetListRequest) (models.ProductsResponse, error) {
+func (p *productRepo) GetList(ctx context.Context, request models.ProductGetListRequest) (models.ProductsResponse, error) {
 
 	var (
 		updatedAt         = sql.NullTime{}

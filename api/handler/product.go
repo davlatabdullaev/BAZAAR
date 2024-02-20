@@ -103,6 +103,7 @@ func (h Handler) GetProductList(c *gin.Context) {
 		page, limit int
 		search      string
 		err         error
+		barcode     int
 	)
 
 	pageStr := c.DefaultQuery("page", "1")
@@ -121,10 +122,18 @@ func (h Handler) GetProductList(c *gin.Context) {
 
 	search = c.Query("search")
 
-	response, err := h.storage.Product().GetList(context.Background(), models.GetListRequest{
+
+	barcode, err = strconv.Atoi(c.DefaultQuery("barcode", "0"))
+	if err != nil {
+		handleResponse(c, "error is while converting barcode", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	response, err := h.storage.Product().GetList(context.Background(), models.ProductGetListRequest{
 		Page:   page,
 		Limit:  limit,
 		Search: search,
+		Barcode: barcode,
 	})
 
 	if err != nil {
