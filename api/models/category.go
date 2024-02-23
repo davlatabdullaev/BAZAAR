@@ -17,7 +17,7 @@ type CreateCategory struct {
 }
 
 type UpdateCategory struct {
-	ID        string    `json:"id"`
+	ID        string    `json:"-"`
 	Name      string    `json:"name"`
 	ParentID  string    `json:"parent_id"`
 }

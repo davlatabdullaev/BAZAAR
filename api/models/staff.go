@@ -32,7 +32,7 @@ type CreateStaff struct {
 }
 
 type UpdateStaff struct {
-	ID        string  `json:"id"`
+	ID        string  `json:"-"`
 	BranchID  string  `json:"branch_id"`
 	TarifID   string  `json:"tarif_id"`
 	TypeStaff string  `json:"type_staff"`

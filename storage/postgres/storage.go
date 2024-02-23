@@ -185,3 +185,21 @@ func (s *storageRepo) Delete(ctx context.Context, id string) error {
 
 	return nil
 }
+
+func (s *storageRepo) UpdateCount(ctx context.Context, request models.UpdateCount) error {
+
+	query := `update storage set 
+	count = count + $1,
+	updated_at = $2
+	where id = $3
+	`
+
+	_, err := s.pool.Exec(ctx, query, request.Count, time.Now(), request.ID)
+	if err != nil {
+		log.Println("error while update storage count", err.Error())
+		return err
+	}
+
+	return nil
+
+}

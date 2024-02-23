@@ -122,3 +122,11 @@ func (s Store) Sale() storage.ISaleRepo {
 func (s Store) Storage() storage.IStorageRepo {
 	return NewStorageRepo(s.pool)
 }
+
+func (s Store) Income() storage.IIncomeRepo {
+	return NewIncomeRepo(s.pool)
+}
+
+func (s Store) IncomeProduct() storage.IIncomeProductRepo{
+	return NewIncomeProductRepo(s.pool)
+}

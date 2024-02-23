@@ -27,7 +27,11 @@ func (b *branchRepo) Create(ctx context.Context, branch models.CreateBranch) (st
 
 	id := uuid.New()
 
-	query := `insert into branch (id, name, address) values ($1, $2, $3)`
+	query := `insert into branch (
+		id, 
+		name, 
+		address) 
+		values ($1, $2, $3)`
 
 	_, err := b.pool.Exec(ctx, query,
 		id,
@@ -97,7 +101,7 @@ func (b *branchRepo) GetList(ctx context.Context, request models.GetListRequest)
 		countQuery += fmt.Sprintf(` and name ilike '%%%s%%' or address ilike '%%%s%%'`, search, search)
 	}
 	if err := b.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
-		fmt.Println("error is while selecting count", err.Error())
+		log.Println("error is while selecting count", err.Error())
 		return models.BranchsResponse{}, err
 	}
 
@@ -116,7 +120,7 @@ func (b *branchRepo) GetList(ctx context.Context, request models.GetListRequest)
 	query += ` LIMIT $1 OFFSET $2`
 	rows, err := b.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
-		fmt.Println("error is while selecting branch", err.Error())
+		log.Println("error is while selecting branch", err.Error())
 		return models.BranchsResponse{}, err
 	}
 

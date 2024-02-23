@@ -108,6 +108,22 @@ func New(store storage.IStorage) *gin.Engine {
 	r.POST("sell/", h.StartSell)
 	r.PUT("end_sell/:id", h.EndSale)
 
+	// INCOME
+
+	r.POST("income", h.CreateIncome)
+	r.GET("income/:id", h.GetIncomeByID)
+	r.GET("incomes", h.GetIncomesList)
+	r.PUT("income/:id", h.UpdateIncome)
+	r.DELETE("income/:id", h.DeleteIncome)
+
+	// INCOME PRODUCTS
+
+	r.POST("income_product", h.CreateIncomeProduct)
+	r.GET("income_product/:id", h.GetIncomeProductByID)
+	r.GET("income_products", h.GetIncomeProductsList)
+	r.PUT("income_product/:id", h.UpdateIncomeProduct)
+	r.DELETE("income_product/:id", h.DeleteIncomeProduct)
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return r
 }

@@ -20,7 +20,7 @@ type CreateProduct struct {
 }
 
 type UpdateProduct struct {
-	ID         string `json:"id"`
+	ID         string `json:"-"`
 	Name       string `json:"name"`
 	Price      string `json:"price"`
 	CategoryID string `json:"category_id"`

@@ -25,7 +25,7 @@ type CreateTransactions struct {
 }
 
 type UpdateTransactions struct {
-	ID              string  `json:"id"`
+	ID              string  `json:"-"`
 	SaleID          string  `json:"sale_id"`
 	StaffID         string  `json:"staff_id"`
 	TransactionType string  `json:"transaction_type"`

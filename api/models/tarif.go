@@ -21,7 +21,7 @@ type CreateTarif struct {
 }
 
 type UpdateTarif struct {
-	ID            string    `json:"id"`
+	ID            string    `json:"-"`
 	Name          string    `json:"name"`
 	TarifType     string    `json:"tarif_type"`
 	AmountForCash float64   `json:"amount_for_cash"`

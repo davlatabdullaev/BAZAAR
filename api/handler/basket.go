@@ -43,7 +43,7 @@ func (h Handler) CreateBasket(c *gin.Context) {
 
 		basketForProductID, err := h.storage.Basket().GetList(context.Background(), models.GetBasketsListRequest{
 			Page:   1,
-			Limit:  10,
+			Limit:  100,
 			Search: createBasket.ProductID,
 		})
 		if err != nil {
@@ -52,7 +52,7 @@ func (h Handler) CreateBasket(c *gin.Context) {
 
 		basketForSaleID, err := h.storage.Basket().GetList(context.Background(), models.GetBasketsListRequest{
 			Page:   1,
-			Limit:  10,
+			Limit:  100,
 			Search: createBasket.SaleID,
 		})
 		if err != nil {

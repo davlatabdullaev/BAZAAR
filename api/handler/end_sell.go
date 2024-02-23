@@ -224,6 +224,7 @@ func (h Handler) EndSale(c *gin.Context) {
 			}
 
 			reqToUpdate.UpdateShopAssistantBalance.StaffID = shopAssistantResponse.ID
+			
 			reqToUpdate.UpdateShopAssistantBalance.Amount = amount
 		}
 

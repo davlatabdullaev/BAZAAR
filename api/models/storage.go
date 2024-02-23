@@ -19,13 +19,18 @@ type CreateStorage struct {
 }
 
 type UpdateStorage struct {
-	ID        string    `json:"id"`
-	ProductID string    `json:"product_id"`
-	BranchID  string    `json:"branch_id"`
-	Count     int       `json:"count"`
+	ID        string `json:"-"`
+	ProductID string `json:"product_id"`
+	BranchID  string `json:"branch_id"`
+	Count     int    `json:"count"`
 }
 
 type StoragesResponse struct {
 	Storages []Storage `json:"storages"`
 	Count    int       `json:"count"`
+}
+
+type UpdateCount struct {
+	ID    string
+	Count int
 }

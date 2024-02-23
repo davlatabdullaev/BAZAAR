@@ -17,6 +17,8 @@ type IStorage interface {
 	Product() IProductRepo
 	Sale() ISaleRepo
 	Storage() IStorageRepo
+	Income() IIncomeRepo
+	IncomeProduct() IIncomeProductRepo
 }
 
 type ICategoryRepo interface {
@@ -100,5 +102,22 @@ type IStorageRepo interface {
 	Get(context.Context, models.PrimaryKey) (models.Storage, error)
 	GetList(context.Context, models.GetListRequest) (models.StoragesResponse, error)
 	Update(context.Context, models.UpdateStorage) (string, error)
+	Delete(context.Context, string) error
+	UpdateCount(context.Context, models.UpdateCount) error
+}
+
+type IIncomeRepo interface {
+	Create(context.Context, models.CreateIncome) (string, error)
+	Get(context.Context, models.PrimaryKey) (models.Income, error)
+	GetList(context.Context, models.GetListRequest) (models.IncomesResponse, error)
+	Update(context.Context, models.UpdateIncome) (string, error)
+	Delete(context.Context, string) error
+}
+
+type IIncomeProductRepo interface {
+	Create(context.Context, models.CreateIncomeProduct) (string, error)
+	Get(context.Context, models.PrimaryKey) (models.IncomeProduct, error)
+	GetList(context.Context, models.GetListRequest) (models.IncomeProductsResponse, error)
+	Update(context.Context, models.UpdateIncomeProduct) (string, error)
 	Delete(context.Context, string) error
 }

@@ -23,7 +23,7 @@ type CreateStorageTransaction struct {
 }
 
 type UpdateStorageTransaction struct {
-	ID                     string    `json:"id"`
+	ID                     string    `json:"-"`
 	StaffID                string    `json:"staff_id"`
 	ProductID              string    `json:"product_id"`
 	StorageTransactionType string    `json:"storage_transaction_type"`

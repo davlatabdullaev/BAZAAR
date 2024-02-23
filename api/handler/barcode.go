@@ -88,7 +88,7 @@ func (h Handler) Barcode(c *gin.Context) {
 
 	storage, err := h.storage.Storage().GetList(context.Background(), models.GetListRequest{
 		Page:  1,
-		Limit: 10,
+		Limit: 100,
 	})
 	if err != nil {
 		handleResponse(c, "error is while getting repo list", http.StatusInternalServerError, err.Error())

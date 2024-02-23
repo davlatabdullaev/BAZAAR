@@ -17,7 +17,7 @@ type CreateBranch struct {
 }
 
 type UpdateBranch struct {
-	ID        string    `json:"id"`
+	ID        string    `json:"-"`
 	Name      string    `json:"name"`
 	Address   string    `json:"address"`
 }
