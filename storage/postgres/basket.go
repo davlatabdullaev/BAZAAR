@@ -162,7 +162,7 @@ func (b *basketRepo) Update(ctx context.Context, request models.UpdateBasket) (s
 	quantity = $3,
 	price = $4,
 	updated_at = $5 
-   where id = $6 
+    where id = $6 
    `
 
 	_, err := b.pool.Exec(ctx, query,
@@ -183,8 +183,8 @@ func (b *basketRepo) Update(ctx context.Context, request models.UpdateBasket) (s
 func (b *basketRepo) Delete(ctx context.Context, id string) error {
 
 	query := `
-	update basket
-	 set deleted_at = $1
+	  update basket
+	  set deleted_at = $1
 	  where id = $2
 	`
 
@@ -203,10 +203,10 @@ func (b *basketRepo) Delete(ctx context.Context, id string) error {
 func (b *basketRepo) UpdateBasketQuantity(ctx context.Context, request models.UpdateBasketQuantity) (string, error) {
 
 	query := `update basket
-   set 
+    set 
     quantity = quantity + $1,
     updated_at = $2 
-   where id = $3 
+    where id = $3 
    `
 
 	_, err := b.pool.Exec(ctx, query,
