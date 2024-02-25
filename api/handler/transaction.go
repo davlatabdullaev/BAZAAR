@@ -29,12 +29,12 @@ func (h Handler) CreateTransaction(c *gin.Context) {
 	createTransaction := models.CreateTransactions{}
 
 	if err := c.ShouldBindJSON(&createTransaction); err != nil {
-		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
+		handleResponse(c, h.log, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
 	id, err := h.storage.Transaction().Create(context.Background(), createTransaction)
 	if err != nil {
-		handleResponse(c, "error while create transaction", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while create transaction", http.StatusInternalServerError, err)
 		return
 	}
 
@@ -42,11 +42,11 @@ func (h Handler) CreateTransaction(c *gin.Context) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(c, "error while get transaction", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while get transaction", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusCreated, transaction)
+	handleResponse(c, h.log, "", http.StatusCreated, transaction)
 
 }
 
@@ -69,7 +69,7 @@ func (h Handler) GetTransactionByID(c *gin.Context) {
 
 	id, err := uuid.Parse(uid)
 	if err != nil {
-		handleResponse(c, "invalid uuid type ", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "invalid uuid type ", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -77,11 +77,11 @@ func (h Handler) GetTransactionByID(c *gin.Context) {
 		ID: id.String(),
 	})
 	if err != nil {
-		handleResponse(c, "error while get transaction by id", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while get transaction by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, transaction)
+	handleResponse(c, h.log, "", http.StatusOK, transaction)
 
 }
 
@@ -112,28 +112,28 @@ func (h Handler) GetTransactionList(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "1")
 	page, err = strconv.Atoi(pageStr)
 	if err != nil {
-		handleResponse(c, "error while parsing page ", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while parsing page ", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	limitStr := c.DefaultQuery("limit", "10")
 	limit, err = strconv.Atoi(limitStr)
 	if err != nil {
-		handleResponse(c, "error while parsing limit", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while parsing limit", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	toAmountStr := c.DefaultQuery("to_amount", fmt.Sprintf("%f", math.MaxFloat64))
 	toAmount, err = strconv.ParseFloat(toAmountStr, 64)
 	if err != nil {
-		handleResponse(c, "error is while converting to amount", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error is while converting to amount", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	fromAmountStr := c.DefaultQuery("from-amount", "0")
 	fromAmount, err = strconv.ParseFloat(fromAmountStr, 64)
 	if err != nil {
-		handleResponse(c, "error is while converting from amount", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error is while converting from amount", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -145,11 +145,11 @@ func (h Handler) GetTransactionList(c *gin.Context) {
 	})
 
 	if err != nil {
-		handleResponse(c, "error while get transaction", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while get transaction", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, response)
+	handleResponse(c, h.log, "", http.StatusOK, response)
 
 }
 
@@ -171,20 +171,20 @@ func (h Handler) UpdateTransaction(c *gin.Context) {
 
 	uid := c.Param("id")
 	if uid == "" {
-		handleResponse(c, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
+		handleResponse(c, h.log, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
 		return
 	}
 
 	updateTransaction.ID = uid
 
 	if err := c.ShouldBindJSON(&updateTransaction); err != nil {
-		handleResponse(c, "error while reading body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while reading body", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	id, err := h.storage.Transaction().Update(context.Background(), updateTransaction)
 	if err != nil {
-		handleResponse(c, "error while updating transaction", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while updating transaction", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -192,11 +192,11 @@ func (h Handler) UpdateTransaction(c *gin.Context) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(c, "error while updating transaction", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while updating transaction", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, transaction)
+	handleResponse(c, h.log, "", http.StatusOK, transaction)
 
 }
 
@@ -217,15 +217,15 @@ func (h Handler) DeleteTransaction(c *gin.Context) {
 	uid := c.Param("id")
 	id, err := uuid.Parse(uid)
 	if err != nil {
-		handleResponse(c, "uuid is not valid", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "uuid is not valid", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := h.storage.Transaction().Delete(context.Background(), id.String()); err != nil {
-		handleResponse(c, "error while deleting by id", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while deleting by id", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, "data succesfully deleted")
+	handleResponse(c, h.log, "", http.StatusOK, "data succesfully deleted")
 
 }

@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"bazaar/api/models"
+	"bazaar/pkg/logger"
 	"bazaar/storage"
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,11 +15,13 @@ import (
 
 type storageTransactionRepo struct {
 	pool *pgxpool.Pool
+	log  logger.ILogger
 }
 
-func NewStorageTransactionRepo(pool *pgxpool.Pool) storage.IStorageTransactionRepo {
+func NewStorageTransactionRepo(pool *pgxpool.Pool, log logger.ILogger) storage.IStorageTransactionRepo {
 	return &storageTransactionRepo{
 		pool: pool,
+		log:  log,
 	}
 }
 
@@ -38,7 +40,7 @@ func (s *storageTransactionRepo) Create(ctx context.Context, request models.Crea
 		request.Quantity,
 	)
 	if err != nil {
-		log.Println("error while inserting storage transaction data", err.Error())
+		s.log.Error("error while inserting storage transaction data", logger.Error(err))
 		return "", err
 	}
 	return id.String(), nil
@@ -75,7 +77,7 @@ func (s *storageTransactionRepo) Get(ctx context.Context, id models.PrimaryKey) 
 	)
 
 	if err != nil {
-		log.Println("error while selecting storage transaction data", err.Error())
+		s.log.Error("error while selecting storage transaction data", logger.Error(err))
 		return models.StorageTransaction{}, err
 	}
 
@@ -104,7 +106,7 @@ func (s *storageTransactionRepo) GetList(ctx context.Context, request models.Get
 		countQuery += fmt.Sprintf(`and storage_transaction_type ilike '%%%s%%'`, search)
 	}
 	if err := s.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
-		fmt.Println("error is while selecting storage_transaction count", err.Error())
+		fmt.Println("error is while selecting storage_transaction count", logger.Error(err))
 		return models.StorageTransactionsResponse{}, err
 	}
 
@@ -127,7 +129,7 @@ func (s *storageTransactionRepo) GetList(ctx context.Context, request models.Get
 	query += ` LIMIT $1 OFFSET $2`
 	rows, err := s.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
-		fmt.Println("error is while selecting storage transaction", err.Error())
+		fmt.Println("error is while selecting storage transaction", logger.Error(err))
 		return models.StorageTransactionsResponse{}, err
 	}
 
@@ -143,7 +145,7 @@ func (s *storageTransactionRepo) GetList(ctx context.Context, request models.Get
 			&storageTransaction.CreatedAt,
 			&updatedAt,
 		); err != nil {
-			fmt.Println("error is while scanning storage transaction data", err.Error())
+			fmt.Println("error is while scanning storage transaction data", logger.Error(err))
 			return models.StorageTransactionsResponse{}, err
 		}
 
@@ -183,7 +185,7 @@ func (s *storageTransactionRepo) Update(ctx context.Context, request models.Upda
 		request.ID,
 	)
 	if err != nil {
-		log.Println("error while updating storage_transaction data...", err.Error())
+		s.log.Error("error while updating storage_transaction data...", logger.Error(err))
 		return "", err
 	}
 
@@ -200,7 +202,7 @@ func (s *storageTransactionRepo) Delete(ctx context.Context, id string) error {
 
 	_, err := s.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
-		log.Println("error while deleting storage_transaction by id", err.Error())
+		s.log.Error("error while deleting storage_transaction by id", logger.Error(err))
 		return err
 	}
 

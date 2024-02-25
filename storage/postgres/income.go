@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"bazaar/api/models"
+	"bazaar/pkg/logger"
 	"bazaar/storage"
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,11 +15,13 @@ import (
 
 type IncomeRepo struct {
 	pool *pgxpool.Pool
+	log  logger.ILogger
 }
 
-func NewIncomeRepo(pool *pgxpool.Pool) storage.IIncomeRepo {
+func NewIncomeRepo(pool *pgxpool.Pool, log logger.ILogger) storage.IIncomeRepo {
 	return &IncomeRepo{
 		pool: pool,
+		log:  log,
 	}
 }
 
@@ -39,7 +41,7 @@ func (i *IncomeRepo) Create(ctx context.Context, income models.CreateIncome) (st
 		income.Price,
 	)
 	if err != nil {
-		log.Println("error while inserting income", err.Error())
+		i.log.Error("error while inserting income", logger.Error(err))
 		return "", err
 	}
 
@@ -72,7 +74,7 @@ func (i *IncomeRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Inco
 	)
 
 	if err != nil {
-		log.Println("error while selecting income", err.Error())
+		i.log.Error("error while selecting income", logger.Error(err))
 		return models.Income{}, err
 	}
 
@@ -101,7 +103,7 @@ func (i *IncomeRepo) GetList(ctx context.Context, request models.GetListRequest)
 		countQuery += fmt.Sprintf(` and branch_id ilike '%%%s%%' or price ilike '%%%s%%'`, search, search)
 	}
 	if err := i.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
-		log.Println("error while selecting count", err.Error())
+		i.log.Error("error while selecting count", logger.Error(err))
 		return models.IncomesResponse{}, err
 	}
 
@@ -120,7 +122,7 @@ func (i *IncomeRepo) GetList(ctx context.Context, request models.GetListRequest)
 	query += `LIMIT $1 OFFSET $2`
 	rows, err := i.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
-		log.Println("error is while selecting income", err.Error())
+		i.log.Error("error is while selecting income", logger.Error(err))
 		return models.IncomesResponse{}, err
 	}
 
@@ -133,7 +135,7 @@ func (i *IncomeRepo) GetList(ctx context.Context, request models.GetListRequest)
 			&income.CreatedAt,
 			&updatedAt,
 		); err != nil {
-			log.Println("error while scanning income data", err.Error())
+			i.log.Error("error while scanning income data", logger.Error(err))
 			return models.IncomesResponse{}, err
 		}
 
@@ -168,7 +170,7 @@ func (i *IncomeRepo) Update(ctx context.Context, request models.UpdateIncome) (s
 		request.ID,
 	)
 	if err != nil {
-		log.Println("error while updating income data...", err.Error())
+		i.log.Error("error while updating income data...", logger.Error(err))
 		return "", err
 	}
 
@@ -185,7 +187,7 @@ func (i *IncomeRepo) Delete(ctx context.Context, id string) error {
 
 	_, err := i.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
-		log.Println("error while deleting income by id", err.Error())
+		i.log.Error("error while deleting income by id", logger.Error(err))
 		return err
 	}
 

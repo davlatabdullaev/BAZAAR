@@ -3,11 +3,11 @@ package postgres
 import (
 	"bazaar/api/models"
 	"bazaar/pkg/check"
+	"bazaar/pkg/logger"
 	"bazaar/storage"
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,11 +16,13 @@ import (
 
 type staffRepo struct {
 	pool *pgxpool.Pool
+	log  logger.ILogger
 }
 
-func NewStaffRepo(pool *pgxpool.Pool) storage.IStaffRepo {
+func NewStaffRepo(pool *pgxpool.Pool, log logger.ILogger) storage.IStaffRepo {
 	return &staffRepo{
 		pool: pool,
+		log:  log,
 	}
 }
 
@@ -55,7 +57,7 @@ func (s *staffRepo) Create(ctx context.Context, request models.CreateStaff) (str
 		request.Password,
 	)
 	if err != nil {
-		log.Println("error while inserting staff data", err.Error())
+		s.log.Error("error while inserting staff data", logger.Error(err))
 		return "", err
 	}
 
@@ -102,7 +104,7 @@ func (s *staffRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Staff
 	)
 
 	if err != nil {
-		log.Println("error while selecting staff data", err.Error())
+		s.log.Error("error while selecting staff data", logger.Error(err))
 		return models.Staff{}, err
 	}
 
@@ -130,7 +132,7 @@ func (s *staffRepo) GetList(ctx context.Context, request models.GetListRequest) 
 		countQuery += fmt.Sprintf(`and name ilike '%%%s%%' or login ilike '%%%s%%' `, search, search)
 	}
 	if err := s.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
-		fmt.Println("error is while selecting staff count", err.Error())
+		fmt.Println("error is while selecting staff count", logger.Error(err))
 		return models.StaffsResponse{}, err
 	}
 
@@ -156,7 +158,7 @@ func (s *staffRepo) GetList(ctx context.Context, request models.GetListRequest) 
 	query += ` LIMIT $1 OFFSET $2`
 	rows, err := s.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
-		fmt.Println("error is while selecting staff", err.Error())
+		fmt.Println("error is while selecting staff", logger.Error(err))
 		return models.StaffsResponse{}, err
 	}
 
@@ -177,7 +179,7 @@ func (s *staffRepo) GetList(ctx context.Context, request models.GetListRequest) 
 			&staff.CreatedAt,
 			&updatedAt,
 		); err != nil {
-			fmt.Println("error is while scanning staff data", err.Error())
+			fmt.Println("error is while scanning staff data", logger.Error(err))
 			return models.StaffsResponse{}, err
 		}
 
@@ -227,7 +229,7 @@ func (s *staffRepo) Update(ctx context.Context, request models.UpdateStaff) (str
 		request.ID,
 	)
 	if err != nil {
-		log.Println("error while updating staff data...", err.Error())
+		s.log.Error("error while updating staff data...", logger.Error(err))
 		return "", err
 	}
 	return request.ID, nil
@@ -243,7 +245,7 @@ func (s *staffRepo) Delete(ctx context.Context, id string) error {
 
 	_, err := s.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
-		log.Println("error while deleting staff by id", err.Error())
+		s.log.Error("error while deleting staff by id", logger.Error(err))
 		return err
 	}
 	return nil
@@ -263,7 +265,7 @@ func (s *staffRepo) UpdateStaffBalance(ctx context.Context, request models.Updat
 	_, err := s.pool.Exec(ctx, query, request.Balance, time.Now(), request.ID)
 
 	if err != nil {
-		log.Println("error while updating staff balance", err.Error())
+		s.log.Error("error while updating staff balance", logger.Error(err))
 		return err
 	}
 

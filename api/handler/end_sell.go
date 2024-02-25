@@ -34,7 +34,7 @@ func (h Handler) EndSale(c *gin.Context) {
 	request := models.SaleRequest{}
 
 	if err = c.ShouldBindJSON(&request); err != nil {
-		handleResponse(c, "error while reading body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while reading body", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -45,7 +45,7 @@ func (h Handler) EndSale(c *gin.Context) {
 	})
 
 	if err != nil {
-		handleResponse(c, "error while getting baskets list", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while getting baskets list", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -69,7 +69,7 @@ func (h Handler) EndSale(c *gin.Context) {
 		Status:     request.Status,
 	})
 	if err != nil {
-		handleResponse(c, "error while updating sale price and status by id", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while updating sale price and status by id", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -77,7 +77,7 @@ func (h Handler) EndSale(c *gin.Context) {
 		ID: saleID,
 	})
 	if err != nil {
-		handleResponse(c, "error while get sale by id", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while get sale by id", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -86,7 +86,7 @@ func (h Handler) EndSale(c *gin.Context) {
 		Limit: 100,
 	})
 	if err != nil {
-		handleResponse(c, "error while getting storages list", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while getting storages list", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -105,7 +105,7 @@ func (h Handler) EndSale(c *gin.Context) {
 			})
 
 			if err != nil {
-				handleResponse(c, "error while updating repositoryData prod quantities", http.StatusInternalServerError, err.Error())
+				handleResponse(c, h.log, "error while updating repositoryData prod quantities", http.StatusInternalServerError, err.Error())
 				return
 			}
 
@@ -117,7 +117,7 @@ func (h Handler) EndSale(c *gin.Context) {
 				Quantity:               float64(selectedProducts[value.ProductID].Quantity),
 			})
 			if err != nil {
-				handleResponse(c, "error while creating storage data", http.StatusInternalServerError, err.Error())
+				handleResponse(c, h.log, "error while creating storage data", http.StatusInternalServerError, err.Error())
 				return
 			}
 
@@ -129,7 +129,7 @@ func (h Handler) EndSale(c *gin.Context) {
 	})
 
 	if err != nil {
-		handleResponse(c, "error while getting sales list", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while getting sales list", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -140,7 +140,7 @@ func (h Handler) EndSale(c *gin.Context) {
 		})
 
 		if err != nil {
-			handleResponse(c, "error while get staff data", http.StatusInternalServerError, err.Error())
+			handleResponse(c, h.log, "error while get staff data", http.StatusInternalServerError, err.Error())
 			return
 		}
 
@@ -148,7 +148,7 @@ func (h Handler) EndSale(c *gin.Context) {
 			ID: cashierResponse.TarifID,
 		})
 		if err != nil {
-			handleResponse(c, "error while getting tarif by id", http.StatusInternalServerError, err.Error())
+			handleResponse(c, h.log, "error while getting tarif by id", http.StatusInternalServerError, err.Error())
 			return
 		}
 
@@ -157,7 +157,7 @@ func (h Handler) EndSale(c *gin.Context) {
 		})
 
 		if err != nil {
-			handleResponse(c, "error while get staff data", http.StatusInternalServerError, err.Error())
+			handleResponse(c, h.log, "error while get staff data", http.StatusInternalServerError, err.Error())
 			return
 		}
 
@@ -165,7 +165,7 @@ func (h Handler) EndSale(c *gin.Context) {
 			ID: shopAssistantResponse.TarifID,
 		})
 		if err != nil {
-			handleResponse(c, "error while getting tarif by id", http.StatusInternalServerError, err.Error())
+			handleResponse(c, h.log, "error while getting tarif by id", http.StatusInternalServerError, err.Error())
 			return
 		}
 
@@ -230,7 +230,7 @@ func (h Handler) EndSale(c *gin.Context) {
 
 		err = h.storage.Transaction().UpdateStaffBalanceAndCreateTransaction(context.Background(), reqToUpdate)
 		if err != nil {
-			handleResponse(c, "error while update cashoier balance", http.StatusInternalServerError, err.Error())
+			handleResponse(c, h.log, "error while update cashoier balance", http.StatusInternalServerError, err.Error())
 			return
 		}
 

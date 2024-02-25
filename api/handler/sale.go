@@ -27,12 +27,12 @@ func (h Handler) CreateSale(c *gin.Context) {
 	createSale := models.CreateSale{}
 
 	if err := c.ShouldBindJSON(&createSale); err != nil {
-		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
+		handleResponse(c, h.log, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
 	id, err := h.storage.Sale().Create(context.Background(), createSale)
 	if err != nil {
-		handleResponse(c, "error while creating sale", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while creating sale", http.StatusInternalServerError, err)
 		return
 	}
 
@@ -40,11 +40,11 @@ func (h Handler) CreateSale(c *gin.Context) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(c, "error while get sale", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while get sale", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusCreated, sale)
+	handleResponse(c, h.log, "", http.StatusCreated, sale)
 
 }
 
@@ -67,7 +67,7 @@ func (h Handler) GetSaleByID(c *gin.Context) {
 
 	id, err := uuid.Parse(uid)
 	if err != nil {
-		handleResponse(c, "invalid uuid type ", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "invalid uuid type ", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -75,11 +75,11 @@ func (h Handler) GetSaleByID(c *gin.Context) {
 		ID: id.String(),
 	})
 	if err != nil {
-		handleResponse(c, "error while get sale by id", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while get sale by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, sale)
+	handleResponse(c, h.log, "", http.StatusOK, sale)
 
 }
 
@@ -108,14 +108,14 @@ func (h Handler) GetSaleList(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "1")
 	page, err = strconv.Atoi(pageStr)
 	if err != nil {
-		handleResponse(c, "error while parsing page ", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while parsing page ", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	limitStr := c.DefaultQuery("limit", "10")
 	limit, err = strconv.Atoi(limitStr)
 	if err != nil {
-		handleResponse(c, "error while parsing limit", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while parsing limit", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -128,11 +128,11 @@ func (h Handler) GetSaleList(c *gin.Context) {
 	})
 
 	if err != nil {
-		handleResponse(c, "error while getting sale", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while getting sale", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, response)
+	handleResponse(c, h.log, "", http.StatusOK, response)
 
 }
 
@@ -154,20 +154,20 @@ func (h Handler) UpdateSale(c *gin.Context) {
 
 	uid := c.Param("id")
 	if uid == "" {
-		handleResponse(c, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
+		handleResponse(c, h.log, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
 		return
 	}
 
 	updateSale.ID = uid
 
 	if err := c.ShouldBindJSON(&updateSale); err != nil {
-		handleResponse(c, "error while reading body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while reading body", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	id, err := h.storage.Sale().Update(context.Background(), updateSale)
 	if err != nil {
-		handleResponse(c, "error while updating sale", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while updating sale", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -175,11 +175,11 @@ func (h Handler) UpdateSale(c *gin.Context) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(c, "error while get sale by id", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while get sale by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, sale)
+	handleResponse(c, h.log, "", http.StatusOK, sale)
 
 }
 
@@ -200,15 +200,15 @@ func (h Handler) DeleteSale(c *gin.Context) {
 	uid := c.Param("id")
 	id, err := uuid.Parse(uid)
 	if err != nil {
-		handleResponse(c, "uuid is not valid", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "uuid is not valid", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := h.storage.Sale().Delete(context.Background(), id.String()); err != nil {
-		handleResponse(c, "error while deleting sale by id", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while deleting sale by id", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, "data succesfully deleted")
+	handleResponse(c, h.log, "", http.StatusOK, "data succesfully deleted")
 
 }

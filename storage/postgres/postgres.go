@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"bazaar/config"
+	"bazaar/pkg/logger"
 	"bazaar/storage"
 	"context"
 	"fmt"
@@ -18,9 +19,10 @@ import (
 
 type Store struct {
 	pool *pgxpool.Pool
+	log  logger.ILogger
 }
 
-func New(ctx context.Context, cfg config.Config) (storage.IStorage, error) {
+func New(ctx context.Context, cfg config.Config, log logger.ILogger) (storage.IStorage, error) {
 	url := fmt.Sprintf(
 		`postgres://%s:%s@%s:%s/%s?sslmode=disable`,
 		cfg.PostgresUser,
@@ -32,7 +34,7 @@ func New(ctx context.Context, cfg config.Config) (storage.IStorage, error) {
 
 	poolConfig, err := pgxpool.ParseConfig(url)
 	if err != nil {
-		fmt.Println("error while parsing config", err.Error())
+		log.Error("error while parsing config", logger.Error(err))
 		return nil, err
 	}
 
@@ -40,14 +42,14 @@ func New(ctx context.Context, cfg config.Config) (storage.IStorage, error) {
 
 	pool, err := pgxpool.NewWithConfig(ctx, poolConfig)
 	if err != nil {
-		fmt.Println("error while connecting to db", err.Error())
+		log.Error("error while connecting to db", logger.Error(err))
 		return nil, err
 	}
 
 	// migration
 	m, err := migrate.New("file://migrations/postgres/", url)
 	if err != nil {
-		fmt.Println("error while migrating", err.Error())
+		log.Error("error while migrating", logger.Error(err))
 		return nil, err
 	}
 
@@ -57,24 +59,23 @@ func New(ctx context.Context, cfg config.Config) (storage.IStorage, error) {
 			fmt.Println("in !strings")
 			version, dirty, err := m.Version()
 			if err != nil {
-				fmt.Println("err in checking version and dirty", err.Error())
+				log.Error("error in checking version and dirty", logger.Error(err))
 				return nil, err
 			}
 
 			if dirty {
 				version--
 				if err = m.Force(int(version)); err != nil {
-					fmt.Println("ERR in making force", err.Error())
+					log.Error("error in making force", logger.Error(err))
 					return nil, err
 				}
 			}
-			fmt.Println("ERROR in migrating", err.Error())
-			return nil, err
 		}
 	}
 
 	return Store{
 		pool: pool,
+		log:  log,
 	}, nil
 
 }
@@ -84,49 +85,49 @@ func (s Store) CloseDB() {
 }
 
 func (s Store) Category() storage.ICategoryRepo {
-	return NewCategoryRepo(s.pool)
+	return NewCategoryRepo(s.pool, s.log)
 }
 
 func (s Store) Staff() storage.IStaffRepo {
-	return NewStaffRepo(s.pool)
+	return NewStaffRepo(s.pool, s.log)
 }
 
 func (s Store) StorageTransaction() storage.IStorageTransactionRepo {
-	return NewStorageTransactionRepo(s.pool)
+	return NewStorageTransactionRepo(s.pool, s.log)
 }
 
 func (s Store) Tarif() storage.ITarifRepo {
-	return NewTarifRepo(s.pool)
+	return NewTarifRepo(s.pool, s.log)
 }
 
 func (s Store) Transaction() storage.ITransactionRepo {
-	return NewTransactionRepo(s.pool)
+	return NewTransactionRepo(s.pool, s.log)
 }
 
 func (s Store) Basket() storage.IBasketRepo {
-	return NewBasketRepo(s.pool)
+	return NewBasketRepo(s.pool, s.log)
 }
 
 func (s Store) Branch() storage.IBranchRepo {
-	return NewBranchRepo(s.pool)
+	return NewBranchRepo(s.pool, s.log)
 }
 
 func (s Store) Product() storage.IProductRepo {
-	return NewProductRepo(s.pool)
+	return NewProductRepo(s.pool, s.log)
 }
 
 func (s Store) Sale() storage.ISaleRepo {
-	return NewSaleRepo(s.pool)
+	return NewSaleRepo(s.pool, s.log)
 }
 
 func (s Store) Storage() storage.IStorageRepo {
-	return NewStorageRepo(s.pool)
+	return NewStorageRepo(s.pool, s.log)
 }
 
 func (s Store) Income() storage.IIncomeRepo {
-	return NewIncomeRepo(s.pool)
+	return NewIncomeRepo(s.pool, s.log)
 }
 
-func (s Store) IncomeProduct() storage.IIncomeProductRepo{
-	return NewIncomeProductRepo(s.pool)
+func (s Store) IncomeProduct() storage.IIncomeProductRepo {
+	return NewIncomeProductRepo(s.pool, s.log)
 }

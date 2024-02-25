@@ -27,7 +27,7 @@ func (h Handler) CreateIncomeProduct(c *gin.Context) {
 	createIncomeProduct := models.CreateIncomeProduct{}
 
 	if err := c.ShouldBindJSON(&createIncomeProduct); err != nil {
-		handleResponse(c, "error while reading income product body from client", http.StatusBadRequest, err)
+		handleResponse(c, h.log, "error while reading income product body from client", http.StatusBadRequest, err)
 		return
 	}
 
@@ -35,7 +35,7 @@ func (h Handler) CreateIncomeProduct(c *gin.Context) {
 		ID: createIncomeProduct.IncomeID,
 	})
 	if err != nil {
-		handleResponse(c, "error while search income for create income product", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while search income for create income product", http.StatusInternalServerError, err)
 		return
 	}
 
@@ -45,7 +45,7 @@ func (h Handler) CreateIncomeProduct(c *gin.Context) {
 		Search: createIncomeProduct.ProductID,
 	})
 	if err != nil {
-		handleResponse(c, "error while search storage for create income product", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while search storage for create income product", http.StatusInternalServerError, err)
 		return
 	}
 
@@ -55,7 +55,7 @@ func (h Handler) CreateIncomeProduct(c *gin.Context) {
 		Search: incomeData.BranchID,
 	})
 	if err != nil {
-		handleResponse(c, "error while search storage for create income product", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while search storage for create income product", http.StatusInternalServerError, err)
 		return
 	}
 
@@ -65,14 +65,14 @@ func (h Handler) CreateIncomeProduct(c *gin.Context) {
 			ID:    storageDataForBranch.Storages[0].ID,
 			Count: createIncomeProduct.Count,
 		}); err != nil {
-			handleResponse(c, "error while update storage count", http.StatusInternalServerError, err)
+			handleResponse(c, h.log, "error while update storage count", http.StatusInternalServerError, err)
 			return
 		}
 
 	} else {
 		id, err := h.storage.IncomeProduct().Create(context.Background(), createIncomeProduct)
 		if err != nil {
-			handleResponse(c, "error while creating income product", http.StatusInternalServerError, err)
+			handleResponse(c, h.log, "error while creating income product", http.StatusInternalServerError, err)
 			return
 		}
 
@@ -80,11 +80,11 @@ func (h Handler) CreateIncomeProduct(c *gin.Context) {
 			ID: id,
 		})
 		if err != nil {
-			handleResponse(c, "error while get income product", http.StatusInternalServerError, err)
+			handleResponse(c, h.log, "error while get income product", http.StatusInternalServerError, err)
 			return
 		}
 
-		handleResponse(c, "", http.StatusCreated, incomeProduct)
+		handleResponse(c, h.log, "", http.StatusCreated, incomeProduct)
 	}
 }
 
@@ -108,7 +108,7 @@ func (h Handler) GetIncomeProductByID(c *gin.Context) {
 
 	id, err := uuid.Parse(uid)
 	if err != nil {
-		handleResponse(c, "invalid uuid type ", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "invalid uuid type ", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -116,11 +116,11 @@ func (h Handler) GetIncomeProductByID(c *gin.Context) {
 		ID: id.String(),
 	})
 	if err != nil {
-		handleResponse(c, "error while get income product by id", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while get income product by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, incomeProduct)
+	handleResponse(c, h.log, "", http.StatusOK, incomeProduct)
 
 }
 
@@ -149,14 +149,14 @@ func (h Handler) GetIncomeProductsList(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "1")
 	page, err = strconv.Atoi(pageStr)
 	if err != nil {
-		handleResponse(c, "error while parsing page ", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while parsing page ", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	limitStr := c.DefaultQuery("limit", "10")
 	limit, err = strconv.Atoi(limitStr)
 	if err != nil {
-		handleResponse(c, "error while parsing limit", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while parsing limit", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -169,11 +169,11 @@ func (h Handler) GetIncomeProductsList(c *gin.Context) {
 	})
 
 	if err != nil {
-		handleResponse(c, "error while getting income product", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while getting income product", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, response)
+	handleResponse(c, h.log, "", http.StatusOK, response)
 
 }
 
@@ -195,20 +195,20 @@ func (h Handler) UpdateIncomeProduct(c *gin.Context) {
 
 	uid := c.Param("id")
 	if uid == "" {
-		handleResponse(c, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
+		handleResponse(c, h.log, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
 		return
 	}
 
 	updateIncomeProduct.ID = uid
 
 	if err := c.ShouldBindJSON(&updateIncomeProduct); err != nil {
-		handleResponse(c, "error while reading income products body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while reading income products body", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	id, err := h.storage.IncomeProduct().Update(context.Background(), updateIncomeProduct)
 	if err != nil {
-		handleResponse(c, "error while updating income product", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while updating income product", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -216,11 +216,11 @@ func (h Handler) UpdateIncomeProduct(c *gin.Context) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(c, "error while getting income by id", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while getting income by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, incomeProduct)
+	handleResponse(c, h.log, "", http.StatusOK, incomeProduct)
 
 }
 
@@ -241,15 +241,15 @@ func (h Handler) DeleteIncomeProduct(c *gin.Context) {
 	uid := c.Param("id")
 	id, err := uuid.Parse(uid)
 	if err != nil {
-		handleResponse(c, "uuid is not valid", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "uuid is not valid", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := h.storage.IncomeProduct().Delete(context.Background(), id.String()); err != nil {
-		handleResponse(c, "error while deleting income product by id", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while deleting income product by id", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, "data succesfully deleted")
+	handleResponse(c, h.log, "", http.StatusOK, "data succesfully deleted")
 
 }

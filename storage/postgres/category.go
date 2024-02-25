@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"bazaar/api/models"
+	"bazaar/pkg/logger"
 	"bazaar/storage"
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,11 +15,13 @@ import (
 
 type categoryRepo struct {
 	pool *pgxpool.Pool
+	log  logger.ILogger
 }
 
-func NewCategoryRepo(pool *pgxpool.Pool) storage.ICategoryRepo {
+func NewCategoryRepo(pool *pgxpool.Pool, log logger.ILogger) storage.ICategoryRepo {
 	return &categoryRepo{
 		pool: pool,
+		log:  log,
 	}
 }
 
@@ -35,7 +37,7 @@ func (c *categoryRepo) Create(ctx context.Context, category models.CreateCategor
 		category.ParentID,
 	)
 	if err != nil {
-		log.Println("error while inserting category", err.Error())
+		c.log.Error("error while inserting category", logger.Error(err))
 		return "", err
 	}
 
@@ -64,7 +66,7 @@ func (c *categoryRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Ca
 	)
 
 	if err != nil {
-		log.Println("error while selecting category", err.Error())
+		c.log.Error("error while selecting category", logger.Error(err))
 		return models.Category{}, err
 	}
 
@@ -92,7 +94,7 @@ func (c *categoryRepo) GetList(ctx context.Context, request models.GetListReques
 		countQuery += fmt.Sprintf(` and name ilike '%%%s%%'`, search)
 	}
 	if err := c.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
-		fmt.Println("error is while selecting count", err.Error())
+		fmt.Println("error is while selecting count", logger.Error(err))
 		return models.CategoriesResponse{}, err
 	}
 
@@ -105,7 +107,7 @@ func (c *categoryRepo) GetList(ctx context.Context, request models.GetListReques
 	query += ` LIMIT $1 OFFSET $2`
 	rows, err := c.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
-		fmt.Println("error is while selecting category", err.Error())
+		fmt.Println("error is while selecting category", logger.Error(err))
 		return models.CategoriesResponse{}, err
 	}
 
@@ -118,7 +120,7 @@ func (c *categoryRepo) GetList(ctx context.Context, request models.GetListReques
 			&parentID,
 			&category.CreatedAt,
 			&updatedAt); err != nil {
-			fmt.Println("error is while scanning category data", err.Error())
+			fmt.Println("error is while scanning category data", logger.Error(err))
 			return models.CategoriesResponse{}, err
 		}
 
@@ -155,7 +157,7 @@ func (c *categoryRepo) Update(ctx context.Context, request models.UpdateCategory
 		time.Now(),
 		request.ID)
 	if err != nil {
-		log.Println("error while updating category data...", err.Error())
+		c.log.Error("error while updating category data...", logger.Error(err))
 		return "", err
 	}
 
@@ -172,7 +174,7 @@ func (c *categoryRepo) Delete(ctx context.Context, id string) error {
 
 	_, err := c.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
-		log.Println("error while deleting category by id", err.Error())
+		c.log.Error("error while deleting category by id", logger.Error(err))
 		return err
 	}
 	return nil

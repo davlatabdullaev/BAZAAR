@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"bazaar/api/models"
+	"bazaar/pkg/logger"
 	"bazaar/storage"
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 
@@ -16,11 +16,13 @@ import (
 
 type transactionRepo struct {
 	pool *pgxpool.Pool
+	log  logger.ILogger
 }
 
-func NewTransactionRepo(pool *pgxpool.Pool) storage.ITransactionRepo {
+func NewTransactionRepo(pool *pgxpool.Pool, log logger.ILogger) storage.ITransactionRepo {
 	return &transactionRepo{
 		pool: pool,
+		log:  log,
 	}
 }
 
@@ -49,7 +51,7 @@ func (t *transactionRepo) Create(ctx context.Context, request models.CreateTrans
 		request.Description,
 	)
 	if err != nil {
-		log.Println("error while inserting transaction data", err.Error())
+		t.log.Error("error while inserting transaction data", logger.Error(err))
 		return "", err
 	}
 
@@ -90,7 +92,7 @@ func (t *transactionRepo) Get(ctx context.Context, id models.PrimaryKey) (models
 	)
 
 	if err != nil {
-		log.Println("error while selecting transaction data", err.Error())
+		t.log.Error("error while selecting transaction data", logger.Error(err))
 		return models.Transactions{}, err
 	}
 
@@ -123,7 +125,7 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListTra
 
 	}
 	if err := t.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
-		fmt.Println("error is while scanning row", err.Error())
+		fmt.Println("error is while scanning row", logger.Error(err))
 		return models.TransactionsResponse{}, err
 	}
 
@@ -151,7 +153,7 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListTra
 
 	rows, err := t.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
-		fmt.Println("error is while selecting all transaction", err.Error())
+		fmt.Println("error is while selecting all transaction", logger.Error(err))
 		return models.TransactionsResponse{}, err
 	}
 
@@ -168,7 +170,7 @@ func (t *transactionRepo) GetList(ctx context.Context, request models.GetListTra
 			&transaction.CreatedAt,
 			&updatedAt,
 		); err != nil {
-			fmt.Println("error is while scanning rows", err.Error())
+			fmt.Println("error is while scanning rows", logger.Error(err))
 			return models.TransactionsResponse{}, err
 		}
 
@@ -208,7 +210,7 @@ func (t *transactionRepo) Update(ctx context.Context, request models.UpdateTrans
 		request.ID,
 	)
 	if err != nil {
-		log.Println("error while updating transaction data...", err.Error())
+		t.log.Error("error while updating transaction data...", logger.Error(err))
 		return "", err
 	}
 	return request.ID, nil
@@ -224,7 +226,7 @@ func (t *transactionRepo) Delete(ctx context.Context, id string) error {
 
 	_, err := t.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
-		log.Println("error while deleting transaction by id", err.Error())
+		t.log.Error("error while deleting transaction by id", logger.Error(err))
 		return err
 	}
 
@@ -252,7 +254,7 @@ func (t *transactionRepo) UpdateStaffBalanceAndCreateTransaction(ctx context.Con
 
 	_, err = transaction.Exec(ctx, queryForUpdateStaffBalance, request.UpdateCashierBalance.Amount, time.Now(), request.UpdateCashierBalance.StaffID)
 	if err != nil {
-		log.Println("error while update staff balance")
+		t.log.Error("error while update staff balance")
 		return err
 	}
 
@@ -277,7 +279,7 @@ func (t *transactionRepo) UpdateStaffBalanceAndCreateTransaction(ctx context.Con
 		request.Description,
 	)
 	if err != nil {
-		log.Println("error while creating transaction data", err.Error())
+		t.log.Error("error while creating transaction data", logger.Error(err))
 		return err
 	}
 
@@ -290,7 +292,7 @@ func (t *transactionRepo) UpdateStaffBalanceAndCreateTransaction(ctx context.Con
 
 		_, err = transaction.Exec(ctx, queryForUpdateStaffBalance, request.UpdateShopAssistantBalance.Amount, time.Now(), request.UpdateShopAssistantBalance.StaffID)
 		if err != nil {
-			log.Println("error while update staff balance")
+			t.log.Error("error while update staff balance")
 			return err
 		}
 
@@ -315,7 +317,7 @@ func (t *transactionRepo) UpdateStaffBalanceAndCreateTransaction(ctx context.Con
 			request.Description,
 		)
 		if err != nil {
-			log.Println("error while creating transaction data", err.Error())
+			t.log.Error("error while creating transaction data", logger.Error(err))
 			return err
 		}
 

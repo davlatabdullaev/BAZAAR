@@ -27,12 +27,12 @@ func (h Handler) CreateStorage(c *gin.Context) {
 	createStorage := models.CreateStorage{}
 
 	if err := c.ShouldBindJSON(&createStorage); err != nil {
-		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
+		handleResponse(c, h.log, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
 	id, err := h.storage.Storage().Create(context.Background(), createStorage)
 	if err != nil {
-		handleResponse(c, "error while creating storage", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while creating storage", http.StatusInternalServerError, err)
 		return
 	}
 
@@ -40,11 +40,11 @@ func (h Handler) CreateStorage(c *gin.Context) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(c, "error while get storage", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while get storage", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusCreated, storage)
+	handleResponse(c, h.log, "", http.StatusCreated, storage)
 
 }
 
@@ -67,7 +67,7 @@ func (h Handler) GetStorageByID(c *gin.Context) {
 
 	id, err := uuid.Parse(uid)
 	if err != nil {
-		handleResponse(c, "invalid uuid type ", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "invalid uuid type ", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -75,11 +75,11 @@ func (h Handler) GetStorageByID(c *gin.Context) {
 		ID: id.String(),
 	})
 	if err != nil {
-		handleResponse(c, "error while get storage by id", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while get storage by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, storage)
+	handleResponse(c, h.log, "", http.StatusOK, storage)
 
 }
 
@@ -108,14 +108,14 @@ func (h Handler) GetStorageList(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "1")
 	page, err = strconv.Atoi(pageStr)
 	if err != nil {
-		handleResponse(c, "error while parsing page ", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while parsing page ", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	limitStr := c.DefaultQuery("limit", "10")
 	limit, err = strconv.Atoi(limitStr)
 	if err != nil {
-		handleResponse(c, "error while parsing limit", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while parsing limit", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -128,11 +128,11 @@ func (h Handler) GetStorageList(c *gin.Context) {
 	})
 
 	if err != nil {
-		handleResponse(c, "error while getting storage", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while getting storage", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, response)
+	handleResponse(c, h.log, "", http.StatusOK, response)
 
 }
 
@@ -154,13 +154,13 @@ func (h Handler) UpdateStorage(c *gin.Context) {
 
 	uid := c.Param("id")
 	if uid == "" {
-		handleResponse(c, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
+		handleResponse(c, h.log, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
 		return
 	}
 
 
 	if err := c.ShouldBindJSON(&updateStorage); err != nil {
-		handleResponse(c, "error while reading body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while reading body", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -169,7 +169,7 @@ func (h Handler) UpdateStorage(c *gin.Context) {
 
 	id, err := h.storage.Storage().Update(context.Background(), updateStorage)
 	if err != nil {
-		handleResponse(c, "error while reading body", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while reading body", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -177,11 +177,11 @@ func (h Handler) UpdateStorage(c *gin.Context) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(c, "error while getting storage by id", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while getting storage by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, storage)
+	handleResponse(c, h.log, "", http.StatusOK, storage)
 
 }
 
@@ -202,15 +202,15 @@ func (h Handler) DeleteStorage(c *gin.Context) {
 	uid := c.Param("id")
 	id, err := uuid.Parse(uid)
 	if err != nil {
-		handleResponse(c, "uuid is not valid", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "uuid is not valid", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := h.storage.Storage().Delete(context.Background(), id.String()); err != nil {
-		handleResponse(c, "error while deleting storage by id", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while deleting storage by id", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, "data succesfully deleted")
+	handleResponse(c, h.log, "", http.StatusOK, "data succesfully deleted")
 
 }

@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"bazaar/api/models"
+	"bazaar/pkg/logger"
 	"bazaar/storage"
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,11 +15,13 @@ import (
 
 type branchRepo struct {
 	pool *pgxpool.Pool
+	log  logger.ILogger
 }
 
-func NewBranchRepo(pool *pgxpool.Pool) storage.IBranchRepo {
+func NewBranchRepo(pool *pgxpool.Pool, log logger.ILogger) storage.IBranchRepo {
 	return &branchRepo{
 		pool: pool,
+		log:  log,
 	}
 }
 
@@ -39,7 +41,7 @@ func (b *branchRepo) Create(ctx context.Context, branch models.CreateBranch) (st
 		branch.Address,
 	)
 	if err != nil {
-		log.Println("error while inserting branch", err.Error())
+		b.log.Error("error while inserting branch", logger.Error(err))
 		return "", err
 	}
 
@@ -71,7 +73,7 @@ func (b *branchRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Bran
 	)
 
 	if err != nil {
-		log.Println("error while selecting branch", err.Error())
+		b.log.Error("error while selecting branch", logger.Error(err))
 		return models.Branch{}, err
 	}
 
@@ -101,7 +103,7 @@ func (b *branchRepo) GetList(ctx context.Context, request models.GetListRequest)
 		countQuery += fmt.Sprintf(` and name ilike '%%%s%%' or address ilike '%%%s%%'`, search, search)
 	}
 	if err := b.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
-		log.Println("error is while selecting count", err.Error())
+		b.log.Error("error is while selecting count", logger.Error(err))
 		return models.BranchsResponse{}, err
 	}
 
@@ -120,7 +122,7 @@ func (b *branchRepo) GetList(ctx context.Context, request models.GetListRequest)
 	query += ` LIMIT $1 OFFSET $2`
 	rows, err := b.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
-		log.Println("error is while selecting branch", err.Error())
+		b.log.Error("error is while selecting branch", logger.Error(err))
 		return models.BranchsResponse{}, err
 	}
 
@@ -133,7 +135,7 @@ func (b *branchRepo) GetList(ctx context.Context, request models.GetListRequest)
 			&branch.CreatedAt,
 			&updatedAt,
 		); err != nil {
-			fmt.Println("error is while scanning branch data", err.Error())
+			fmt.Println("error is while scanning branch data", logger.Error(err))
 			return models.BranchsResponse{}, err
 		}
 
@@ -166,7 +168,7 @@ func (b *branchRepo) Update(ctx context.Context, request models.UpdateBranch) (s
 		time.Now(),
 		request.ID)
 	if err != nil {
-		log.Println("error while updating branch data...", err.Error())
+		b.log.Error("error while updating branch data...", logger.Error(err))
 		return "", err
 	}
 
@@ -183,7 +185,7 @@ func (b *branchRepo) Delete(ctx context.Context, id string) error {
 
 	_, err := b.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
-		log.Println("error while deleting branch by id", err.Error())
+		b.log.Error("error while deleting branch by id", logger.Error(err))
 		return err
 	}
 	return nil

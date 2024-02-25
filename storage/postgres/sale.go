@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"bazaar/api/models"
+	"bazaar/pkg/logger"
 	"bazaar/storage"
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,11 +15,13 @@ import (
 
 type saleRepo struct {
 	pool *pgxpool.Pool
+	log  logger.ILogger
 }
 
-func NewSaleRepo(pool *pgxpool.Pool) storage.ISaleRepo {
+func NewSaleRepo(pool *pgxpool.Pool, log logger.ILogger) storage.ISaleRepo {
 	return &saleRepo{
 		pool: pool,
+		log:  log,
 	}
 }
 
@@ -40,7 +42,7 @@ func (s *saleRepo) Create(ctx context.Context, sale models.CreateSale) (string, 
 		sale.ClientName,
 	)
 	if err != nil {
-		log.Println("error while inserting sale", err.Error())
+		s.log.Error("error while inserting sale", logger.Error(err))
 		return "", err
 	}
 
@@ -69,7 +71,7 @@ func (s *saleRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Sale, 
 	)
 
 	if err != nil {
-		log.Println("error while selecting sale", err.Error())
+		s.log.Error("error while selecting sale", logger.Error(err))
 		return models.Sale{}, err
 	}
 
@@ -98,7 +100,7 @@ func (s *saleRepo) GetList(ctx context.Context, request models.GetListRequest) (
 		countQuery += fmt.Sprintf(` and status ilike '%%%s%%' or payment_type ilike '%%%s%%'`, search, search)
 	}
 	if err := s.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
-		fmt.Println("error is while selecting count", err.Error())
+		fmt.Println("error is while selecting count", logger.Error(err))
 		return models.SalesResponse{}, err
 	}
 
@@ -121,7 +123,7 @@ func (s *saleRepo) GetList(ctx context.Context, request models.GetListRequest) (
 	query += ` LIMIT $1 OFFSET $2`
 	rows, err := s.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
-		fmt.Println("error is while selecting product", err.Error())
+		fmt.Println("error is while selecting product", logger.Error(err))
 		return models.SalesResponse{}, err
 	}
 
@@ -139,7 +141,7 @@ func (s *saleRepo) GetList(ctx context.Context, request models.GetListRequest) (
 			&sale.CreatedAt,
 			&updatedAt,
 		); err != nil {
-			fmt.Println("error is while scanning sale data", err.Error())
+			fmt.Println("error is while scanning sale data", logger.Error(err))
 			return models.SalesResponse{}, err
 		}
 
@@ -182,7 +184,7 @@ func (s *saleRepo) Update(ctx context.Context, request models.UpdateSale) (strin
 		request.ID,
 	)
 	if err != nil {
-		log.Println("error while updating sale data...", err.Error())
+		s.log.Error("error while updating sale data...", logger.Error(err))
 		return "", err
 	}
 	return request.ID, nil
@@ -196,7 +198,7 @@ func (s *saleRepo) Delete(ctx context.Context, id string) error {
 
 	_, err := s.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
-		log.Println("error while deleting sale by id", err.Error())
+		s.log.Error("error while deleting sale by id", logger.Error(err))
 		return err
 	}
 
@@ -213,10 +215,10 @@ func (s *saleRepo) UpdateSalePrice(ctx context.Context, request models.SaleReque
 
 	if rowsAffected, err := s.pool.Exec(ctx, query, request.TotalPrice, request.Status, time.Now(), request.ID); err != nil {
 		if r := rowsAffected.RowsAffected(); r == 0 {
-			log.Println("error in rows affected ", err.Error())
+			s.log.Error("error in rows affected ", logger.Error(err))
 			return "", err
 		}
-		log.Println("error while updating sale price and status...", err.Error())
+		s.log.Error("error while updating sale price and status...", logger.Error(err))
 		return "", err
 	}
 	return request.ID, nil

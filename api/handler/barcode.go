@@ -23,7 +23,7 @@ import (
 func (h Handler) Barcode(c *gin.Context) {
 	info := models.Barcode{}
 	if err := c.ShouldBindJSON(&info); err != nil {
-		handleResponse(c, "error is while reading body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error is while reading body", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -31,17 +31,17 @@ func (h Handler) Barcode(c *gin.Context) {
 		ID: info.SaleID,
 	})
 	if err != nil {
-		handleResponse(c, "error is getting sale by id", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error is getting sale by id", http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	if sale.Status == "success" {
-		handleResponse(c, "sale ended", 300, "sale ended cannot add product")
+		handleResponse(c, h.log, "sale ended", 300, "sale ended cannot add product")
 		return
 	}
 
 	if sale.Status == "cancel" {
-		handleResponse(c, "sale canceled", 300, "sale canceled cannot add product")
+		handleResponse(c, h.log, "sale canceled", 300, "sale canceled cannot add product")
 		return
 	}
 
@@ -52,7 +52,7 @@ func (h Handler) Barcode(c *gin.Context) {
 	})
 
 	if err != nil {
-		handleResponse(c, "error is while getting product list by barcode", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error is while getting product list by barcode", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -71,7 +71,7 @@ func (h Handler) Barcode(c *gin.Context) {
 		Search: info.SaleID,
 	})
 	if err != nil {
-		handleResponse(c, "error is while getting basket list", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error is while getting basket list", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -91,20 +91,20 @@ func (h Handler) Barcode(c *gin.Context) {
 		Limit: 100,
 	})
 	if err != nil {
-		handleResponse(c, "error is while getting repo list", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error is while getting repo list", http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	for _, r := range storage.Storages {
 		if prodID == basketsMap[r.ProductID].ProductID {
 			if r.Count < (basketsMap[r.ProductID].Quantity + info.Count) {
-				handleResponse(c, "not enough product", 301, "not enough product")
+				handleResponse(c, h.log, "not enough product", 301, "not enough product")
 				return
 			}
 		}
 
 		if r.Count < info.Count {
-			handleResponse(c, "not enough product", 300, "not enough product")
+			handleResponse(c, h.log, "not enough product", 300, "not enough product")
 			return
 		}
 	}
@@ -122,15 +122,15 @@ func (h Handler) Barcode(c *gin.Context) {
 				Price:     value.Price + float64(totalPrice),
 			})
 			if err != nil {
-				handleResponse(c, "error is while updating basket", 500, err.Error())
+				handleResponse(c, h.log, "error is while updating basket", 500, err.Error())
 				return
 			}
 			updatedBasket, err := h.storage.Basket().Get(context.Background(), models.PrimaryKey{ID: id})
 			if err != nil {
-				handleResponse(c, "error is while getting basket", 500, err.Error())
+				handleResponse(c, h.log, "error is while getting basket", 500, err.Error())
 				return
 			}
-			handleResponse(c, "updated", http.StatusOK, updatedBasket)
+			handleResponse(c, h.log, "updated", http.StatusOK, updatedBasket)
 		}
 	}
 
@@ -142,15 +142,15 @@ func (h Handler) Barcode(c *gin.Context) {
 			Price:     float64(totalPrice),
 		})
 		if err != nil {
-			handleResponse(c, "error is while creating basket", 500, err.Error())
+			handleResponse(c, h.log, "error is while creating basket", 500, err.Error())
 			return
 		}
 		createdBasket, err := h.storage.Basket().Get(context.Background(), models.PrimaryKey{ID: id})
 		if err != nil {
-			handleResponse(c, "error is while getting basket", 500, err.Error())
+			handleResponse(c, h.log, "error is while getting basket", 500, err.Error())
 			return
 		}
-		handleResponse(c, "updated", http.StatusOK, createdBasket)
+		handleResponse(c, h.log, "updated", http.StatusOK, createdBasket)
 	}
 }
 

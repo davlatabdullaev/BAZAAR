@@ -27,7 +27,7 @@ func (h Handler) CreateBasket(c *gin.Context) {
 	createBasket := models.CreateBasket{}
 
 	if err := c.ShouldBindJSON(&createBasket); err != nil {
-		handleResponse(c, "error while reading body from client", http.StatusBadRequest, err)
+		handleResponse(c, h.log, "error while reading body from client", http.StatusBadRequest, err)
 	}
 
 	storage, err := h.storage.Storage().GetList(context.Background(), models.GetListRequest{
@@ -36,7 +36,7 @@ func (h Handler) CreateBasket(c *gin.Context) {
 		Search: createBasket.ProductID,
 	})
 	if err != nil {
-		handleResponse(c, "error while searching product in storage", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while searching product in storage", http.StatusInternalServerError, err)
 	}
 
 	if createBasket.Quantity <= storage.Storages[0].Count {
@@ -47,7 +47,7 @@ func (h Handler) CreateBasket(c *gin.Context) {
 			Search: createBasket.ProductID,
 		})
 		if err != nil {
-			handleResponse(c, "error while searching selected basket", http.StatusInternalServerError, "error searching selected basket")
+			handleResponse(c, h.log, "error while searching selected basket", http.StatusInternalServerError, "error searching selected basket")
 		}
 
 		basketForSaleID, err := h.storage.Basket().GetList(context.Background(), models.GetBasketsListRequest{
@@ -56,7 +56,7 @@ func (h Handler) CreateBasket(c *gin.Context) {
 			Search: createBasket.SaleID,
 		})
 		if err != nil {
-			handleResponse(c, "error while searching selected basket", http.StatusInternalServerError, "error searching selected basket")
+			handleResponse(c, h.log, "error while searching selected basket", http.StatusInternalServerError, "error searching selected basket")
 		}
 
 		var foundProduct, foundSale bool
@@ -85,7 +85,7 @@ func (h Handler) CreateBasket(c *gin.Context) {
 		} else {
 			id, err := h.storage.Basket().Create(context.Background(), createBasket)
 			if err != nil {
-				handleResponse(c, "error while creating basket", http.StatusInternalServerError, err)
+				handleResponse(c, h.log, "error while creating basket", http.StatusInternalServerError, err)
 				return
 			}
 
@@ -93,15 +93,15 @@ func (h Handler) CreateBasket(c *gin.Context) {
 				ID: id,
 			})
 			if err != nil {
-				handleResponse(c, "error while get basket ", http.StatusInternalServerError, err)
+				handleResponse(c, h.log, "error while get basket ", http.StatusInternalServerError, err)
 				return
 			}
 
-			handleResponse(c, "", http.StatusCreated, basket)
+			handleResponse(c, h.log, "", http.StatusCreated, basket)
 		}
 
 	} else {
-		handleResponse(c, "", http.StatusOK, "the number of products is not enough")
+		handleResponse(c, h.log, "", http.StatusOK, "the number of products is not enough")
 	}
 
 }
@@ -126,7 +126,7 @@ func (h Handler) GetBasketByID(c *gin.Context) {
 
 	id, err := uuid.Parse(uid)
 	if err != nil {
-		handleResponse(c, "invalid uuid type ", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "invalid uuid type ", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -134,11 +134,11 @@ func (h Handler) GetBasketByID(c *gin.Context) {
 		ID: id.String(),
 	})
 	if err != nil {
-		handleResponse(c, "error while get basket by id", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while get basket by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, basket)
+	handleResponse(c, h.log, "", http.StatusOK, basket)
 
 }
 
@@ -167,14 +167,14 @@ func (h Handler) GetBasketList(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "1")
 	page, err = strconv.Atoi(pageStr)
 	if err != nil {
-		handleResponse(c, "error while parsing page ", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while parsing page ", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	limitStr := c.DefaultQuery("limit", "10")
 	limit, err = strconv.Atoi(limitStr)
 	if err != nil {
-		handleResponse(c, "error while parsing limit", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while parsing limit", http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -187,11 +187,11 @@ func (h Handler) GetBasketList(c *gin.Context) {
 	})
 
 	if err != nil {
-		handleResponse(c, "error while getting basket", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while getting basket", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, response)
+	handleResponse(c, h.log, "", http.StatusOK, response)
 
 }
 
@@ -213,20 +213,20 @@ func (h Handler) UpdateBasket(c *gin.Context) {
 
 	uid := c.Param("id")
 	if uid == "" {
-		handleResponse(c, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
+		handleResponse(c, h.log, "invalid uuid", http.StatusBadRequest, errors.New("uuid is not valid"))
 		return
 	}
 
 	updateBasket.ID = uid
 
 	if err := c.ShouldBindJSON(&updateBasket); err != nil {
-		handleResponse(c, "error while reading body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error while reading body", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	id, err := h.storage.Basket().Update(context.Background(), updateBasket)
 	if err != nil {
-		handleResponse(c, "error while updating basket", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while updating basket", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -234,11 +234,11 @@ func (h Handler) UpdateBasket(c *gin.Context) {
 		ID: id,
 	})
 	if err != nil {
-		handleResponse(c, "error while getting basket by id", http.StatusInternalServerError, err)
+		handleResponse(c, h.log, "error while getting basket by id", http.StatusInternalServerError, err)
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, basket)
+	handleResponse(c, h.log, "", http.StatusOK, basket)
 
 }
 
@@ -259,15 +259,15 @@ func (h Handler) DeleteBasket(c *gin.Context) {
 	uid := c.Param("id")
 	id, err := uuid.Parse(uid)
 	if err != nil {
-		handleResponse(c, "uuid is not valid", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "uuid is not valid", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := h.storage.Basket().Delete(context.Background(), id.String()); err != nil {
-		handleResponse(c, "error while deleting basket by id", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error while deleting basket by id", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, "", http.StatusOK, "data succesfully deleted")
+	handleResponse(c, h.log, "", http.StatusOK, "data succesfully deleted")
 
 }

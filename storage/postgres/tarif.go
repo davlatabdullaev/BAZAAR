@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"bazaar/api/models"
+	"bazaar/pkg/logger"
 	"bazaar/storage"
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,11 +15,13 @@ import (
 
 type tarifRepo struct {
 	pool *pgxpool.Pool
+	log  logger.ILogger
 }
 
-func NewTarifRepo(pool *pgxpool.Pool) storage.ITarifRepo {
+func NewTarifRepo(pool *pgxpool.Pool, log logger.ILogger) storage.ITarifRepo {
 	return &tarifRepo{
 		pool: pool,
+		log:  log,
 	}
 }
 
@@ -40,7 +42,7 @@ func (t *tarifRepo) Create(ctx context.Context, request models.CreateTarif) (str
 		request.AmountForCard,
 	)
 	if err != nil {
-		log.Println("error while inserting tarif data", err.Error())
+		t.log.Error("error while inserting tarif data", logger.Error(err))
 		return "", err
 	}
 
@@ -77,7 +79,7 @@ func (t *tarifRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Tarif
 	)
 
 	if err != nil {
-		log.Println("error while selecting tarif data", err.Error())
+		t.log.Error("error while selecting tarif data", logger.Error(err))
 		return models.Tarif{}, err
 	}
 
@@ -107,7 +109,7 @@ func (t *tarifRepo) GetList(ctx context.Context, request models.GetListRequest) 
 		countQuery += fmt.Sprintf(`and name ilike '%%%s%%'`, search)
 	}
 	if err := t.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
-		fmt.Println("error is while selecting tarif count", err.Error())
+		fmt.Println("error is while selecting tarif count", logger.Error(err))
 		return models.TarifsResponse{}, err
 	}
 
@@ -129,7 +131,7 @@ func (t *tarifRepo) GetList(ctx context.Context, request models.GetListRequest) 
 	query += ` LIMIT $1 OFFSET $2`
 	rows, err := t.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
-		fmt.Println("error is while selecting tarif", err.Error())
+		fmt.Println("error is while selecting tarif", logger.Error(err))
 		return models.TarifsResponse{}, err
 	}
 
@@ -144,7 +146,7 @@ func (t *tarifRepo) GetList(ctx context.Context, request models.GetListRequest) 
 			&tarif.CreatedAt,
 			&updatedAt,
 		); err != nil {
-			fmt.Println("error is while scanning tarif data", err.Error())
+			fmt.Println("error is while scanning tarif data", logger.Error(err))
 			return models.TarifsResponse{}, err
 		}
 
@@ -178,7 +180,7 @@ func (t *tarifRepo) Update(ctx context.Context, request models.UpdateTarif) (str
 		request.ID,
 	)
 	if err != nil {
-		log.Println("error while updating tarif data...", err.Error())
+		t.log.Error("error while updating tarif data...", logger.Error(err))
 		return "", err
 	}
 	return request.ID, nil
@@ -194,7 +196,7 @@ func (t *tarifRepo) Delete(ctx context.Context, id string) error {
 
 	_, err := t.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
-		log.Println("error while deleting tarif by id", err.Error())
+		t.log.Error("error while deleting tarif by id", logger.Error(err))
 		return err
 	}
 

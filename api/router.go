@@ -3,7 +3,12 @@ package api
 import (
 	_ "bazaar/api/docs"
 	"bazaar/api/handler"
+	"bazaar/pkg/logger"
 	"bazaar/storage"
+	"fmt"
+	"log"
+	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"     // swagger embed files
@@ -13,11 +18,16 @@ import (
 // @title           BAZAAR
 // @version         1.0
 // @description     An API for a store called BAZAAR
-func New(store storage.IStorage) *gin.Engine {
+func New(store storage.IStorage, log logger.ILogger) *gin.Engine {
 
-	h := handler.New(store)
+	h := handler.New(store, log)
 
 	r := gin.New()
+
+	//r.Use(gin.Logger()) default middleware
+
+	//r.Use(authenticateMiddleware)
+	r.Use(traceRequest)
 
 	//BARCODE
 
@@ -126,4 +136,46 @@ func New(store storage.IStorage) *gin.Engine {
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return r
+}
+
+// func authenticateMiddleware(c *gin.Context) {
+// 	auth := c.GetHeader("Authorization")
+// 	if auth == "" {
+// 		c.AbortWithStatus(http.StatusUnauthorized)
+// 	} else {
+// 		c.Next()
+// 	}
+// }
+
+func traceRequest(c *gin.Context) {
+
+	beforeRequest(c)
+
+	c.Next()
+
+	afterRequest(c)
+
+}
+
+func beforeRequest(c *gin.Context) {
+
+	startTime := time.Now()
+
+	c.Set("start_time", startTime)
+
+	log.Println("start time:", startTime.Format("2006-01-02 15:04:05.0000"), "path", c.Request.URL.String())
+
+}
+
+func afterRequest(c *gin.Context) {
+
+	startTime, exists := c.Get("start_time")
+	if !exists {
+		startTime = time.Now()
+	}
+
+	duration := time.Since(startTime.(time.Time)).Seconds()
+
+	log.Println("end time:", time.Now().Format("2006-01-02 15:04:05.0000"), "duration:", duration, "method:", c.Request.Method)
+	fmt.Println()
 }

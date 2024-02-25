@@ -24,13 +24,13 @@ func (h Handler) StartSell(c *gin.Context) {
 	sell := models.CreateSale{}
 
 	if err := c.ShouldBindJSON(&sell); err != nil {
-		handleResponse(c, "error is while reading body", http.StatusBadRequest, err.Error())
+		handleResponse(c, h.log, "error is while reading body", http.StatusBadRequest, err.Error())
 		return
 	}
 
 	saleID, err := h.storage.Sale().Create(context.Background(), sell)
 	if err != nil {
-		handleResponse(c, "error is while creating sale", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error is while creating sale", http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -38,9 +38,9 @@ func (h Handler) StartSell(c *gin.Context) {
 		ID: saleID,
 	})
 	if err != nil {
-		handleResponse(c, "error is while getting sale by id", http.StatusInternalServerError, err.Error())
+		handleResponse(c, h.log, "error is while getting sale by id", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, "success", http.StatusOK, sale)
+	handleResponse(c, h.log, "success", http.StatusOK, sale)
 }

@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"bazaar/api/models"
+	"bazaar/pkg/logger"
 	"bazaar/storage"
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,11 +15,13 @@ import (
 
 type productRepo struct {
 	pool *pgxpool.Pool
+	log  logger.ILogger
 }
 
-func NewProductRepo(pool *pgxpool.Pool) storage.IProductRepo {
+func NewProductRepo(pool *pgxpool.Pool, log logger.ILogger) storage.IProductRepo {
 	return &productRepo{
 		pool: pool,
+		log:  log,
 	}
 }
 
@@ -36,7 +38,7 @@ func (p *productRepo) Create(ctx context.Context, product models.CreateProduct) 
 		product.CategoryID,
 	)
 	if err != nil {
-		log.Println("error while inserting product", err.Error())
+		p.log.Error("error while inserting product", logger.Error(err))
 		return "", err
 	}
 
@@ -69,7 +71,7 @@ func (p *productRepo) Get(ctx context.Context, id models.PrimaryKey) (models.Pro
 	)
 
 	if err != nil {
-		log.Println("error while selecting product", err.Error())
+		p.log.Error("error while selecting product", logger.Error(err))
 		return models.Product{}, err
 	}
 
@@ -98,7 +100,7 @@ func (p *productRepo) GetList(ctx context.Context, request models.ProductGetList
 		countQuery += fmt.Sprintf(`and name ilike '%%%s%%' or barcode ilike '%%%s%%'`, search, search)
 	}
 	if err := p.pool.QueryRow(ctx, countQuery).Scan(&count); err != nil {
-		fmt.Println("error is while selecting count", err.Error())
+		fmt.Println("error is while selecting count", logger.Error(err))
 		return models.ProductsResponse{}, err
 	}
 
@@ -118,7 +120,7 @@ func (p *productRepo) GetList(ctx context.Context, request models.ProductGetList
 	query += ` LIMIT $1 OFFSET $2`
 	rows, err := p.pool.Query(ctx, query, request.Limit, offset)
 	if err != nil {
-		fmt.Println("error is while selecting product", err.Error())
+		fmt.Println("error is while selecting product", logger.Error(err))
 		return models.ProductsResponse{}, err
 	}
 
@@ -133,7 +135,7 @@ func (p *productRepo) GetList(ctx context.Context, request models.ProductGetList
 			&product.CreatedAt,
 			&updatedAt,
 		); err != nil {
-			fmt.Println("error is while scanning product data", err.Error())
+			fmt.Println("error is while scanning product data", logger.Error(err))
 			return models.ProductsResponse{}, err
 		}
 
@@ -169,7 +171,7 @@ func (p *productRepo) Update(ctx context.Context, request models.UpdateProduct) 
 		time.Now(),
 		request.ID)
 	if err != nil {
-		log.Println("error while updating product data...", err.Error())
+		p.log.Error("error while updating product data...", logger.Error(err))
 		return "", err
 	}
 	return request.ID, nil
@@ -185,7 +187,7 @@ func (p *productRepo) Delete(ctx context.Context, id string) error {
 
 	_, err := p.pool.Exec(ctx, query, time.Now(), id)
 	if err != nil {
-		log.Println("error while deleting product by id", err.Error())
+		p.log.Error("error while deleting product by id", logger.Error(err))
 		return err
 	}
 
