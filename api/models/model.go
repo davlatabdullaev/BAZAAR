@@ -9,4 +9,3 @@ type GetListRequest struct {
 type PrimaryKey struct {
 	ID string `json:"id"`
 }
-

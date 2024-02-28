@@ -54,7 +54,7 @@ func (h Handler) EndSale(c *gin.Context) {
 	for _, basket := range baskets.Baskets {
 		totalPrice += basket.Price
 		selectedProducts[basket.ProductID] = basket
-		
+
 	}
 	fmt.Println(totalPrice)
 
@@ -224,7 +224,7 @@ func (h Handler) EndSale(c *gin.Context) {
 			}
 
 			reqToUpdate.UpdateShopAssistantBalance.StaffID = shopAssistantResponse.ID
-			
+
 			reqToUpdate.UpdateShopAssistantBalance.Amount = amount
 		}
 
@@ -236,4 +236,3 @@ func (h Handler) EndSale(c *gin.Context) {
 
 	}
 }
-

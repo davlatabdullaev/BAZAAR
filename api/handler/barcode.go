@@ -1,9 +1,9 @@
 package handler
 
 import (
+	"bazaar/api/models"
 	"context"
 	"net/http"
-	"bazaar/api/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -153,7 +153,6 @@ func (h Handler) Barcode(c *gin.Context) {
 		handleResponse(c, h.log, "updated", http.StatusOK, createdBasket)
 	}
 }
-
 
 /*
 

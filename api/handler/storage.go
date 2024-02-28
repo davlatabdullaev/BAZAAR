@@ -158,12 +158,10 @@ func (h Handler) UpdateStorage(c *gin.Context) {
 		return
 	}
 
-
 	if err := c.ShouldBindJSON(&updateStorage); err != nil {
 		handleResponse(c, h.log, "error while reading body", http.StatusBadRequest, err.Error())
 		return
 	}
-
 
 	updateStorage.ID = uid
 
